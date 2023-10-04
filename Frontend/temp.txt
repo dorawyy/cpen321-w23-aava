@@ -1,1 +1,1 @@
-Make Android Studio Project Inside this Folder
+Make Android Studio Project Inside this Folder.

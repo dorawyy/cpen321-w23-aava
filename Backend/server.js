@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 
-const db = require('./Database/dbSetup.js');
+const db = require('./database/dbSetup.js');
 
 
 app.use(express.json());

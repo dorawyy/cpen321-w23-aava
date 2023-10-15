@@ -4,4 +4,4 @@ class GameRoom {
     }
 }
 
-export default GameRoom;
+module.exports = GameRoom;

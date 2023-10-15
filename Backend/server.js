@@ -12,6 +12,7 @@ const server = app.listen(8081, async () => {
     
     if (await db.connect()){
         gameManager.updateCategories();
+        // gameManager.generateQuestions()
     };
 });
 

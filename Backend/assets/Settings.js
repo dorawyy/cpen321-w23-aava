@@ -2,16 +2,16 @@
 // Description: Class that represents a room's settings. This class is used to store the settings of a room. 
 
 class Settings {
-    constructor(isPublic, questionCategories, questionDifficulties, maxPlayers, questionTime, numberQuestions) {
-        this.roomIsPublic = isPublic
-        this.questionCategories = questionCategories
-        this.questionDifficulties = questionDifficulties
-        this.maxPlayers = maxPlayers
-        this.questionTime = questionTime
-        this.numberQuestions = numberQuestions
+    constructor(isPublic, categories, difficulty, maxPlayers, time, total) {
+        this.roomIsPublic = isPublic;
+        this.questionCategories = categories;
+        this.questionDifficulty = difficulty;
+        this.maxPlayers = maxPlayers;
+        this.questionTime = time;
+        this.totalQuestions = total;
     }
 
     
 }
 
-export default Settings;
+module.exports = Settings;

@@ -1,5 +1,8 @@
+/**
+ * This class defines what a user is.
+ */
 class User {
-  constructor(token, username, rank) {
+  constructor(token, username, totalPoints) {
     /**
      * The unique token that identifies this user.
      * Persists across sessions.
@@ -12,10 +15,18 @@ class User {
     this.username = username;
 
     /**
-     * Representation of user’s skill level based on the
-     * total amount of points won across all past games played.
+     * The total amount of points won by this user across all
+     * past games played.
      */
-    this.rank = rank;
+    this.totalPoints = totalPoints;
+  }
+
+  /**
+   * Increases the user's total points by `points`, which must be
+   * a non-negative integer greater than zero.
+   */
+  increaseTotalPoints(points) {
+    this.totalPoints += points;
   }
 }
 

@@ -5,11 +5,13 @@ const client = new MongoClient(uri);
 async function connect () {
     try {
         await client.connect();
-        console.log("Successfully connected to the database");  
+        console.log("Successfully connected to the database");
+        return true;  
     }
     catch (err) {
         console.log(err);
         await client.close();
+        return false;
     }
 }
 

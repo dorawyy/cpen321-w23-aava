@@ -1,13 +1,18 @@
 const express = require('express');
 const app = express();
-
 const db = require('./database/dbSetup.js');
+const GameManager = require('./assets/GameManager.js');
+
+let gameManager = new GameManager();
 
 
 app.use(express.json());
-const server = app.listen(8081, () => {
+const server = app.listen(8081, async () => {
     console.log('Server is running on port http://%s:%s', server.address().address, server.address().port);
-    db.connect();
+    
+    if (await db.connect()){
+        gameManager.updateCategories();
+    };
 });
 
 /*

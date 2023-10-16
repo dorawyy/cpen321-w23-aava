@@ -1,3 +1,8 @@
+/**
+ * A Player is a user that is currently participating in a game.
+ * This class should be instantiated each time a user enters a
+ * new game.
+ */
 class Player {
   constructor(user) {
     /**

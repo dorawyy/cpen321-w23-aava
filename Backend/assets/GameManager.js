@@ -20,10 +20,10 @@ class GameManager {
     }
 
 
-    generateQuestions(roomCode){
-        // For actuall game
-        // const room = this.roomCodeToGameRoom.get(roomCode);
-        // const settings = room.settings;
+  generateQuestions(roomCode) {
+    // For actuall game
+    // const room = this.roomCodeToGameRoom.get(roomCode);
+    // const settings = room.settings;
 
         // For testing
         const settings = new Settings(true, ["Science: Gadgets"], "hard", 2, 10, 7);
@@ -85,15 +85,12 @@ class GameManager {
         return this.possibleCategoires;
     }
 
-    // Purpose: gets a list of all the difficulties
-    // Parameters: None
-    // Returns: Array of strings of all the difficulties
-    fetchDifficulties() {
-        return this.possibleDifficulties;
-    }
-
-    
-
+  // Purpose: gets a list of all the difficulties
+  // Parameters: None
+  // Returns: Array of strings of all the difficulties
+  fetchDifficulties() {
+    return this.possibleDifficulties;
+  }
 }
 
 module.exports = GameManager;

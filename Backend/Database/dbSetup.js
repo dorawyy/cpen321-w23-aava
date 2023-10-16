@@ -1,18 +1,24 @@
-const { MongoClient } = require('mongodb');
+const { MongoClient } = require("mongodb");
 const uri = "mongodb://0.0.0.0:27017";
-const client = new MongoClient(uri);
+const databaseName = "CPEN_321_DATABASE";
 
-async function connect () {
-    try {
-        await client.connect();
-        console.log("Successfully connected to the database");
-        return true;  
-    }
-    catch (err) {
-        console.log(err);
-        await client.close();
-        return false;
-    }
+const client = new MongoClient(uri);
+const db = client.db(databaseName);
+
+/**
+ * Attempts to connect to the database.
+ * Returns true if successful, otherwise returns false.
+ */
+async function connect() {
+  try {
+    await client.connect();
+    console.log("Successfully connected to the database");
+    return true;
+  } catch (err) {
+    console.log(err);
+    await client.close();
+    return false;
+  }
 }
 
 module.exports = { connect };

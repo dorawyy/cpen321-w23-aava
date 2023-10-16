@@ -7,17 +7,6 @@
     android:background="@drawable/background">
 
     <ImageView
-        android:id="@+id/game_midground_hex"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@tools:sample/avatars"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@drawable/midground_hex" />
-
-    <ImageView
         android:id="@+id/imageView6"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -30,77 +19,273 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:srcCompat="@drawable/title" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center_vertical"
-        android:orientation="vertical"
+    <ImageView
+        android:id="@+id/game_midground_hex"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@tools:sample/avatars"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@drawable/midground_hex" />
 
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/quantico_bold"
-            android:text="Q1"
-            android:textAlignment="center"
-            android:textColor="#FFFFFF"
-            android:textSize="25dp" />
-
-        <TextView
-            android:id="@+id/textView6"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/quantico_regular"
-            android:text="What is 9+10?"
-            android:textAlignment="center"
-            android:textColor="#FFFFFF"
-            android:textSize="20dp" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <LinearLayout
+            android:id="@+id/game_question_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="50dp"
-            android:layout_marginRight="50dp"
-            android:divider="@drawable/game_answer_divider"
+            android:layout_height="500dp"
+            android:layout_centerInParent="true"
+            android:gravity="center_vertical"
             android:orientation="vertical"
-            android:showDividers="middle">
+            android:layout_marginBottom="-20dp">
 
-            <ImageView
-                android:id="@+id/imageView2"
+            <TextView
+                android:id="@+id/textView2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:adjustViewBounds="true"
-                android:src="@tools:sample/avatars"
-                app:srcCompat="@drawable/answer_red" />
+                android:fontFamily="@font/quantico_bolditalic"
+                android:text="Q1"
+                android:textAlignment="center"
+                android:textColor="#FFFFFF"
+                android:textSize="30dp"/>
 
-            <ImageView
-                android:id="@+id/imageView3"
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginStart="50dp"
+                android:layout_marginEnd="50dp"
+                android:lineSpacingMultiplier="0.75"
+                android:fontFamily="@font/quantico_regular"
+                android:text="What is 9+10? *vine boom sound effect* sheeeeeeeeesh ooga booga no cap on god ong"
+                android:gravity="center"
+                android:textColor="#FFFFFF"
+                android:textSize="18dp"/>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:adjustViewBounds="true"
-                android:src="@tools:sample/avatars"
-                app:srcCompat="@drawable/answer_green" />
+                android:layout_marginLeft="50dp"
+                android:layout_marginRight="50dp"
+                android:divider="@drawable/game_answer_divider"
+                android:orientation="vertical"
+                android:showDividers="middle">
 
-            <ImageView
-                android:id="@+id/imageView4"
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+
+                    <ImageView
+                        android:id="@+id/score_answer_image1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:src="@tools:sample/avatars"
+                        app:srcCompat="@drawable/answer_red" />
+
+                    <TextView
+                        android:id="@+id/score_answer_text1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignStart="@+id/score_answer_image1"
+                        android:layout_alignTop="@+id/score_answer_image1"
+                        android:layout_alignEnd="@+id/score_answer_image1"
+                        android:layout_alignBottom="@+id/score_answer_image1"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginEnd="20dp"
+                        android:layout_marginBottom="5dp"
+                        android:fontFamily="@font/quantico_regular"
+                        android:gravity="center"
+                        android:lineSpacingMultiplier="0.75"
+                        android:text="ANswer 1? Or is it? *vsauce music starts playing*"
+                        android:textColor="@color/white"
+                        android:textSize="15dp" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+
+                    <ImageView
+                        android:id="@+id/score_answer_image2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:src="@tools:sample/avatars"
+                        app:srcCompat="@drawable/answer_green" />
+
+                    <TextView
+                        android:id="@+id/score_answer_text2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignStart="@+id/score_answer_image2"
+                        android:layout_alignTop="@+id/score_answer_image2"
+                        android:layout_alignEnd="@+id/score_answer_image2"
+                        android:layout_alignBottom="@+id/score_answer_image2"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginEnd="20dp"
+                        android:layout_marginBottom="5dp"
+                        android:fontFamily="@font/quantico_regular"
+                        android:gravity="center"
+                        android:lineSpacingMultiplier="0.75"
+                        android:text="ANswer 1? Or is it? *vsauce music starts playing*"
+                        android:textColor="@color/white"
+                        android:textSize="15dp" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+
+                    <ImageView
+                        android:id="@+id/score_answer_image3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:src="@tools:sample/avatars"
+                        app:srcCompat="@drawable/answer_blue" />
+
+                    <TextView
+                        android:id="@+id/score_answer_text3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignStart="@+id/score_answer_image3"
+                        android:layout_alignTop="@+id/score_answer_image3"
+                        android:layout_alignEnd="@+id/score_answer_image3"
+                        android:layout_alignBottom="@+id/score_answer_image3"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginEnd="20dp"
+                        android:layout_marginBottom="5dp"
+                        android:fontFamily="@font/quantico_regular"
+                        android:gravity="center"
+                        android:lineSpacingMultiplier="0.75"
+                        android:text="ANswer 1? Or is it? *vsauce music starts playing*"
+                        android:textColor="@color/white"
+                        android:textSize="15dp" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+
+                    <ImageView
+                        android:id="@+id/score_answer_image4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:src="@tools:sample/avatars"
+                        app:srcCompat="@drawable/answer_yellow" />
+
+                    <TextView
+                        android:id="@+id/score_answer_text4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignStart="@+id/score_answer_image4"
+                        android:layout_alignTop="@+id/score_answer_image4"
+                        android:layout_alignEnd="@+id/score_answer_image4"
+                        android:layout_alignBottom="@+id/score_answer_image4"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginEnd="20dp"
+                        android:layout_marginBottom="5dp"
+                        android:fontFamily="@font/quantico_regular"
+                        android:gravity="center"
+                        android:lineSpacingMultiplier="0.75"
+                        android:text="ANswer 1? Or is it? *vsauce music starts playing*"
+                        android:textColor="@color/white"
+                        android:textSize="15dp" />
+                </RelativeLayout>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/game_timer_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:adjustViewBounds="true"
-                android:src="@tools:sample/avatars"
-                app:srcCompat="@drawable/answer_blue" />
-
-            <ImageView
-                android:id="@+id/imageView5"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:adjustViewBounds="true"
-                android:src="@tools:sample/avatars"
-                app:srcCompat="@drawable/answer_yellow" />
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/quantico_regular"
+                android:text="3.2"
+                android:textAlignment="center"
+                android:textColor="#FFFFFF"
+                android:textSize="25dp"/>
         </LinearLayout>
 
-    </LinearLayout>
+        <LinearLayout
+            android:id="@+id/game_scoreboard_layout"
+            android:layout_width="match_parent"
+            android:layout_height="500dp"
+            android:layout_centerInParent="true"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:layout_marginBottom="-20dp"
+            android:visibility="invisible">
+
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_below="@id/game_question_layout"
+            android:layout_marginTop="-25dp">
+
+            <ImageView
+                android:id="@+id/game_powerup_image3"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="86dp"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/powerup_on" />
+
+            <ImageView
+                android:id="@+id/game_powerup_image2"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:scaleType="fitXY"
+                android:layout_toStartOf="@+id/game_powerup_image3"
+                android:layout_alignTop="@+id/game_powerup_image3"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="-42dp"
+                app:srcCompat="@drawable/powerup_on" />
+
+            <ImageView
+                android:id="@+id/game_powerup_image1"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:scaleType="fitXY"
+                android:layout_toStartOf="@+id/game_powerup_image2"
+                android:layout_alignTop="@+id/game_powerup_image2"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="-42dp"
+                app:srcCompat="@drawable/powerup_on" />
+
+            <ImageView
+                android:id="@+id/game_powerup_image4"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:scaleType="fitXY"
+                android:layout_toEndOf="@+id/game_powerup_image3"
+                android:layout_alignTop="@+id/game_powerup_image3"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="-42dp"
+                app:srcCompat="@drawable/powerup_on" />
+
+            <ImageView
+                android:id="@+id/game_powerup_image5"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:scaleType="fitXY"
+                android:layout_toEndOf="@+id/game_powerup_image4"
+                android:layout_alignTop="@+id/game_powerup_image4"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="-42dp"
+                app:srcCompat="@drawable/powerup_on" />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

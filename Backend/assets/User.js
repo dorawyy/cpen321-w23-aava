@@ -20,14 +20,6 @@ class User {
      */
     this.totalPoints = totalPoints;
   }
-
-  /**
-   * Increases the user's total points by `points`, which must be
-   * a non-negative integer greater than zero.
-   */
-  increaseTotalPoints(points) {
-    this.totalPoints += points;
-  }
 }
 
 export default User;

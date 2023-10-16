@@ -2,33 +2,23 @@ const axios = require('axios');
 const GameRoom = require('./GameRoom.js');
 const Question = require('./Question.js');
 const Settings = require('./Settings.js');
+const QuestionGenerator = require('./QuestionGenerator.js');
 
 class GameManager {
     constructor() {
         this.roomCodeToGameRoom = new Map();
-        this.possibleCategoires = {};
+        this.possibleCategories = [];
         this.possibleDifficulties = ["easy", "medium", "hard"];
+        this.questionGenerator = new QuestionGenerator();
     }
 
-    // Purpose: Calls API to get a list of all its categories and makes a map of the category name to its id, saves that as local variable
+    // Purpose: Gets a Category to Category ID map
     // Parameters: None
     // Returns: None
     updateCategories() {
-        axios.get("https://opentdb.com/api_category.php")
-        .then(response => {
-            
-            // API return list of {id, name} objects for each category
-            const arr = response.data.trivia_categories;
-
-            // Save each category in possibleCategories by mapping name to id
-            arr.forEach(category => {
-                this.possibleCategoires[category.name] = category.id;
-            });
-        })
-        .catch(error => {
-            console.log(error);
-        });
+        this.possibleCategories = this.questionGenerator.getCategories();
     }
+
 
     generateQuestions(roomCode){
         // For actuall game
@@ -36,7 +26,7 @@ class GameManager {
         // const settings = room.settings;
 
         // For testing
-        const settings = new Settings(true, ["General Knowledge"], "easy", 2, 10, 20);
+        const settings = new Settings(true, ["Science: Gadgets"], "hard", 2, 10, 7);
 
         // Get Values out of settings
         const categories = settings.questionCategories;
@@ -44,27 +34,44 @@ class GameManager {
         const difficulty = settings.questionDifficulty;
         const toalQuestions = settings.totalQuestions;
         
-        // Array of evenly distributed number of Questions per category
-        const baseQuantity = Math.floor(toalQuestions / numberCategories);
-        const remainder = toalQuestions % numberCategories;
-        let numofQuestion = Array(numberCategories - remainder).fill(baseQuantity).concat(Array(remainder).fill(baseQuantity + 1));
-        numofQuestion.sort(() => Math.random() - 0.5);
-        console.log(numofQuestion);
+        // Generate an Array of evenly distributed number of Questions per category
+        let numofQuestion = this.questionGenerator.getNumArr(toalQuestions, numberCategories);
 
-        categories.forEach( (category, i) => {
-            axios.get('https://opentdb.com/api.php', {
-                amount: numofQuestion[i],
-                category: this.possibleCategoires[category],
-                difficulty: difficulty,
-                type: "multiple"
-            })
-            .then(response => {
-                console.log(response);
-            })
-            .catch(error => {
-                console.log(error);
-            });
-        })
+        //  array of questions
+        let questions = [];
+        
+        this.questionGenerator.getQuestions(categories[0], difficulty, numofQuestion[0])
+
+        // categories.forEach( async (category, i) => {
+           
+        // })
+
+        // Condition to check if questions generated is equal to total questions
+        // TODO: Add Token Use
+        // if (questions.length != toalQuestions){
+        //     const needed = toalQuestions - questions.length;
+        //     (async () => {
+        //         const response = await axios.get('https://opentdb.com/api.php', {
+        //             params: {
+        //                 amount: needed,
+        //                 category: this.possibleCategoires["General Knowledge"],
+        //                 difficulty: difficulty,
+        //                 type: "multiple"
+        //             }
+        //         });
+        //         if (response_code == 0){
+        //             result.forEach(elem => {
+        //                 const questionObj = new Question(elem.question, elem.correct_answer, elem.incorrect_answers, elem.difficulty);
+        //                 questions.push(questionObj);
+        //             })
+        //         }
+        //         else if (response_code == 3 || response_code == 4){
+        //             // TO DO ADD INVLAID TOKEN SCENRIO 
+        //         }
+
+                
+        //     })
+        // }
 
         
 
@@ -75,7 +82,7 @@ class GameManager {
     // Parameters: None
     // Returns: Array of strings of all the categories
     fetchCategories() {
-        return Object.keys(this.possibleCategoires);
+        return this.possibleCategoires;
     }
 
     // Purpose: gets a list of all the difficulties

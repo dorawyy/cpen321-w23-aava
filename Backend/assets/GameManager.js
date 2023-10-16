@@ -20,58 +20,36 @@ class GameManager {
     }
 
 
-  generateQuestions(roomCode) {
+    generateQuestions(roomCode) {
     // For actuall game
     // const room = this.roomCodeToGameRoom.get(roomCode);
     // const settings = room.settings;
 
         // For testing
-        const settings = new Settings(true, ["Science: Gadgets"], "hard", 2, 10, 7);
+        const settings = new Settings(true, ["Science: Gadgets", "General Knowledge"], "hard", 2, 10, 4);
+
+        //  array of questions
+        let questions = [];
 
         // Get Values out of settings
         const categories = settings.questionCategories;
-        const numberCategories = categories.length;
         const difficulty = settings.questionDifficulty;
         const toalQuestions = settings.totalQuestions;
         
         // Generate an Array of evenly distributed number of Questions per category
-        let numofQuestion = this.questionGenerator.getNumArr(toalQuestions, numberCategories);
-
-        //  array of questions
-        let questions = [];
+        let numPerCat = this.questionGenerator.getNumArr(toalQuestions, categories.length);
         
-        this.questionGenerator.getQuestions(categories[0], difficulty, numofQuestion[0])
-
-        // categories.forEach( async (category, i) => {
+        categories.forEach( async (category, i) => {
+           const response = await this.questionGenerator.getQuestions(category, difficulty, numPerCat[i]);
+           questions = await questions.concat(response.questions);
            
-        // })
-
-        // Condition to check if questions generated is equal to total questions
-        // TODO: Add Token Use
-        // if (questions.length != toalQuestions){
-        //     const needed = toalQuestions - questions.length;
-        //     (async () => {
-        //         const response = await axios.get('https://opentdb.com/api.php', {
-        //             params: {
-        //                 amount: needed,
-        //                 category: this.possibleCategoires["General Knowledge"],
-        //                 difficulty: difficulty,
-        //                 type: "multiple"
-        //             }
-        //         });
-        //         if (response_code == 0){
-        //             result.forEach(elem => {
-        //                 const questionObj = new Question(elem.question, elem.correct_answer, elem.incorrect_answers, elem.difficulty);
-        //                 questions.push(questionObj);
-        //             })
-        //         }
-        //         else if (response_code == 3 || response_code == 4){
-        //             // TO DO ADD INVLAID TOKEN SCENRIO 
-        //         }
-
-                
-        //     })
-        // }
+           
+        //    Basically i need this to run AFTER all the API calls have been made. but it is not happening
+           if (i == categories.length - 1) {
+               console.log(questions.length);
+           }
+        })
+        
 
         
 

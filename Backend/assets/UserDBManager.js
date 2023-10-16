@@ -1,4 +1,4 @@
-import User from "./User";
+const User = require("./User.js");
 
 /**
  * This class provides functionality for interacting with
@@ -26,21 +26,19 @@ class UserDBManager {
    * Returns the newly-created User object, or undefined if unsuccessful.
    */
   createNewUser(token, username) {
-    // TODO: Implement Google Sign-in client-side, then have
-    // frontend team pass in token and username
-    const token = "REPLACE_TOKEN_WITH_GOOGLE_ID";
+    const totalPoints = 0;
 
-    const newUser = User(token, username, totalPoints);
+    const newUser = new User(token, username, totalPoints);
 
-    usersCollection.insertOne(newUser, (err, result) => {
-      if (err) {
-        console.error("Error inserting user:", err);
-        return;
-      }
+    console.log("THIS IS NEW USER");
+    console.log(newUser);
 
-      console.log("User inserted:", result.insertedId);
+    try {
+      this.usersCollection.insertOne(newUser);
       return newUser;
-    });
+    } catch (err) {
+      return;
+    }
   }
 
   /**
@@ -86,4 +84,4 @@ class UserDBManager {
   }
 }
 
-export default UserDBManager;
+module.exports = UserDBManager;

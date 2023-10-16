@@ -73,4 +73,4 @@ class PowerupEnum {
   static SECOND_LIFE = 4;
 }
 
-export default Player;
+module.exports = Player;

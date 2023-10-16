@@ -3,7 +3,7 @@ const uri = "mongodb://0.0.0.0:27017";
 const databaseName = "CPEN_321_DATABASE";
 
 const client = new MongoClient(uri);
-const db = client.db(databaseName);
+const database = client.db(databaseName);
 
 /**
  * Attempts to connect to the database.
@@ -21,4 +21,11 @@ async function connect() {
   }
 }
 
-module.exports = { connect };
+/**
+ * Returns the users collection from the database.
+ */
+function getUsersCollection() {
+  return database.collection("users");
+}
+
+module.exports = { connect, getUsersCollection };

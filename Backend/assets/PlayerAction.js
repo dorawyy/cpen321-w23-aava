@@ -46,4 +46,4 @@ class PlayerAction {
   }
 }
 
-export default PlayerAction;
+module.exports = PlayerAction;

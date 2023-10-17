@@ -35,6 +35,8 @@ class GameManager {
         // const room = new GameRoom(gameMaster, "test", settings);
 
         this.roomCodeToGameRoom.set(roomCode, room);
+
+        return room;
     }
 
     // Purpose: Makes a list of questions for the game room

@@ -12,26 +12,6 @@ let userDBManager = new UserDBManager(db.getUsersCollection());
 
 app.use(express.json());
 
-const server = app.listen(8081, async () => {
-  console.log(
-    "Server is running on port http://%s:%s",
-    server.address().address,
-    server.address().port
-  );
-
-  if (await db.connect()) {
-    gameManager.updateCategories();
-    gameManager.createGameRoom("user");
-    // gameManager.generateQuestions()
-  }
-});
-
-// for testing
-app.get("/hello", (req, res) => {
-  gameManager.generateQuestions(req.body.code);
-  res.send("Hello World!");
-});
-
 /**
  * Creates a new user account.
  *
@@ -78,6 +58,44 @@ app.post("/login", (req, res) => {
   // try {
   // }
 });
+
+/**
+ * Creates a new Game Room for the user
+ */
+app.post("/create-game-room", (req, res) => {
+  
+  // TODO: create player Object from stuff passed in req.body
+  let player = "user";
+
+  const room = gameManager.createGameRoom(player);
+
+  res.status(200).send(json.stringify(room));
+});
+
+
+/**
+ * 
+ * API Endpoint for Testing features
+ */
+app.get("/test", (req, res) => {
+  gameManager.generateQuestions(req.body.code);
+  res.send("Hello World!");
+});
+
+
+/* Starts the server and database */
+const server = app.listen(8081, async () => {
+  console.log(
+    "Server is running on port http://%s:%s",
+    server.address().address,
+    server.address().port
+  );
+
+  if (await db.connect()) {
+    gameManager.updateCategories();
+  }
+});
+
 /*
 Mon -> have template (model) classes defined
 Fri -> have all classes done (implement functions)

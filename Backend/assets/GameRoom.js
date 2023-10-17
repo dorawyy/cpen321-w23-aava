@@ -3,11 +3,11 @@
  * It has settings that can be changed to customize the game.
  */
 class GameRoom {
-  constructor(roomPlayers, roomCode, roomSettings, gameQuestions) {
+  constructor(gameMaster, roomCode, roomSettings) {
     /**
      * An array of Players that are currently in this game room.
      */
-    this.roomPlayers = roomPlayers;
+    this.roomPlayers = [gameMaster];
 
     /**
      * The string that allows players to join this game room.
@@ -26,7 +26,7 @@ class GameRoom {
      * This field is populated right before the game starts with
      * questions that match the options defined by `roomSettings`.
      */
-    this.gameQuestions = gameQuestions;
+    this.gameQuestions = [];
   }
 }
 

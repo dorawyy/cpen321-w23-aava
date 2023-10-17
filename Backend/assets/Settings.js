@@ -2,7 +2,7 @@
 // Description: Class that represents a room's settings. This class is used to store the settings of a room.
 
 class Settings {
-  constructor(isPublic, categories, difficulty, maxPlayers, time, total) {
+  constructor(isPublic = false, categories = ["Science: Gadgets"], difficulty = "medium", maxPlayers = 4, time = 20, total = 10) {
     /**
      * If true, the game room can be found via random matchmaking.
      * Otherwise, the game room can only be joined via access code.

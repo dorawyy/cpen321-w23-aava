@@ -21,14 +21,14 @@ const server = app.listen(8081, async () => {
 
   if (await db.connect()) {
     gameManager.updateCategories();
-
+    gameManager.createGameRoom("user");
     // gameManager.generateQuestions()
   }
 });
 
 // for testing
 app.get("/hello", (req, res) => {
-  gameManager.generateQuestions("test");
+  gameManager.generateQuestions(req.body.code);
   res.send("Hello World!");
 });
 

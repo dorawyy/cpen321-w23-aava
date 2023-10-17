@@ -74,11 +74,8 @@ class QuestionGenerator {
 
     try {
       // Get Make API Call
-      const response = await axios.get(
-        "https://opentdb.com/api.php",
-        parameters
-      );
-
+      const response = await axios.get("https://opentdb.com/api.php",parameters);
+      console.log(response.data);
       // Parse the response
       const response_code = response.data.response_code;
       const result = response.data.results;
@@ -99,6 +96,7 @@ class QuestionGenerator {
       // If Questions quantity too big, find actual quantity and call again
       else if (response_code == ApiCode.NO_RESULTS) {
         const new_quantity = await this.getQuestionQuantity(category, difficulty);
+        console.log(new_quantity);
         const response = await this.getQuestions(
           doSpecificCategory, 
           category, 

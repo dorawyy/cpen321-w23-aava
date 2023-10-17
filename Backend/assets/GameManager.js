@@ -11,71 +11,77 @@ class GameManager {
         this.questionGenerator = new QuestionGenerator();
     }
 
-    // Purpose: Gets a Category to Category ID map
-    // Parameters: None
-    // Returns: None
+    /**
+     * Purpose: Gets a list of the current categories available
+     * @param None
+     * @return None
+     */
     updateCategories() {
         this.possibleCategories = this.questionGenerator.getCategories();
     }
 
+    /**
+     * Purpose: Creates a new game room with a unique identifer (6 character HEX)
+     * @param {Player} [gameMaster]: Player object of the user who created a room
+     * @return {GameRoom} The game room that was created
+     */
     createGameRoom(gameMaster) {
-        // For actuall game
+        // Generate a unique code
         let uuid = uuidv4().toString();
 
+        // Filters the code down to 6 characters and makes sure it is unique
         let roomCode;
         do {
             roomCode = uuid.replace(/[-]/g, "").toUpperCase().substring(0, 6);
         } while (this.roomCodeToGameRoom.has(roomCode));
         console.log(roomCode);
 
+        // Create the room and add it to the map
         const room = new GameRoom(gameMaster, roomCode, new Settings());
-
-        // For testing
-        // const settings = new Settings(true, ["Science: Gadgets"], "hard", 2, 10, 7);
-        // const room = new GameRoom(gameMaster, "test", settings);
-
         this.roomCodeToGameRoom.set(roomCode, room);
 
         return room;
     }
 
-    // Purpose: Makes a list of questions for the game room
-    // Parameters: roomCode: the room code of the game room
-    // Returns: 0 for success, 1 for room not found, 2 for no categories
+    /**
+     * Purpose: Gets a list of questions for the game room based on its settings
+     * @param {String} [roomCode]: the room code of the game room
+     * @return {Number} 0 for success, 1 for room not found, 2 for no categories selected 
+     */
     generateQuestions(roomCode) {
-        // For actuall game
-        const room = this.roomCodeToGameRoom.get(roomCode);
-        
-        if (room === undefined) {
-            return 1;
-        }
-        const settings = room.roomSettings;
-
-        //  array of questions
+        //  Array of questions to be saved in the room
         let questions = [];
 
-        // Get Values out of settings
+        //  Gets the rooom using code, if code invalid return error code 1
+        const room = this.roomCodeToGameRoom.get(roomCode);
+        if (room === undefined) return 1;
+        
+        //  Gets the relevant settings from the room for question generation: 
+        //      list of categories, difficulty, and number of questions
+        // If no categories selected, return error code 2
+        const settings = room.roomSettings;
         const categories = settings.questionCategories;
         const difficulty = settings.questionDifficulty;
         const toalQuestions = settings.totalQuestions;
-        if (categories.length === 0) {
-            return 2;
-        }
-        // Generate an Array of evenly distributed number of Questions per category
+        if (categories.length === 0) return 2;
+
+        // Gets the number of questions per category
         let numPerCat = this.questionGenerator.getNumArr(toalQuestions, categories.length);
+        
+        // Creates a query array of requests to the question generator for each category
         const apiQueries = categories.map(async (category, i) => {
             const response = await this.questionGenerator.getQuestions(true, true, category, difficulty, numPerCat[i]);
             return response;
         });
 
+        // Make the queries and save the responses
         Promise.all(apiQueries)
         .then(async responses => {
-            // Adds all the questions to the array
+            // Add questions from each response to the questions array
             responses.forEach(elem => questions = questions.concat(elem.questions));
             console.log(questions.length)
             
-            
-            // if missing any questions, get random categories of same difficulty
+            // If missing any questions, get random categories of same difficulty
             const neededQuestions = toalQuestions - questions.length;
             if (neededQuestions > 0) {
                 const response = await this.questionGenerator.getQuestions(false, true, "", difficulty, neededQuestions);
@@ -91,19 +97,6 @@ class GameManager {
         return 0;  
     }
 
-    // Purpose: gets a list of all the categories
-    // Parameters: None
-    // Returns: Array of strings of all the categories
-    fetchCategories() {
-        return this.possibleCategoires;
-    }
-
-  // Purpose: gets a list of all the difficulties
-  // Parameters: None
-  // Returns: Array of strings of all the difficulties
-  fetchDifficulties() {
-    return this.possibleDifficulties;
-  }
 }
 
 module.exports = GameManager;

@@ -69,7 +69,7 @@ app.post("/create-game-room", (req, res) => {
 
   const room = gameManager.createGameRoom(player);
 
-  res.status(200).send(json.stringify(room));
+  res.status(200).send(room);
 });
 
 

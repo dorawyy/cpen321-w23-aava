@@ -88,7 +88,7 @@ class QuestionGenerator {
 
     // Adds parameters limited by boolean arguments
     if (doSpecificCategory) parameters.params.category = this.possibleCategories[category];
-    if (doLimitMCQ) parameters.params.type = "multiple";
+    if (doLimitMCQ) parameters.params.type = ApiCode.QUESTION_TYPE_MULTIPLE;
 
     // API Call attempt
     try {
@@ -101,7 +101,7 @@ class QuestionGenerator {
       // If successfull, add each question to the array of questions
       if (response_code == ApiCode.SUCCESS) {
         result.forEach(elem => {
-          if (elem.type == "multiple"){
+          if (elem.type == QUESTION_TYPE_MULTIPLE){
             const questionObj = new Question( 
               elem.question, 
               elem.correct_answer, 
@@ -189,12 +189,6 @@ class ApiCode {
    * for the query.
    */
   static TOKEN_EMPTY = 4;
-
-  static DIFFICULTY_EASY = "easy";
-
-  static DIFFICULTY_MEDIUM = "medium";
-
-  static DIFFICULTY_HARD = "hard";
 
   static QUESTION_TYPE_MULTIPLE = "multiple";
 }

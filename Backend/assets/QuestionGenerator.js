@@ -40,14 +40,8 @@ class QuestionGenerator {
 
     // API CALL
     try {
-      const response = await axios.get(
-        "https://opentdb.com/api_count.php",
-        parameters
-      );
-      count =
-        response.data.category_question_count[
-          `total_${difficulty}_question_count`
-        ];
+      const response = await axios.get("https://opentdb.com/api_count.php",parameters );
+      count = response.data.category_question_count[`total_${difficulty}_question_count`];
     } catch (err) {
       console.log(err);
     }
@@ -56,13 +50,14 @@ class QuestionGenerator {
   };
 
   // Purpose: Gets a list of questions from the API
-  // Parameters: category: the category of the questions
-  //             difficulty: the difficulty of the questions
-  //             quantity: the number of questions to be generated
+  // Parameters:  doSpecificCategory: boolean to determine if the questions should be from a specific category 
+  //              category: the category of the questions
+  //              difficulty: the difficulty of the questions
+  //              quantity: the number of questions to be generated
   // Returns: Object with
   //              an array of Question objects
   //             a response code (0 for success, 1 refresh Token)
-  getQuestions = async (category, difficulty, quantity) => {
+  getQuestions = async (doSpecificCategory, category, difficulty, quantity) => {
     let questions = [];
     let res_code = -1;
 
@@ -70,11 +65,12 @@ class QuestionGenerator {
     let parameters = {
       params: {
         amount: quantity,
-        category: this.possibleCategories[category],
         difficulty: difficulty,
         type: "multiple",
-      },
+      }
     };
+
+    if (doSpecificCategory) parameters.params.category = this.possibleCategories[category];
 
     try {
       // Get Make API Call
@@ -90,10 +86,10 @@ class QuestionGenerator {
       // If Success, add each question to the array of questions
       if (response_code == ApiCode.SUCCESS) {
         result.forEach((elem) => {
-          const questionObj = new Question(
-            elem.question,
-            elem.correct_answer,
-            elem.incorrect_answers,
+          const questionObj = new Question( 
+            elem.question, 
+            elem.correct_answer, 
+            elem.incorrect_answers, 
             elem.difficulty
           );
           questions.push(questionObj);
@@ -102,23 +98,18 @@ class QuestionGenerator {
       }
       // If Questions quantity too big, find actual quantity and call again
       else if (response_code == ApiCode.NO_RESULTS) {
-        const new_quantity = await this.getQuestionQuantity(
-          category,
-          difficulty
-        );
+        const new_quantity = await this.getQuestionQuantity(category, difficulty);
         const response = await this.getQuestions(
-          category,
-          difficulty,
+          doSpecificCategory, 
+          category, 
+          difficulty, 
           new_quantity
         );
         questions = response.questions;
         res_code = response.res_code;
       } else if (response_code == ApiCode.INVALID_PARAMETER) {
         res_code = 0;
-      } else if (
-        response_code == ApiCode.TOKEN_NOT_FOUND ||
-        response_code == ApiCode.TOKEN_EMPTY
-      ) {
+      } else if ( response_code == ApiCode.TOKEN_NOT_FOUND || response_code == ApiCode.TOKEN_EMPTY) {
         res_code = 1;
       }
     } catch (err) {

@@ -28,7 +28,7 @@ const server = app.listen(8081, async () => {
 
 // for testing
 app.get("/hello", (req, res) => {
-  gameManager.generateQuestions();
+  gameManager.generateQuestions("test");
   res.send("Hello World!");
 });
 

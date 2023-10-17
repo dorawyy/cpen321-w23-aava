@@ -21,12 +21,11 @@ class GameManager {
 
 
     generateQuestions(roomCode) {
-    // For actuall game
-    // const room = this.roomCodeToGameRoom.get(roomCode);
-    // const settings = room.settings;
+        // For actuall game
+        // const room = this.roomCodeToGameRoom.get(roomCode);
+        // const settings = room.settings;
 
-        // For testing
-        const settings = new Settings(true, ["Science: Gadgets", "General Knowledge"], "hard", 2, 10, 4);
+        // const settings = new Settings(true, ["Science: Gadgets"], "hard", 2, 10, 7);
 
         //  array of questions
         let questions = [];
@@ -39,21 +38,30 @@ class GameManager {
         // Generate an Array of evenly distributed number of Questions per category
         let numPerCat = this.questionGenerator.getNumArr(toalQuestions, categories.length);
         
-        categories.forEach( async (category, i) => {
-           const response = await this.questionGenerator.getQuestions(category, difficulty, numPerCat[i]);
-           questions = await questions.concat(response.questions);
-           
-           
-        //    Basically i need this to run AFTER all the API calls have been made. but it is not happening
-           if (i == categories.length - 1) {
-               console.log(questions.length);
-           }
-        })
+        const apiQueries = categories.map(async (category, i) => {
+            const response = await this.questionGenerator.getQuestions(true, category, difficulty, numPerCat[i]);
+            return response;
+        });
+
+        Promise.all(apiQueries)
+        .then(async responses => {
+            // Adds all the questions to the array
+            responses.forEach(elem => questions = questions.concat(elem.questions));
+            console.log(questions.length)
+            
+            // if missing any questions, get random categories of same difficulty
+            const neededQuestions = toalQuestions - questions.length;
+            const response = await this.questionGenerator.getQuestions(false, "", difficulty, neededQuestions);
+            questions = questions.concat(response.questions);
+            console.log(questions.length)
+
+            // Randomize the order of the questions and add to the room
+            questions.sort(() => Math.random() - 0.5);
+            room.gameQuestions = questions
+        });
         
 
         
-
-
     }
 
     // Purpose: gets a list of all the categories

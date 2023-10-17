@@ -56,14 +56,13 @@ class GameManager {
         const categories = settings.questionCategories;
         const difficulty = settings.questionDifficulty;
         const toalQuestions = settings.totalQuestions;
-        console.log(difficulty)
         if (categories.length === 0) {
             return 2;
         }
         // Generate an Array of evenly distributed number of Questions per category
         let numPerCat = this.questionGenerator.getNumArr(toalQuestions, categories.length);
         const apiQueries = categories.map(async (category, i) => {
-            const response = await this.questionGenerator.getQuestions(true, category, difficulty, numPerCat[i]);
+            const response = await this.questionGenerator.getQuestions(true, true, category, difficulty, numPerCat[i]);
             return response;
         });
 
@@ -72,12 +71,15 @@ class GameManager {
             // Adds all the questions to the array
             responses.forEach(elem => questions = questions.concat(elem.questions));
             console.log(questions.length)
-
+            
+            
             // if missing any questions, get random categories of same difficulty
             const neededQuestions = toalQuestions - questions.length;
-            const response = await this.questionGenerator.getQuestions(false, "", difficulty, neededQuestions);
-            questions = questions.concat(response.questions);
-            console.log(questions.length)
+            if (neededQuestions > 0) {
+                const response = await this.questionGenerator.getQuestions(false, true, "", difficulty, neededQuestions);
+                questions = questions.concat(response.questions);
+                console.log(questions.length)
+            }
 
             // Randomize the order of the questions and add to the room
             questions.sort(() => Math.random() - 0.5);

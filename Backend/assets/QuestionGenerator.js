@@ -51,13 +51,14 @@ class QuestionGenerator {
 
   // Purpose: Gets a list of questions from the API
   // Parameters:  doSpecificCategory: boolean to determine if the questions should be from a specific category 
+  //             doLimitMCQ: boolean to determine if the questions should be multiple choice
   //              category: the category of the questions
   //              difficulty: the difficulty of the questions
   //              quantity: the number of questions to be generated
   // Returns: Object with
   //              an array of Question objects
   //             a response code (0 for success, 1 refresh Token)
-  getQuestions = async (doSpecificCategory, category, difficulty, quantity) => {
+  getQuestions = async (doSpecificCategory, doLimitMCQ, category, difficulty, quantity) => {
     let questions = [];
     let res_code = -1;
 
@@ -66,39 +67,42 @@ class QuestionGenerator {
       params: {
         amount: quantity,
         difficulty: difficulty,
-        type: "multiple",
       }
     };
 
+    // Adds parameters limited by boolean arguments
     if (doSpecificCategory) parameters.params.category = this.possibleCategories[category];
+    if (doLimitMCQ) parameters.params.type = "multiple";
 
     try {
       // Get Make API Call
       const response = await axios.get("https://opentdb.com/api.php",parameters);
-      console.log(response.data);
       // Parse the response
       const response_code = response.data.response_code;
       const result = response.data.results;
 
       // If Success, add each question to the array of questions
       if (response_code == ApiCode.SUCCESS) {
-        result.forEach((elem) => {
-          const questionObj = new Question( 
-            elem.question, 
-            elem.correct_answer, 
-            elem.incorrect_answers, 
-            elem.difficulty
-          );
-          questions.push(questionObj);
+        result.forEach(elem => {
+          // Add question to array if its MCQ
+          if (elem.type == "multiple"){
+            const questionObj = new Question( 
+              elem.question, 
+              elem.correct_answer, 
+              elem.incorrect_answers, 
+              elem.difficulty
+            );
+            questions.push(questionObj);
+          }
         });
         res_code = 0;
       }
-      // If Questions quantity too big, find actual quantity and call again
+      // If Questions quantity too big, find actual quantity and call again (but do not limit by type as quantity returned includes T/F and MCQ)
       else if (response_code == ApiCode.NO_RESULTS) {
         const new_quantity = await this.getQuestionQuantity(category, difficulty);
-        console.log(new_quantity);
         const response = await this.getQuestions(
-          doSpecificCategory, 
+          doSpecificCategory,
+          false, 
           category, 
           difficulty, 
           new_quantity

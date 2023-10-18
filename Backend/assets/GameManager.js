@@ -118,7 +118,7 @@ class GameManager {
      */
     calculateScore(roomCode, actions){
         // Max Score per difficulty
-        const scorePerDifficulty = { "easy": 100, "medium": 200, "hard": 500 };
+        const scorePerDifficulty = { "easy": 100, "medium": 200, "hard": 300 };
         
         //  Fetch room, if room not found, return error code 1
         const room = this.fetchRoom(roomCode);
@@ -127,10 +127,12 @@ class GameManager {
         //  Initialize the scores for each player in actions
         let totalScores = new Map();
         let stolenScores = new Map();
+        let victimToThieves  = new Map();
 
         actions.forEach(action => {
             totalScores.set(action.playerToken, 0);
             stolenScores.set(action.playerToken, 0);
+            victimToThieves.set(action.playerToken, []);
         });
 
         // Calculate the score for each player based on time delay and correctness (and 2x powerup)
@@ -163,14 +165,20 @@ class GameManager {
         // Calculate Steal Points powerup
         actions.forEach(action => {
             if (action.powerupUsed === PowerupEnum.STEAL_POINTS){
-                let stolenPoints = totalScores.get(action.powerupVictimToken);
-                
-                let newVictimScore = stolenScores.get(action.powerupVictimToken) - stolenPoints;
-                let newPlayerScore = stolenScores.get(action.playerToken) + stolenPoints;
-
-                stolenScores.set(action.powerupVictimToken, newVictimScore);
-                stolenScores.set(action.playerToken, newPlayerScore);
+                let thieves = victimToThieves.get(action.powerupVictimToken);
+                thieves.push(action.playerToken);
+                victimToThieves.set(action.powerupVictimToken, thieves);
             }
+        })
+
+        // Calculate the stolen scores
+        victimToThieves.forEach((thieves, victim) => {
+            let stolenScore = totalScores.get(victim);
+            let scoreGain = Math.floor(stolenScore / thieves.length);
+            thieves.forEach(thief => {
+                stolenScores.set(thief, stolenScores.get(thief) + scoreGain);
+            })
+            stolenScores.set(victim, stolenScores.get(victim) - stolenScore);
         })
 
         // Add the stolen scores to the total scores
@@ -180,7 +188,6 @@ class GameManager {
         
         return {returnCode: 0, scores: totalScores};
     }
-}
-    
+}  
 
 module.exports = GameManager;

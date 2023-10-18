@@ -1,7 +1,10 @@
 const GameRoom = require('./GameRoom.js');
 const Settings = require('./Settings.js');
 const QuestionGenerator = require('./QuestionGenerator.js');
+const PowerupEnum = require('./PowerupEnum.js');
+const PlayerAction = require('./PlayerAction.js');
 const { v4: uuidv4 } = require('uuid');
+
 
 class GameManager {
     constructor() {
@@ -41,6 +44,15 @@ class GameManager {
         this.roomCodeToGameRoom.set(roomCode, room);
 
         return room;
+    }
+
+    /**
+     * Purpose: Fetches the game room with the given room code
+     * @param {String} [roomCode]: the room code of the game room
+     * @return {GameRoom} The game room that was fetched
+     */
+    fetchRoom(roomCode) {
+        return this.roomCodeToGameRoom.get(roomCode);
     }
 
     /**
@@ -98,14 +110,80 @@ class GameManager {
     }
 
     /**
-     * Purpose: Fetches the game room with the given room code
+     * Purpose: Calculates the score of each player in the room for the round
      * @param {String} [roomCode]: the room code of the game room
-     * @return {GameRoom} The game room that was fetched
+     * @param {[PlayerAction]} [actions]: array of player actions for the round
+     * @return {Object} Object containing return code and map of player tokens to scores:
+     *                 returnCode: 0 for success, 1 for room not found
+     *                 scores: Map of player tokens to scores
+     * TODO: Talk to bicky about not using tokens maybe
      */
-    fetchRoom(roomCode) {
-        return this.roomCodeToGameRoom.get(roomCode);
-    }
+    calculateScore(roomCode, actions){
+        // Max Score per difficulty
+        const scorePerDifficulty = { "easy": 100, "medium": 200, "hard": 500 };
+        
+        //  Fetch room, if room not found, return error code 1
+        const room = this.roomCodeToGameRoom.get(roomCode);
+        if (room === undefined) return {returnCode: 1, scores: []};
 
+        //  Initialize the scores for each player in actions
+        let totalScores = new Map();
+        let stolenScores = new Map();
+
+        actions.forEach(action => {
+            totalScores.set(action.playerToken, 0);
+            stolenScores.set(action.playerToken, 0);
+        });
+
+        // Calculate the score for each player based on time delay and correctness (and 2x powerup)
+        const maxScore = scorePerDifficulty[room.roomSettings.questionDifficulty];
+        const maxTime = room.roomSettings.questionTime;
+        actions.forEach(action => {
+            if (action.isCorrect){
+                // If took too long, no points; else give mark based on how quickly answer pressed
+                let correctnessMark = (action.timeDelay > maxTime) ? 0 : (maxTime - action.timeDelay) / maxTime;
+
+                // Round the score and double if 2x powerup used
+                let score = Math.round(correctnessMark * maxScore) * (action.powerupUsed === PowerupEnum.DOUBLE_POINTS ? 2 : 1);
+
+                // Update the total score for the player
+                totalScores.set(action.playerToken, score);
+            }
+        });
+
+        // Calculate Free Lunch powerup
+        // Get List of all non zero player scores and find the lowest (if no scores, lowest is 0)
+        // Give the player with the powerup the lowest score
+        let playerScores = [...totalScores.values()].filter(score => score > 0);
+        const lowestScore = (playerScores.length > 0) ? Math.min(...playerScores) : 0;
+        actions.forEach(action => {
+            if (action.powerupUsed === PowerupEnum.FREE_LUNCH){
+                totalScores.set(action.playerToken, lowestScore);
+            }  
+        });
+
+        // Calculate Steal Points powerup
+        actions.forEach(action => {
+            if (action.powerupUsed === PowerupEnum.STEAL_POINTS){
+                let stolenPoints = totalScores.get(action.powerupVictimToken);
+                
+                let newVictimScore = stolenScores.get(action.powerupVictimToken) - stolenPoints;
+                let newPlayerScore = stolenScores.get(action.playerToken) + stolenPoints;
+
+                stolenScores.set(action.powerupVictimToken, newVictimScore);
+                stolenScores.set(action.playerToken, newPlayerScore);
+            }
+        })
+
+        // Add the stolen scores to the total scores
+        totalScores.forEach((score, token) => {
+            totalScores.set(token, score + stolenScores.get(token));
+        })
+        
+
+        return {returnCode: 0, scores: totalScores};
+    }
 }
+    
 
 module.exports = GameManager;

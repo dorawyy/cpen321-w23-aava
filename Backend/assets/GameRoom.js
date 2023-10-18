@@ -38,12 +38,12 @@ class GameRoom {
    */
   updateSettings(newSettings) {
     this.roomSettings = new Settings(
-      newSettings.isPublic,
-      newSettings.categories,
-      newSettings.difficulty,
+      newSettings.roomIsPublic,
+      newSettings.questionCategories,
+      newSettings.questionDifficulty,
       newSettings.maxPlayers,
-      newSettings.time,
-      newSettings.total
+      newSettings.questionTime,
+      newSettings.totalQuestions
     );
   }
 

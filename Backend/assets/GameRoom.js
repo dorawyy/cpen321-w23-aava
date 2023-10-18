@@ -1,3 +1,5 @@
+const Settings = require("./Settings");
+
 /**
  * A GameRoom is a place where users can gather before starting a game together.
  * It has settings that can be changed to customize the game.
@@ -27,6 +29,43 @@ class GameRoom {
      * questions that match the options defined by `roomSettings`.
      */
     this.gameQuestions = [];
+  }
+
+  /**
+   * Purpose: Updates the settings of the game room
+   * @param {Settings} [newSettings]: the new settings for the room
+   * @return None
+   */
+  updateSettings(newSettings) {
+    this.roomSettings = new Settings(
+      newSettings.isPublic,
+      newSettings.categories,
+      newSettings.difficulty,
+      newSettings.maxPlayers,
+      newSettings.time,
+      newSettings.total
+    );
+  }
+
+  /**
+   * Purpose: Adds a player to the game room
+   * @param {Player} [player]: the player to be added
+   * @return None
+   */
+  addPlayer(player) {
+    this.roomPlayers.push(player);
+  }
+
+  /**
+   * Purpose: Removes a player from the game room
+   * @param {Player} [player]: the player to be removed
+   * @return None
+   */
+  removePlayer(player) {
+    const index = this.roomPlayers.indexOf(player);
+    if (index > -1) {
+      this.roomPlayers.splice(index, 1);
+    }
   }
 }
 

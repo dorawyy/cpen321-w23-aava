@@ -63,7 +63,7 @@ app.post("/login", (req, res) => {
  * Creates a new Game Room for the user
  */
 app.post("/create-game-room", (req, res) => {
-  
+
   // TODO: create player Object from stuff passed in req.body
   let player = "user";
 
@@ -71,6 +71,25 @@ app.post("/create-game-room", (req, res) => {
 
   res.status(200).send(room);
 });
+
+
+/**
+ * Updates the settings of a game room
+ */
+app.post("update-settings", (req, res) => {
+  // TODO: add validation that player who sent this is gameMaster
+  // TO DO: add packet updates to other players
+  const roomCode = req.body.roomCode;
+  const settings = req.body.settings;
+  const room = gameManager.fetchRoom(roomCode);
+
+  if (room === undefined) {
+    res.status(400).send({ error: "Invalid room code." });
+  } else {
+    room.updateSettings(settings);
+    res.status(200).send({ message: "Settings updated successfully." });
+  }
+})
 
 
 /**

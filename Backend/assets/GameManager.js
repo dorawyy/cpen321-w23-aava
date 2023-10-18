@@ -97,6 +97,15 @@ class GameManager {
         return 0;  
     }
 
+    /**
+     * Purpose: Fetches the game room with the given room code
+     * @param {String} [roomCode]: the room code of the game room
+     * @return {GameRoom} The game room that was fetched
+     */
+    fetchRoom(roomCode) {
+        return this.roomCodeToGameRoom.get(roomCode);
+    }
+
 }
 
 module.exports = GameManager;

@@ -32,22 +32,6 @@ class GameRoom {
   }
 
   /**
-   * Purpose: Updates the settings of the game room
-   * @param {Settings} [newSettings]: the new settings for the room
-   * @return None
-   */
-  updateSettings(newSettings) {
-    this.roomSettings = new Settings(
-      newSettings.roomIsPublic,
-      newSettings.questionCategories,
-      newSettings.questionDifficulty,
-      newSettings.maxPlayers,
-      newSettings.questionTime,
-      newSettings.totalQuestions
-    );
-  }
-
-  /**
    * Purpose: Adds a player to the game room
    * @param {Player} [player]: the player to be added
    * @return None
@@ -67,6 +51,38 @@ class GameRoom {
       this.roomPlayers.splice(index, 1);
     }
   }
+
+    /**
+   * Purpose: Updates the settings of the game room
+   * @param {Settings} [newSettings]: the new settings for the room
+   * @return None
+   */
+    updateSettings(isPublic, categories, difficulty, maxPlayers, time, total) {
+      this.roomSettings = new Settings(isPublic, categories, difficulty, maxPlayers, time, total);
+    }
+
+    getCategorySetting() {
+      return this.roomSettings.questionCategories;
+    }
+
+    getDifficultySetting() {
+      return this.roomSettings.questionDifficulty;
+    }
+
+    getTimeSetting() {
+      return this.roomSettings.questionTime;
+    }
+
+    getTotalQuestionsSetting() {
+      return this.roomSettings.totalQuestions;
+    }
+
+    updateGameQuestions(questions) {
+      this.gameQuestions = questions;
+    }
+
+
+
 }
 
 module.exports = GameRoom;

@@ -80,13 +80,20 @@ app.post("update-settings", (req, res) => {
   // TODO: add validation that player who sent this is gameMaster
   // TO DO: add packet updates to other players
   const roomCode = req.body.roomCode;
-  const settings = req.body.settings;
   const room = gameManager.fetchRoom(roomCode);
+
+  // Retrieve Only Valid Stuff From req
+  const isPublic = req.body.settings.roomIsPublic;
+  const categories = req.body.settings.questionCategories;
+  const difficulty = req.body.settings.questionDifficulty;
+  const maxPlayers = req.body.settings.maxPlayers;
+  const time = req.body.settings.questionTime;
+  const total = req.body.settings.totalQuestions;
 
   if (room === undefined) {
     res.status(400).send({ error: "Invalid room code." });
   } else {
-    room.updateSettings(settings);
+    room.updateSettings(isPublic, categories, difficulty, maxPlayers, time, total);
     res.status(200).send({ message: "Settings updated successfully." });
   }
 })

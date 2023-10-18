@@ -1,5 +1,4 @@
 const GameRoom = require('./GameRoom.js');
-const Settings = require('./Settings.js');
 const QuestionGenerator = require('./QuestionGenerator.js');
 const PowerupEnum = require('./PowerupEnum.js');
 const PlayerAction = require('./PlayerAction.js');
@@ -65,16 +64,15 @@ class GameManager {
         let questions = [];
 
         //  Gets the rooom using code, if code invalid return error code 1
-        const room = this.roomCodeToGameRoom.get(roomCode);
+        const room = this.fetchRoom(roomCode);
         if (room === undefined) return 1;
         
         //  Gets the relevant settings from the room for question generation: 
         //      list of categories, difficulty, and number of questions
         // If no categories selected, return error code 2
-        const settings = room.roomSettings;
-        const categories = settings.questionCategories;
-        const difficulty = settings.questionDifficulty;
-        const toalQuestions = settings.totalQuestions;
+        const categories = room.getCategorySetting();
+        const difficulty = room.getDifficultySetting();
+        const toalQuestions = room.getTotalQuestionsSetting();
         if (categories.length === 0) return 2;
 
         // Gets the number of questions per category
@@ -103,7 +101,7 @@ class GameManager {
 
             // Randomize the order of the questions and add to the room
             questions.sort(() => Math.random() - 0.5);
-            room.gameQuestions = questions
+            room.updateGameQuestions(questions);
         });
 
         return 0;  
@@ -123,7 +121,7 @@ class GameManager {
         const scorePerDifficulty = { "easy": 100, "medium": 200, "hard": 500 };
         
         //  Fetch room, if room not found, return error code 1
-        const room = this.roomCodeToGameRoom.get(roomCode);
+        const room = this.fetchRoom(roomCode);
         if (room === undefined) return {returnCode: 1, scores: []};
 
         //  Initialize the scores for each player in actions
@@ -136,8 +134,8 @@ class GameManager {
         });
 
         // Calculate the score for each player based on time delay and correctness (and 2x powerup)
-        const maxScore = scorePerDifficulty[room.roomSettings.questionDifficulty];
-        const maxTime = room.roomSettings.questionTime;
+        const maxScore = scorePerDifficulty[room.getDifficultySetting()];
+        const maxTime = room.getTimeSetting();
         actions.forEach(action => {
             if (action.isCorrect){
                 // If took too long, no points; else give mark based on how quickly answer pressed
@@ -180,7 +178,6 @@ class GameManager {
             totalScores.set(token, score + stolenScores.get(token));
         })
         
-
         return {returnCode: 0, scores: totalScores};
     }
 }

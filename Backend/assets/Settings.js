@@ -13,7 +13,7 @@ class Settings {
      * The categories for the questions that will appear in the game.
      *
      * This must be an array of strings, where each string must correspond
-     * to // TODO: are we keeping a category list somewhere?
+     * to 
      */
     this.questionCategories = categories;
 

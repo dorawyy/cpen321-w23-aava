@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- For Socket.IO -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -23,9 +26,6 @@
         </activity>
         <activity
             android:name=".MenuActivity"
-            android:exported="false" />
-        <activity
-            android:name=".LobbyActivity"
             android:exported="false" />
         <activity
             android:name=".GameActivity"

@@ -1,16 +1,35 @@
 const express = require("express");
+const { Server } = require("socket.io");
+
 const app = express();
 const db = require("./database/dbSetup.js");
+const { v4: uuidv4 } = require("uuid");
+
 const GameManager = require("./assets/GameManager.js");
 const UserDBManager = require("./assets/UserDBManager.js");
 const User = require("./assets/User.js");
 
-let gameManager = new GameManager();
-
 // TODO
+let gameManager = new GameManager();
 let userDBManager = new UserDBManager(db.getUsersCollection());
 
+/** Middleware functions */
 app.use(express.json());
+
+/* Starts the server and database */
+const server = app.listen(8081, async () => {
+  console.log(
+    "Server is running on port http://%s:%s",
+    server.address().address,
+    server.address().port
+  );
+
+  if (await db.connect()) {
+    gameManager.updateCategories();
+  }
+});
+
+/** AUTHENTICATION ENDPOINTS */
 
 /**
  * Creates a new user account.
@@ -24,30 +43,36 @@ app.post("/create-account", (req, res) => {
   const username = req.body.username;
 
   if (!token || !username) {
-    res.status(400).send({ error: "Invalid parameters were passed in." });
+    res.status(400).send({ message: "Invalid parameters were passed in." });
     return;
   }
 
-  try {
-    const user = userDBManager.createNewUser(token, username);
+  userDBManager.createNewUser(token, username).then(
+    (user) => {
+      console.log(user);
 
-    if (user) {
-      const userString = JSON.stringify({
-        token: user.token,
-        username: user.username,
-        totalPoints: user.totalPoints,
-      });
+      if (user) {
+        const userString = JSON.stringify({
+          token: user.token,
+          username: user.username,
+          totalPoints: user.totalPoints,
+        });
 
-      res.status(201).send(userString);
-    } else {
+        res.status(201).send(userString);
+      } else {
+        res
+          .status(500)
+          .send({ message: "There was an error creating the account." });
+      }
+    },
+    (err) => {
+      console.log("[ERROR]: " + err);
+
       res
         .status(400)
-        .send({ error: "An account already exists for this user." });
+        .send({ message: "An account already exists for this user." });
     }
-  } catch (err) {
-    console.log("[ERROR]: " + err);
-    res.status(500).send({ error: "There was an error creating the account." });
-  }
+  );
 });
 
 /**
@@ -55,15 +80,55 @@ app.post("/create-account", (req, res) => {
  * token passed in by the request.
  */
 app.post("/login", (req, res) => {
-  // try {
-  // }
+  const token = req.body.token;
+
+  // Generate and set the user's session token
+  const sessionToken = uuidv4();
+
+  userDBManager.setUserSessionToken(token, sessionToken).then(
+    (user) => {
+      if (user) {
+        console.log(user);
+
+        res.status(200).send({
+          token: user.token,
+          username: user.username,
+          totalPoints: user.totalPoints,
+          sessionToken: user.sessionToken,
+        });
+      } else {
+        res.status(404).send({
+          message: "The user with that token cannot be found.",
+        });
+      }
+    },
+    (err) => {
+      console.log("[ERROR]: " + err);
+      res.status(500).send({ message: "An unknown error occurred" });
+    }
+  );
 });
+
+app.post("/logout", (req, res) => {
+  const sessionToken = req.body.sessionToken;
+
+  // Check that session token is valid
+
+  res.status(200).send();
+});
+
+app.post("/join-random-room", (req, res) => {});
+
+app.post("/join-room-by-code", (req, res) => {});
+
+app.post("/leave-room", (req, res) => {});
+
+app.post("/create-room", (req, res) => {});
 
 /**
  * Creates a new Game Room for the user
  */
 app.post("/create-game-room", (req, res) => {
-
   // TODO: create player Object from stuff passed in req.body
   let player = "user";
 
@@ -72,9 +137,10 @@ app.post("/create-game-room", (req, res) => {
   res.status(200).send(room);
 });
 
-
 /**
  * Updates the settings of a game room
+ * TODO: Delete after as this will be a socket event.
+ * Left here for testing
  */
 app.post("update-settings", (req, res) => {
   // TODO: add validation that player who sent this is gameMaster
@@ -93,14 +159,20 @@ app.post("update-settings", (req, res) => {
   if (room === undefined) {
     res.status(400).send({ error: "Invalid room code." });
   } else {
-    room.updateSettings(isPublic, categories, difficulty, maxPlayers, time, total);
+    room.updateSettings(
+      isPublic,
+      categories,
+      difficulty,
+      maxPlayers,
+      time,
+      total
+    );
     res.status(200).send({ message: "Settings updated successfully." });
   }
-})
-
+});
 
 /**
- * 
+ * TODO: delete this before final submission
  * API Endpoint for Testing features
  */
 app.get("/test", (req, res) => {
@@ -108,18 +180,30 @@ app.get("/test", (req, res) => {
   res.send("Hello World!");
 });
 
+const io = new Server(server);
 
-/* Starts the server and database */
-const server = app.listen(8081, async () => {
-  console.log(
-    "Server is running on port http://%s:%s",
-    server.address().address,
-    server.address().port
-  );
+io.on("connection", (socket) => {
+  console.log("A user connected");
 
-  if (await db.connect()) {
-    gameManager.updateCategories();
-  }
+  socket.on("joinRoom", (data) => {
+    const message = JSON.parse(data);
+
+    const roomId = message.roomId;
+    const sessionToken = message.sessionToken;
+
+    console.log(
+      `User with socket id ${socket.id} is joining room ${roomId} with sessionToken ${sessionToken}`
+    );
+
+    // See https://socket.io/docs/v3/rooms/
+    socket.join(roomId);
+
+    // Inform others in the room that a new user has joined
+    // This emits the `playerJoined` event to everyone except the new player.
+    socket.to(roomId).emit("playerJoined", socket.id);
+
+    console.log();
+  });
 });
 
 /*

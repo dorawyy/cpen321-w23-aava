@@ -48,26 +48,6 @@ class UserDBManager {
     }
   }
 
-  // /**
-  //  * Returns a User entry from UserDB that has a token
-  //  * matching `token`.
-  //  *
-  //  * If the User entry cannot be found, returns undefined.
-  //  */
-  // async getUserByToken(token) {
-  //   const user = await this.usersCollection.findOne({
-  //     token: token,
-  //   });
-
-  //   if (user) {
-  //     console.log(user);
-  //     return user;
-  //   } else {
-  //     console.log("error finding user");
-  //     return;
-  //   }
-  // }
-
   /**
    * Updates a User's session token and returns the User after the update.
    *
@@ -82,8 +62,8 @@ class UserDBManager {
         { $set: { sessionToken: sessionToken } }
       );
 
+      // Return undefined if no user could be found
       if (result["matchedCount"] < 1) {
-        // Return undefined if no user could be found
         return;
       } else {
         const user = await this.usersCollection.findOne({
@@ -98,22 +78,21 @@ class UserDBManager {
   }
 
   /**
-   * Increases the total points of the user with token matching
-   * `token` by `points` number of points.
+   * Returns a User entry from UserDB that has a session token
+   * matching `sessionToken`.
+   *
+   * If the User entry cannot be found, returns undefined.
    */
-  updateUserTotalPoints(token, points) {
-    usersCollection.updateOne(
-      { token: token },
-      { $set: { totalPoints: (totalPoints += points) } },
-      (err, result) => {
-        if (err) {
-          console.error("Error updating user:", err);
-          return;
-        } else {
-          console.log("Updated user totalPoints by: ", points);
-        }
-      }
-    );
+  async getUserBySessionToken(sessionToken) {
+    const user = await this.usersCollection.findOne({
+      sessionToken: sessionToken,
+    });
+
+    if (user) {
+      return user;
+    } else {
+      return;
+    }
   }
 }
 

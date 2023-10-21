@@ -4,6 +4,7 @@ const { Server } = require("socket.io");
 const app = express();
 const db = require("./database/dbSetup.js");
 const { v4: uuidv4 } = require("uuid");
+var assert = require("assert");
 
 const GameManager = require("./assets/GameManager.js");
 const UserDBManager = require("./assets/UserDBManager.js");
@@ -76,8 +77,7 @@ app.post("/create-account", (req, res) => {
 });
 
 /**
- * Returns from the database the User object that corresponds to the
- * token passed in by the request.
+ * Logs the user in, generating a new session token for use in future API calls.
  */
 app.post("/login", (req, res) => {
   const token = req.body.token;
@@ -88,8 +88,6 @@ app.post("/login", (req, res) => {
   userDBManager.setUserSessionToken(token, sessionToken).then(
     (user) => {
       if (user) {
-        console.log(user);
-
         res.status(200).send({
           token: user.token,
           username: user.username,
@@ -98,7 +96,7 @@ app.post("/login", (req, res) => {
         });
       } else {
         res.status(404).send({
-          message: "The user with that token cannot be found.",
+          message: "Unable to find the user for this account.",
         });
       }
     },
@@ -109,12 +107,34 @@ app.post("/login", (req, res) => {
   );
 });
 
+/**
+ * Logs the user out, destroying their session token.
+ */
 app.post("/logout", (req, res) => {
   const sessionToken = req.body.sessionToken;
 
-  // Check that session token is valid
+  userDBManager.getUserBySessionToken(sessionToken).then(
+    (loggedInUser) => {
+      console.log(loggedInUser);
 
-  res.status(200).send();
+      if (loggedInUser) {
+        userDBManager
+          .setUserSessionToken(loggedInUser.token, null)
+          .then((loggedOutUser) => {
+            assert(loggedOutUser.sessionToken === null);
+            res.status(200).send();
+          });
+      } else {
+        res.status(404).send({
+          message: "Unable to find the user for this account.",
+        });
+      }
+    },
+    (err) => {
+      console.log("[ERROR]: " + err);
+      res.status(500).send({ message: "An unknown error occurred" });
+    }
+  );
 });
 
 app.post("/join-random-room", (req, res) => {});

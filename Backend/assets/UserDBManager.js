@@ -35,8 +35,8 @@ class UserDBManager {
       throw new Error("User with this token already exists");
     }
 
-    const totalPoints = 0;
-    const newUser = new User(token, username, totalPoints, null);
+    const rank = 0;
+    const newUser = new User(token, username, rank, null);
 
     try {
       await this.usersCollection.insertOne(newUser);

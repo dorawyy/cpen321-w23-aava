@@ -5,14 +5,23 @@ const Settings = require("./Settings");
  * It has settings that can be changed to customize the game.
  */
 class GameRoom {
-  constructor(gameMaster, roomCode, roomSettings) {
+  constructor(roomId, gameMaster, roomCode, roomSettings) {
+    /**
+     * The UUID of this game room, used to identify this room.
+     *
+     * While game rooms could theoretically be identified by roomCode,
+     * because roomcode is 6-characters long there is a chance for
+     * there to be more than one game room with the same roomCode.
+     */
+    this.roomId = roomId;
+
     /**
      * An array of Players that are currently in this game room.
      */
     this.roomPlayers = [gameMaster];
 
     /**
-     * The string that allows players to join this game room.
+     * The 6-character string that allows players to join this game room.
      */
     this.roomCode = roomCode;
 
@@ -29,20 +38,38 @@ class GameRoom {
      * questions that match the options defined by `roomSettings`.
      */
     this.gameQuestions = [];
+
+    /**
+     * An array containing the usernames of the users banned from this room.
+     */
+    this.bannedUsers = [];
+
+    /**
+     * The UNIX timestamp in milliseconds when this room was created.
+     * This field is used in the room matchmaking algorithm for determining
+     * what random room a user should join.
+     */
+    this.creationTime = Date.now();
   }
 
   /**
-   * Purpose: Adds a player to the game room
+   * Purpose: If there is still available space in this room, adds the
+   * new player.
    * @param {Player} [player]: the player to be added
-   * @return None
+   * @return {Boolean} true if the player was added successfully, false otherwise.
    */
   addPlayer(player) {
-    this.roomPlayers.push(player);
+    if (this.roomPlayers.length < this.roomSettings.maxPlayers - 1) {
+      this.roomPlayers.push(player);
+      return true;
+    }
+
+    return false;
   }
 
   /**
    * Purpose: Removes a player from the game room
-   * @param {Player} [player]: the player to be removed
+   * @param {Player} [player]: the username of the player to be removed
    * @return None
    */
   removePlayer(player) {
@@ -52,37 +79,54 @@ class GameRoom {
     }
   }
 
-    /**
+  /**
    * Purpose: Updates the settings of the game room
    * @param {Settings} [newSettings]: the new settings for the room
    * @return None
    */
-    updateSettings(isPublic, categories, difficulty, maxPlayers, time, total) {
-      this.roomSettings = new Settings(isPublic, categories, difficulty, maxPlayers, time, total);
-    }
+  updateSettings(isPublic, categories, difficulty, maxPlayers, time, total) {
+    this.roomSettings = new Settings(
+      isPublic,
+      categories,
+      difficulty,
+      maxPlayers,
+      time,
+      total
+    );
+  }
 
-    getCategorySetting() {
-      return this.roomSettings.questionCategories;
-    }
+  getCategorySetting() {
+    return this.roomSettings.questionCategories;
+  }
 
-    getDifficultySetting() {
-      return this.roomSettings.questionDifficulty;
-    }
+  getDifficultySetting() {
+    return this.roomSettings.questionDifficulty;
+  }
 
-    getTimeSetting() {
-      return this.roomSettings.questionTime;
-    }
+  getTimeSetting() {
+    return this.roomSettings.questionTime;
+  }
 
-    getTotalQuestionsSetting() {
-      return this.roomSettings.totalQuestions;
-    }
+  getTotalQuestionsSetting() {
+    return this.roomSettings.totalQuestions;
+  }
 
-    updateGameQuestions(questions) {
-      this.gameQuestions = questions;
-    }
+  getRoomCreationTime() {
+    return this.creationTime;
+  }
 
+  updateGameQuestions(questions) {
+    this.gameQuestions = questions;
+  }
 
-
+  /**
+   * Purpose; Checks whether a username is banned from this game room.
+   * @param {String} [username] The username to check
+   * @returns {Boolean} True if the username is banned, false otherwise
+   */
+  isUserBanned(username) {
+    return this.bannedUsers.includes(username);
+  }
 }
 
 module.exports = GameRoom;

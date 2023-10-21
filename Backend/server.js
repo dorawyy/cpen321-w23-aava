@@ -8,14 +8,28 @@ var assert = require("assert");
 
 const GameManager = require("./assets/GameManager.js");
 const UserDBManager = require("./assets/UserDBManager.js");
-const User = require("./assets/User.js");
+const Player = require("./assets/Player.js");
 
-// TODO
 let gameManager = new GameManager();
 let userDBManager = new UserDBManager(db.getUsersCollection());
 
-/** Middleware functions */
+// Middleware to validate session token
 app.use(express.json());
+app.use((req, res, next) => {
+  // Exclude the middleware for /login and /create-account
+  if (req.path === "/login" || req.path === "/create-account") {
+    return next();
+  } else {
+    const sessionToken = req.body.sessionToken;
+
+    if (sessionToken) {
+      userDBManager.getUserBySessionToken(sessionToken).then((user) => {
+        req.user = user;
+        next();
+      });
+    }
+  }
+});
 
 /* Starts the server and database */
 const server = app.listen(8081, async () => {
@@ -29,8 +43,6 @@ const server = app.listen(8081, async () => {
     gameManager.updateCategories();
   }
 });
-
-/** AUTHENTICATION ENDPOINTS */
 
 /**
  * Creates a new user account.
@@ -56,7 +68,7 @@ app.post("/create-account", (req, res) => {
         const userString = JSON.stringify({
           token: user.token,
           username: user.username,
-          totalPoints: user.totalPoints,
+          rank: user.rank,
         });
 
         res.status(201).send(userString);
@@ -91,7 +103,7 @@ app.post("/login", (req, res) => {
         res.status(200).send({
           token: user.token,
           username: user.username,
-          totalPoints: user.totalPoints,
+          rank: user.rank,
           sessionToken: user.sessionToken,
         });
       } else {
@@ -111,50 +123,88 @@ app.post("/login", (req, res) => {
  * Logs the user out, destroying their session token.
  */
 app.post("/logout", (req, res) => {
-  const sessionToken = req.body.sessionToken;
+  const loggedInUser = req.user;
 
-  userDBManager.getUserBySessionToken(sessionToken).then(
-    (loggedInUser) => {
-      console.log(loggedInUser);
-
-      if (loggedInUser) {
-        userDBManager
-          .setUserSessionToken(loggedInUser.token, null)
-          .then((loggedOutUser) => {
-            assert(loggedOutUser.sessionToken === null);
-            res.status(200).send();
-          });
-      } else {
-        res.status(404).send({
-          message: "Unable to find the user for this account.",
-        });
+  if (loggedInUser) {
+    userDBManager.setUserSessionToken(loggedInUser.token, null).then(
+      (loggedOutUser) => {
+        assert(loggedOutUser.sessionToken === null);
+        res.status(200).send();
+      },
+      (err) => {
+        console.log("[ERROR]: " + err);
+        res.status(500).send({ message: "An unknown error occurred" });
       }
-    },
-    (err) => {
-      console.log("[ERROR]: " + err);
-      res.status(500).send({ message: "An unknown error occurred" });
-    }
-  );
+    );
+  } else {
+    res.status(404).send({
+      message: "Unable to find the user for this account.",
+    });
+  }
 });
 
-app.post("/join-random-room", (req, res) => {});
-
-app.post("/join-room-by-code", (req, res) => {});
-
-app.post("/leave-room", (req, res) => {});
-
-app.post("/create-room", (req, res) => {});
+app.post("/join-random-room", (req, res) => {
+  console.log("joining a random room...");
+});
 
 /**
- * Creates a new Game Room for the user
+ * Allows a user to join an active game room via code.
  */
-app.post("/create-game-room", (req, res) => {
-  // TODO: create player Object from stuff passed in req.body
-  let player = "user";
+app.post("/join-room-by-code", (req, res) => {
+  const user = req.user;
+  const roomCode = req.body.roomCode;
 
-  const room = gameManager.createGameRoom(player);
+  const room = gameManager.fetchRoom(roomCode);
 
-  res.status(200).send(room);
+  if (room) {
+    const userBanned = room.isUserBanned(user.username);
+
+    console.log(userBanned);
+    if (userBanned) {
+      res.status(403).send({ message: "You are banned from this game room." });
+    } else {
+      const player = new Player(user);
+      const joinSuccess = room.addPlayer(player);
+
+      if (joinSuccess) {
+        res.status(200).send({
+          roomId: room.roomId,
+          roomCode: room.roomCode,
+        });
+
+        // TODO: Now nitialize the socket connection and pass in roomId
+      } else {
+        res.status(409).send({
+          message: "The game room is currently full. Please try again later.",
+        });
+      }
+    }
+  } else {
+    res.status(404).send({ message: "The game room could not be found." });
+  }
+});
+
+/**
+ * Creates a new Game Room for the user, who will be the game master.
+ */
+app.post("/create-room", (req, res) => {
+  const user = req.user;
+
+  const gameMaster = new Player(user);
+
+  const room = gameManager.createGameRoom(gameMaster);
+
+  res.status(200).send({
+    roomPlayers: [
+      {
+        username: user.username,
+        rank: user.rank,
+      },
+    ],
+    roomCode: room.roomCode,
+    roomSettings: room.roomSettings,
+    gameQuestions: [],
+  });
 });
 
 /**
@@ -225,13 +275,3 @@ io.on("connection", (socket) => {
     console.log();
   });
 });
-
-/*
-Mon -> have template (model) classes defined
-Fri -> have all classes done (implement functions)
-    -> define endpoints for frontend to call
-Sat/Sun -> have interactions/functions ready for integration
-
-Tues (24) -> deadline for getting backend ready for integration
-
-*/

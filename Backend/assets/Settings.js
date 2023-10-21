@@ -2,7 +2,14 @@
 // Description: Class that represents a room's settings. This class is used to store the settings of a room.
 
 class Settings {
-  constructor(isPublic = false, categories = ["General Knowledge"], difficulty = "medium", maxPlayers = 4, time = 20, total = 10) {
+  constructor(
+    isPublic = false,
+    categories = ["General Knowledge"],
+    difficulty = "easy",
+    maxPlayers = 6,
+    time = 20,
+    total = 10
+  ) {
     /**
      * If true, the game room can be found via random matchmaking.
      * Otherwise, the game room can only be joined via access code.
@@ -13,7 +20,7 @@ class Settings {
      * The categories for the questions that will appear in the game.
      *
      * This must be an array of strings, where each string must correspond
-     * to 
+     * to
      */
     this.questionCategories = categories;
 

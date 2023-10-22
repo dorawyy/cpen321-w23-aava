@@ -4,6 +4,8 @@ const PowerupEnum = require("./PowerupEnum.js");
 const PlayerAction = require("./PlayerAction.js");
 const Settings = require("./Settings");
 const { v4: uuidv4 } = require("uuid");
+const Player = require("./Player.js");
+const User = require("./User.js");
 
 class GameManager {
   constructor() {
@@ -36,12 +38,35 @@ class GameManager {
     do {
       roomCode = uuid.replace(/[-]/g, "").toUpperCase().substring(0, 6);
     } while (this.roomCodeToGameRoom.has(roomCode));
-    console.log(roomCode);
 
     // Create the room and add it to the map
     const roomId = uuidv4();
     const room = new GameRoom(roomId, gameMaster, roomCode, new Settings());
     this.roomCodeToGameRoom.set(roomCode, room);
+
+    return room;
+  }
+
+  // TODO: DELETE THIS FUNCTION AFTER TESTING IS DONE
+  testing() {
+    const gameMaster = new Player(
+      new User("random", "roomCreator-1", 3, "randomSessionToken")
+    );
+    const roomCode = "ABC123";
+    const room = new GameRoom("roomId-1", gameMaster, roomCode, new Settings());
+    this.roomCodeToGameRoom.set(roomCode, room);
+
+    const gameMaster_2 = new Player(
+      new User("random", "roomCreator-2", 1, "randomSessionToken")
+    );
+    const roomCode_2 = "XYZ123";
+    const room_2 = new GameRoom(
+      "roomId-2",
+      gameMaster_2,
+      roomCode_2,
+      new Settings()
+    );
+    this.roomCodeToGameRoom.set(roomCode_2, room_2);
 
     return room;
   }
@@ -173,10 +198,15 @@ class GameManager {
     actions.forEach((action) => {
       if (action.getCorrect()) {
         // If took too long, no points; else give mark based on how quickly answer pressed
-        let correctnessMark = action.getDelay() > maxTime ? 0 : (maxTime - action.getDelay()) / maxTime;
+        let correctnessMark =
+          action.getDelay() > maxTime
+            ? 0
+            : (maxTime - action.getDelay()) / maxTime;
 
         // Round the score and double if 2x powerup used
-        let score = Math.round(correctnessMark * maxScore) * (action.getPowerup() === PowerupEnum.DOUBLE_POINTS ? 2 : 1);
+        let score =
+          Math.round(correctnessMark * maxScore) *
+          (action.getPowerup() === PowerupEnum.DOUBLE_POINTS ? 2 : 1);
 
         // Update the total score for the player
         totalScores.set(action.getPlayer(), score);

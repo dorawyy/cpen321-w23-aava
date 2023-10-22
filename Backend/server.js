@@ -9,6 +9,7 @@ var assert = require("assert");
 const GameManager = require("./assets/GameManager.js");
 const UserDBManager = require("./assets/UserDBManager.js");
 const Player = require("./assets/Player.js");
+const User = require("./assets/User.js");
 
 let gameManager = new GameManager();
 let userDBManager = new UserDBManager(db.getUsersCollection());
@@ -281,6 +282,9 @@ app.post("/create-room", (req, res) => {
     roomSettings: room.roomSettings,
     gameQuestions: [],
   });
+
+  // TODO: now initialize the socket connection.
+  // Or should we have the client do a POST /join-room request?
 });
 
 /**
@@ -295,30 +299,70 @@ app.get("/test", (req, res) => {
 const io = new Server(server);
 
 // TODO: Add USername to joinRoom and leaveRoom and banPlayer
+// TODO: validate sessionToken header
 io.on("connection", (socket) => {
   console.log("A user connected");
+  // TODO: delete after. This is used for testing
+  if (gameManager.fetchRoom("ABC123") === undefined) {
+    gameManager.testing();
+    console.log("test room added!");
+  }
 
   socket.on("joinRoom", (data) => {
     const message = JSON.parse(data);
+
     const username = message.username;
-  
     const room = gameManager.fetchRoom(message.roomCode);
 
+    if (room === undefined) {
+      // TODO: close the socket connection, because the room
+      // no longer exists
+
+      return;
+    }
+
     // Security check that the client's room id is valid
-    assert(message.roomId === room.roomId);
+    if (message.roomId !== room.roomId) {
+      // TODO: close the socket connection, the roomId doesn't match
+      // the actual room's id
+    }
 
     const players = room.getPlayers();
+    const playersJson = [];
+    let newPlayerRank;
+
+    for (let player of players) {
+      playersJson.push({
+        username: player.user.username,
+        rank: player.user.rank,
+      });
+
+      if (player.user.username === message.username) {
+        newPlayerRank = player.user.rank;
+      }
+    }
+
     const roomSettings = room.getSettings();
 
     // Player Joins Room
     socket.join(message.roomId);
 
     // Send Room Data to Player
-    socket.emit("welcomeNewPlayer", express.json({ roomPlayers: players, roomCode: roomCode, roomSettings: roomSettings}));
+    socket.emit("welcomeNewPlayer", {
+      roomPlayers: playersJson,
+      roomCode: message.roomCode,
+      roomSettings: roomSettings,
+    });
+
+    console.log("welcome emitted");
 
     // Send Player Joined to Other Players
-    socket.to(message.roomId).emit("playerJoined", express.json({ newPlayerUsername: username }));
-
+    socket
+      .to(message.roomId)
+      .emit("playerJoined", {
+        newPlayerUsername: username,
+        newPlayerRank: newPlayerRank,
+      });
   });
 
   // TODO: Maybe add some return message to user who sent this so they knwo when to clsoe connection on their end
@@ -328,17 +372,21 @@ io.on("connection", (socket) => {
 
     const room = gameManager.fetchRoom(message.roomId);
     room.removePlayer(username);
-    if (room.isGameMaster(user)){
+    if (room.isGameMaster(user)) {
       // TODO: Close the room (delete it from the game manager)
       socket.to(roomId).emit("roomClose");
     } else {
       // Send Player Left to Other Players
-      socket.to(roomId).emit("playerLeft", express.json({ playerUsername: user.username , reason: "left"}));
+      socket
+        .to(roomId)
+        .emit(
+          "playerLeft",
+          express.json({ playerUsername: user.username, reason: "left" })
+        );
     }
-    
+
     // CLose SOcket Connection with Player
     socket.leave(roomId);
-
   });
 
   // TODO: Maybe add check to see if user is game master
@@ -351,19 +399,23 @@ io.on("connection", (socket) => {
     room.banPlayer(banneUserusername);
 
     // Send Player Left to Other Players
-    socket.to(roomId).emit("playerLeft", express.json({ playerUsername: user.username , reason: "banned"}));
+    socket
+      .to(roomId)
+      .emit(
+        "playerLeft",
+        express.json({ playerUsername: user.username, reason: "banned" })
+      );
 
     // CLose SOcket Connection with Player
     socket.leave(roomId);
-
-  })
+  });
 
   socket.on("changeSetting", (data) => {
     const message = JSON.parse(data);
     const room = gameManager.fetchRoom(message.roomId);
 
     const settingOption = message.settingOption;
-    const optionValue = message.optionValue ;
+    const optionValue = message.optionValue;
 
     // Updates the Setting
     switch (true) {
@@ -371,10 +423,9 @@ io.on("connection", (socket) => {
         room.updateSetting("isPublic", optionValue);
         break;
       case settingOption.startsWith("category-"):
-        if (optionValue){
+        if (optionValue) {
           room.updateSetting("add-category", settingOption.split("-")[1]);
-        }
-        else{
+        } else {
           room.updateSetting("remove-category", settingOption.split("-")[1]);
         }
         break;
@@ -393,41 +444,52 @@ io.on("connection", (socket) => {
     }
 
     // Sends the updated setting to all players
-    socket.to(roomId).emit("changedSetting", express.json({ settingOption: settingOption, optionValue: optionValue }));
-
-  })
-
+    socket
+      .to(roomId)
+      .emit(
+        "changedSetting",
+        express.json({ settingOption: settingOption, optionValue: optionValue })
+      );
+  });
 
   socket.on("readyToStartGame", async (data) => {
     const message = JSON.parse(data);
     const username = message.username;
 
-    socket.to(roomId).emit("playerReadyToStartGame", express.json({ playerUsername: username }));
-
-  })
+    socket
+      .to(roomId)
+      .emit(
+        "playerReadyToStartGame",
+        express.json({ playerUsername: username })
+      );
+  });
 
   // TODO: ADD Game Logic
   socket.on("startGame", (data) => {
     const message = JSON.parse(data);
 
     const res = gameManager.generateQuestions(message.roomId);
-    if (res == 0){
+    if (res == 0) {
       socket.to(roomId).emit("startTheGame");
       socket.emit("startTheGame");
     }
-  })
+  });
 
   // TODO: Add Game Logic
   socket.on("submitAnswer", (data) => {
     const message = JSON.parse(data);
-    
-    const actions = []
-    actions.push(new PlayerAction(message.username, message.timeDelay, message.isCorrect, message.powerupCode, message.powerupVictimUsername));
 
-
-
-    
-  })
+    const actions = [];
+    actions.push(
+      new PlayerAction(
+        message.username,
+        message.timeDelay,
+        message.isCorrect,
+        message.powerupCode,
+        message.powerupVictimUsername
+      )
+    );
+  });
 
   socket.on("submitEmote", (data) => {
     const message = JSON.parse(data);
@@ -435,11 +497,15 @@ io.on("connection", (socket) => {
     const username = message.username;
     const emote = message.emoteCode;
 
-    socket.to(roomId).emit("emoteReceived", express.json({ username: username, emoteCode: emote }));
-  })
+    socket
+      .to(roomId)
+      .emit(
+        "emoteReceived",
+        express.json({ username: username, emoteCode: emote })
+      );
+  });
 
-  socket.on("readyForNextQuestion", (data) => {})
-
+  socket.on("readyForNextQuestion", (data) => {});
 });
 
 /*

@@ -97,7 +97,7 @@ class UserDBManager {
 
   async getUserByUsername(username) {
     const user = await this.usersCollection.findOne({ username: username });
-    
+
     if (user) {
       return user;
     } else {

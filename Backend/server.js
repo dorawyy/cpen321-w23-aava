@@ -24,8 +24,18 @@ app.use((req, res, next) => {
 
     if (sessionToken) {
       userDBManager.getUserBySessionToken(sessionToken).then((user) => {
-        req.user = user;
-        next();
+        if (user) {
+          req.user = user;
+          next();
+        } else {
+          res.status(404).send({
+            message: "Unable to find the user for this account.",
+          });
+        }
+      });
+    } else {
+      res.status(404).send({
+        message: "Unable to find the user for this account.",
       });
     }
   }
@@ -123,24 +133,16 @@ app.post("/login", (req, res) => {
  * Logs the user out, destroying their session token.
  */
 app.post("/logout", (req, res) => {
-  const loggedInUser = req.user;
-
-  if (loggedInUser) {
-    userDBManager.setUserSessionToken(loggedInUser.token, null).then(
-      (loggedOutUser) => {
-        assert(loggedOutUser.sessionToken === null);
-        res.status(200).send();
-      },
-      (err) => {
-        console.log("[ERROR]: " + err);
-        res.status(500).send({ message: "An unknown error occurred" });
-      }
-    );
-  } else {
-    res.status(404).send({
-      message: "Unable to find the user for this account.",
-    });
-  }
+  userDBManager.setUserSessionToken(loggedInUser.token, null).then(
+    (loggedOutUser) => {
+      assert(loggedOutUser.sessionToken === null);
+      res.status(200).send();
+    },
+    (err) => {
+      console.log("[ERROR]: " + err);
+      res.status(500).send({ message: "An unknown error occurred" });
+    }
+  );
 });
 
 /**

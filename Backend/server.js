@@ -296,7 +296,27 @@ app.get("/test", (req, res) => {
   res.send("Hello World!");
 });
 
+// Delay between start if game and question
+const START_Q_DELAY = 3000;
+// Time players alllowed to read questions before they can answer
+const READ_Q_DELAY = 2000;
+
 const io = new Server(server);
+
+// Assumes roomId == roomCode
+const sendQuestion = (socket, roomId) => {
+  gameManager.resetResponses(roomId);
+  setTimeout(() => {
+    const question = gameManager.fetchNextQuestion(roomId);
+    socket.to(roomId).emit("startQuestion", express.json(question));
+    socket.emit("startQuestion", express.json(question));
+  }, START_Q_DELAY);
+
+  setTimeout(() => {
+    socket.to(roomId).emit("startAnswerPeriod");
+    socket.emit("startAnswerPeriod");
+  }, START_Q_DELAY + READ_Q_DELAY);
+};
 
 // TODO: Add USername to joinRoom and leaveRoom and banPlayer
 // TODO: validate sessionToken header
@@ -357,12 +377,10 @@ io.on("connection", (socket) => {
     console.log("welcome emitted");
 
     // Send Player Joined to Other Players
-    socket
-      .to(message.roomId)
-      .emit("playerJoined", {
-        newPlayerUsername: username,
-        newPlayerRank: newPlayerRank,
-      });
+    socket.to(message.roomId).emit("playerJoined", {
+      newPlayerUsername: username,
+      newPlayerRank: newPlayerRank,
+    });
   });
 
   // TODO: Maybe add some return message to user who sent this so they knwo when to clsoe connection on their end
@@ -467,28 +485,65 @@ io.on("connection", (socket) => {
   // TODO: ADD Game Logic
   socket.on("startGame", (data) => {
     const message = JSON.parse(data);
+    const roomId = message.roomId;
+    const res = gameManager.generateQuestions(roomId);
+    const room = gameManager.fetchRoom(roomId);
 
-    const res = gameManager.generateQuestions(message.roomId);
+    const timeLimit = room.getTimeSetting();
+    const totalQuestions = room.getTotalQuestionsSetting();
+
     if (res == 0) {
-      socket.to(roomId).emit("startTheGame");
-      socket.emit("startTheGame");
+      gameManager.updateRoomState(roomId);
+      socket
+        .to(roomId)
+        .emit("startTheGame", express.json({ timeLimit, totalQuestions }));
+      socket.emit("startTheGame", express.json({ timeLimit, totalQuestions }));
+
+      sendQuestion(socket, roomId);
     }
   });
 
-  // TODO: Add Game Logic
+  // TODO: We need to add the "adding new points to points total"
   socket.on("submitAnswer", (data) => {
     const message = JSON.parse(data);
+    const playerUsername = message.username;
+    const roomId = message.roomId;
 
-    const actions = [];
-    actions.push(
-      new PlayerAction(
-        message.username,
-        message.timeDelay,
-        message.isCorrect,
-        message.powerupCode,
-        message.powerupVictimUsername
-      )
+    socket.to(roomId).emit("answerReceived", { playerUsername });
+
+    const newAnswer = new PlayerAction(
+      message.username,
+      message.timeDelay,
+      message.isCorrect,
+      message.powerupCode,
+      message.powerupVictimUsername
     );
+    const allAnswersReceived = gameManager.addResponseToRoom(roodId, newAnswer);
+
+    if (allAnswersReceived) {
+      const results = gameManager.calculateScore(roomId);
+
+      if (results.returnCode == 0) {
+        let scores = [];
+        const scoreGain = results.scores;
+        scoreGain.forEach((pointsEarned, username) => {
+          scores.push({ username, pointsEarned });
+        });
+
+        socket.to(roomId).emit("endAnswerPeriod", express.json({ scores }));
+        socket.emit("endAnswerPeriod", express.json({ scores }));
+
+        // If no remaiing questiosns, end game, else send next questions
+        if (gameManager.fetchQuestionsQuantity(roomId) != 0) {
+          sendQuestion(socket, roomId);
+        } else {
+          setTimeout(() => {
+            socket.to(roomId).emit("endGame");
+            socket.emit("endGame");
+          }, START_Q_DELAY);
+        }
+      }
+    }
   });
 
   socket.on("submitEmote", (data) => {
@@ -507,13 +562,3 @@ io.on("connection", (socket) => {
 
   socket.on("readyForNextQuestion", (data) => {});
 });
-
-/*
-Mon -> have template (model) classes defined
-Fri -> have all classes done (implement functions)
-    -> define endpoints for frontend to call
-Sat/Sun -> have interactions/functions ready for integration
-
-Tues (24) -> deadline for getting backend ready for integration
-
-*/

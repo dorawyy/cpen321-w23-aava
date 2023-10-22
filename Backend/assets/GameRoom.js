@@ -50,10 +50,45 @@ class GameRoom {
      * what random room a user should join.
      */
     this.creationTime = Date.now();
+
+    this.roomState = roomState.WAITING;
+
+    this.actionsArray = [];
+  }
+
+  getCode(){
+    return this.roomCode;
+  }
+
+  /**
+   * Purpose: Updates the state of the room to the opposite of what it currently is
+   * @returns {Number} The current state of the room
+   */
+  updateState(){
+    if (this.roomState == roomState.WAITING){
+      this.roomState = roomState.IN_PROGRESS;
+      return roomState.IN_PROGRESS;
+    }
+    else {
+      this.roomState = roomState.WAITING;
+      return roomState.WAITING;
+    }
+  }
+
+  /** 
+   * Purpose: Checks whether the room is currently in waiting
+   * @returns {Boolean} True if the room is waiting, false if in progress
+   */
+  isIdle(){
+    return this.roomState == roomState.WAITING;
   }
 
   isGameMaster(username) {
     return this.roomPlayers[0].user.username === username;
+  }
+
+  getPlayers() {
+    return this.roomPlayers;
   }
 
   /**
@@ -82,6 +117,15 @@ class GameRoom {
 
   banPlayer(username) {
     this.bannedUsers.push(username);
+  }
+
+    /**
+   * Purpose; Checks whether a username is banned from this game room.
+   * @param {String} [username] The username to check
+   * @returns {Boolean} True if the username is banned, false otherwise
+   */
+  isUserBanned(username) {
+      return this.bannedUsers.includes(username);
   }
 
   /**
@@ -144,34 +188,18 @@ class GameRoom {
     return this.creationTime;
   }
 
-  getPlayers() {
-    return this.roomPlayers;
-  }
-
   updateGameQuestions(questions) {
     this.gameQuestions = questions;
-  }
-
-  /**
-   * Purpose; Checks whether a username is banned from this game room.
-   * @param {String} [username] The username to check
-   * @returns {Boolean} True if the username is banned, false otherwise
-   */
-  isUserBanned(username) {
-    return this.bannedUsers.includes(username);
-  }
-
-  getPlayers(){
-    return this.roomPlayers;
-  }
-
-  getCode(){
-    return this.roomCode;
   }
 
   getSettings(){
     return this.roomSettings;
   }
+}
+
+class roomState {
+  static WAITING = 0;
+  static IN_PROGRESS = 1;
 }
 
 module.exports = GameRoom;

@@ -66,7 +66,8 @@ class GameManager {
     return [...this.roomCodeToGameRoom.values()].filter(
       (gameRoom) =>
         gameRoom.isPublic === true &&
-        gameRoom.roomPlayers.length < gameRoom.roomSettings.maxPlayers
+        gameRoom.roomPlayers.length < gameRoom.roomSettings.maxPlayers &&
+        gameRoom.isIdle()
     );
   }
 

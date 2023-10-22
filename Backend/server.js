@@ -299,19 +299,25 @@ io.on("connection", (socket) => {
   console.log("A user connected");
 
   socket.on("joinRoom", (data) => {
-    const message = JSON.parse(data);;
+    const message = JSON.parse(data);
     const username = message.username;
   
-    const room = gameManager.fetchRoom(message.roomId);
+    const room = gameManager.fetchRoom(message.roomCode);
+
+    // Security check that the client's room id is valid
+    assert(message.roomId === room.roomId);
+
     const players = room.getPlayers();
-    const roomCode = room.getCode();
     const roomSettings = room.getSettings();
+
     // Player Joins Room
-    socket.join(roomId);
+    socket.join(message.roomId);
+
     // Send Room Data to Player
     socket.emit("welcomeNewPlayer", express.json({ roomPlayers: players, roomCode: roomCode, roomSettings: roomSettings}));
+
     // Send Player Joined to Other Players
-    socket.to(roomId).emit("playerJoined", express.json({ newPlayerUsername: username }));
+    socket.to(message.roomId).emit("playerJoined", express.json({ newPlayerUsername: username }));
 
   });
 
@@ -403,10 +409,12 @@ io.on("connection", (socket) => {
   // TODO: ADD Game Logic
   socket.on("startGame", (data) => {
     const message = JSON.parse(data);
-    const username = message.username;
 
-    socket.to(roomId).emit("startTheGame");
-    socket.emit("startTheGame");
+    const res = gameManager.generateQuestions(message.roomId);
+    if (res == 0){
+      socket.to(roomId).emit("startTheGame");
+      socket.emit("startTheGame");
+    }
   })
 
   // TODO: Add Game Logic
@@ -421,7 +429,14 @@ io.on("connection", (socket) => {
     
   })
 
-  socket.on("submitEmote", (data) => {})
+  socket.on("submitEmote", (data) => {
+    const message = JSON.parse(data);
+    const roomId = message.roomId;
+    const username = message.username;
+    const emote = message.emoteCode;
+
+    socket.to(roomId).emit("emoteReceived", express.json({ username: username, emoteCode: emote }));
+  })
 
   socket.on("readyForNextQuestion", (data) => {})
 

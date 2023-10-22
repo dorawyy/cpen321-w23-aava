@@ -447,7 +447,6 @@ io.on("connection", (socket) => {
     }
   })
 
-  // TODO: We need to add the "adding new points to points total"
   socket.on("submitAnswer", (data) => {
     const message = JSON.parse(data);
     const playerUsername = message.username;
@@ -460,15 +459,20 @@ io.on("connection", (socket) => {
     const allAnswersReceived = gameManager.addResponseToRoom(roodId,newAnswer);
 
     if(allAnswersReceived){
+      // Get points per round
       const results = gameManager.calculateScore(roomId);
 
       if (results.returnCode == 0){
-        let scores = [];
+
+        //Calculate new totals
         const scoreGain = results.scores;
+        let totalScores = gameManager.addToPlayerScore(roomId, scoreGain);
+
+        // Format Points per round response and send
+        let scores = [];
         scoreGain.forEach((pointsEarned , username) => {
           scores.push({username, pointsEarned})
         });
-        
         socket.to(roomId).emit("endAnswerPeriod", express.json({scores}));
         socket.emit("endAnswerPeriod", express.json({scores}));
 
@@ -478,8 +482,8 @@ io.on("connection", (socket) => {
         }
         else {
           setTimeout(() => {
-            socket.to(roomId).emit("endGame");
-            socket.emit("endGame");
+            socket.to(roomId).emit("endGame", express.json({scores: totalScores}));
+            socket.emit("endGame", express.json({scores: totalScores}));
           }, START_Q_DELAY);
         }
 

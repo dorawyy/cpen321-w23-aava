@@ -262,6 +262,19 @@ class GameManager {
     roomCodeToGameRoom.set(roomCode, room);
   }
 
+  /**
+   * Purpose: updates player scores and returns new totals
+   * @param {*} roomCode 
+   * @param {*} scores Map of username --> points gained
+   * @returns 
+   */
+  addToPlayerScore = (roomCode, scores) => {
+    let room = this.fetchRoom(roomCode);
+    let newScores = room.updateScores(scores);
+    roomCodeToGameRoom.set(roomCode, room);
+    return newScores;
+  }
+
 
 }
 

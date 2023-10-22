@@ -56,8 +56,10 @@ class GameRoom {
     this.actionsArray = [];
   }
 
-  getCode(){
-    return this.roomCode;
+  /* Interactions with Playing State of Game Functions */
+
+  getNextQuestion() {
+    return this.gameQuestions.shift();
   }
 
   /**
@@ -75,6 +77,28 @@ class GameRoom {
     }
   }
 
+  addAction(action){
+    this.actionsArray.push(action)
+  }
+
+  resetActions(){
+    this.actionsArray = [];
+  }
+
+  addPlayerScore(){
+    
+  }
+
+  /* Some other functions */
+
+  updateGameQuestions(questions) {
+    this.gameQuestions = questions;
+  }
+
+  getCode(){
+    return this.roomCode;
+  }
+
   /** 
    * Purpose: Checks whether the room is currently in waiting
    * @returns {Boolean} True if the room is waiting, false if in progress
@@ -82,6 +106,8 @@ class GameRoom {
   isIdle(){
     return this.roomState == roomState.WAITING;
   }
+
+  /* Player Interaction */
 
   isGameMaster(username) {
     return this.roomPlayers[0].user.username === username;
@@ -127,6 +153,8 @@ class GameRoom {
   isUserBanned(username) {
       return this.bannedUsers.includes(username);
   }
+
+  /* Setting Interaction */
 
   /**
    * Purpose: Updates the settings of the game room
@@ -186,10 +214,6 @@ class GameRoom {
 
   getRoomCreationTime() {
     return this.creationTime;
-  }
-
-  updateGameQuestions(questions) {
-    this.gameQuestions = questions;
   }
 
   getSettings(){

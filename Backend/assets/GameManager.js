@@ -143,18 +143,19 @@ class GameManager {
   /**
    * Purpose: Calculates the score of each player in the room for the round
    * @param {String} [roomCode]: the room code of the game room
-   * @param {[PlayerAction]} [actions]: array of player actions for the round
    * @return {Object} Object containing return code and map of player tokens to scores:
    *                 returnCode: 0 for success, 1 for room not found
-   *                 scores: Map of player tokens to scores
+   *                 scores: Map of player users to scores
    */
-  calculateScore(roomCode, actions) {
+  calculateScore(roomCode) {
     // Max Score per difficulty
     const scorePerDifficulty = { easy: 100, medium: 200, hard: 300 };
 
     //  Fetch room, if room not found, return error code 1
     const room = this.fetchRoom(roomCode);
     if (room === undefined) return { returnCode: 1, scores: [] };
+
+    const actions = room.actionsArray;
 
     //  Initialize the scores for each player in actions
     let totalScores = new Map();
@@ -220,6 +221,48 @@ class GameManager {
 
     return { returnCode: 0, scores: totalScores };
   }
+
+  /* Room Interaction Stuff */
+
+  updateRoomState(rooCode){
+    let room = this.fetchRoom(roomCode);
+    const newState = room.updateState();
+    roomCodeToGameRoom.set(roomCode, room);
+    return newState;
+  }
+
+  fetchNextQuestion(roomCode){
+    let room = this.fetchRoom(roomCode);
+    let question = room.getNextQuestion();
+    roomCodeToGameRoom.set(roomCode, room);
+    return question;
+  }
+
+  fetchQuestionsQuantity(roomCode){
+    let room = this.fetchRoom(roomCode);
+    return room.gameQuestions.length;
+  }
+
+  /**
+   * Purpose: Adds action to room
+   * @param {*} roomCode 
+   * @param {*} response 
+   * @returns if all players in player list sent an action
+   */
+  addResponseToRoom(roomCode, response){
+    let room = this.fetchRoom(roomCode);
+    room.addAction(response);
+    roomCodeToGameRoom.set(roomCode, room);
+    return (room.actionsArray.length == room.getPlayers().length);
+  }
+
+  resetResponses(roomCode){
+    let room = this.fetchRoom(roomCode);
+    room.resetActions();
+    roomCodeToGameRoom.set(roomCode, room);
+  }
+
+
 }
 
 module.exports = GameManager;

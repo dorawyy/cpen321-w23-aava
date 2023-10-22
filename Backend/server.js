@@ -24,8 +24,18 @@ app.use((req, res, next) => {
 
     if (sessionToken) {
       userDBManager.getUserBySessionToken(sessionToken).then((user) => {
-        req.user = user;
-        next();
+        if (user) {
+          req.user = user;
+          next();
+        } else {
+          res.status(404).send({
+            message: "Unable to find the user for this account.",
+          });
+        }
+      });
+    } else {
+      res.status(404).send({
+        message: "Unable to find the user for this account.",
       });
     }
   }
@@ -123,28 +133,95 @@ app.post("/login", (req, res) => {
  * Logs the user out, destroying their session token.
  */
 app.post("/logout", (req, res) => {
-  const loggedInUser = req.user;
-
-  if (loggedInUser) {
-    userDBManager.setUserSessionToken(loggedInUser.token, null).then(
-      (loggedOutUser) => {
-        assert(loggedOutUser.sessionToken === null);
-        res.status(200).send();
-      },
-      (err) => {
-        console.log("[ERROR]: " + err);
-        res.status(500).send({ message: "An unknown error occurred" });
-      }
-    );
-  } else {
-    res.status(404).send({
-      message: "Unable to find the user for this account.",
-    });
-  }
+  userDBManager.setUserSessionToken(loggedInUser.token, null).then(
+    (loggedOutUser) => {
+      assert(loggedOutUser.sessionToken === null);
+      res.status(200).send();
+    },
+    (err) => {
+      console.log("[ERROR]: " + err);
+      res.status(500).send({ message: "An unknown error occurred" });
+    }
+  );
 });
 
+/**
+ * Puts the user in a random active game room. The user will only
+ * be put in a game room that is marked as public.
+ */
 app.post("/join-random-room", (req, res) => {
-  console.log("joining a random room...");
+  const user = req.user;
+
+  // Fetch all the public game rooms with space remaining for new players
+  const availableRooms = gameManager.getAvailableRooms();
+
+  if (availableRooms.length == 0) {
+    res.status(404).send({
+      message: "No game rooms available at the moment. Please try again later.",
+    });
+    return;
+  }
+
+  // Prioritize rooms that have been waiting for a long time
+
+  // TODO: If we have a game room return from a game, we will need to "refresh"
+  // the room's creation time. Otherwise, that room will be very high priority
+  // because the server thinks that it was created a long time ago, when really
+  // the game room was playing a game and wasn't "waiting" for all that time.
+  availableRooms.sort(
+    (roomA, roomB) => roomA.getRoomCreationTime() - roomB.getRoomCreationTime()
+  );
+
+  // Prioritize rooms with the rank of players that are closest to the user's rank
+  const roomPriorities = [];
+
+  for (let i = 0; i < availableRooms.length; i++) {
+    const room = availableRooms[i];
+
+    let players = room.getPlayers();
+
+    // Calculate the average rank
+    let totalRank = players.reduce((sum, player) => sum + player.rank, 0);
+    let averageRank = totalRank / players.length;
+
+    // This priority is a weighted value that considers how long the room has been
+    // waiting and how similar the ranks of other players in that room are compared
+    // to the user.
+    //
+    // Rooms that have been waiting for a long time will have a lower priority value.
+    // Rooms with average player ranks that are similar to the user will also have
+    // a lower priority value.
+    //
+    // The lower the priority value, the more suitable the room is for the user.
+    const priority = i + Math.abs(playerRank - averageRank);
+
+    roomPriorities.push({ roomCode: room.roomCode, priority: priority });
+  }
+
+  console.log("Here are all the rooms:");
+  console.log(roomPriorities);
+  console.log(roomPriorities[0]["priority"]);
+
+  roomPriorities.sort((roomA, roomB) => roomA["priority"] - roomB["priority"]);
+
+  const player = new Player(user);
+
+  for (var room of roomPriorities) {
+    let joinSuccess = room.addPlayer(player);
+
+    if (joinSuccess) {
+      res.status(200).send({
+        roomId: bestRoom.roomId,
+        roomCode: bestRoom.roomCode,
+      });
+
+      break;
+    }
+  }
+
+  // TODO: Now intialize the socket connection and pass in roomId
+
+  return;
 });
 
 /**
@@ -159,7 +236,6 @@ app.post("/join-room-by-code", (req, res) => {
   if (room) {
     const userBanned = room.isUserBanned(user.username);
 
-    console.log(userBanned);
     if (userBanned) {
       res.status(403).send({ message: "You are banned from this game room." });
     } else {
@@ -340,3 +416,13 @@ io.on("connection", (socket) => {
   socket.on("readyForNextQuestion", (data) => {})
 
 });
+
+/*
+Mon -> have template (model) classes defined
+Fri -> have all classes done (implement functions)
+    -> define endpoints for frontend to call
+Sat/Sun -> have interactions/functions ready for integration
+
+Tues (24) -> deadline for getting backend ready for integration
+
+*/

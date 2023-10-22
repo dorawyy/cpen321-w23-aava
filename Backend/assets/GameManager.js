@@ -52,8 +52,22 @@ class GameManager {
    * @return {GameRoom} The game room that was fetched
    */
   fetchRoom(roomCode) {
-    console.log("👽" + roomCode);
     return this.roomCodeToGameRoom.get(roomCode);
+  }
+
+  /**
+   * Purpose: Returns all the public game rooms that still have
+   * space for new users to join.
+   *
+   * @return {Array[GameRoom]} All the public game rooms with space
+   * for additional players.
+   */
+  getAvailableRooms() {
+    return [...this.roomCodeToGameRoom.values()].filter(
+      (gameRoom) =>
+        gameRoom.isPublic === true &&
+        gameRoom.roomPlayers.length < gameRoom.roomSettings.maxPlayers
+    );
   }
 
   /**
@@ -132,7 +146,6 @@ class GameManager {
    * @return {Object} Object containing return code and map of player tokens to scores:
    *                 returnCode: 0 for success, 1 for room not found
    *                 scores: Map of player tokens to scores
-   * TODO: Talk to bicky about not using tokens maybe
    */
   calculateScore(roomCode, actions) {
     // Max Score per difficulty

@@ -63,7 +63,7 @@ class GameRoom {
    * @return {Boolean} true if the player was added successfully, false otherwise.
    */
   addPlayer(player) {
-    if (this.roomPlayers.length < this.roomSettings.maxPlayers - 1) {
+    if (this.roomPlayers.length < this.roomSettings.maxPlayers) {
       this.roomPlayers.push(player);
       return true;
     }
@@ -142,6 +142,10 @@ class GameRoom {
 
   getRoomCreationTime() {
     return this.creationTime;
+  }
+
+  getPlayers() {
+    return this.roomPlayers;
   }
 
   updateGameQuestions(questions) {

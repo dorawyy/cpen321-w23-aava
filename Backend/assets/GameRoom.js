@@ -52,8 +52,8 @@ class GameRoom {
     this.creationTime = Date.now();
   }
 
-  isGameMaster(user) {
-    return this.roomPlayers[0].user === user;
+  isGameMaster(username) {
+    return this.roomPlayers[0].user.username === username;
   }
 
   /**
@@ -76,8 +76,8 @@ class GameRoom {
    * @param {User} [user]: the username of the player to be removed
    * @return None
    */
-  removePlayer(user) {
-    this.roomPlayers = this.roomPlayers.filter(player => player.user !== user);
+  removePlayer(username) {
+    this.roomPlayers = this.roomPlayers.filter(player => player.user.username !== user.username);
   }
 
   banPlayer(username) {

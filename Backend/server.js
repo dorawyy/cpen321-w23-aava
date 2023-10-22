@@ -298,71 +298,58 @@ const io = new Server(server);
 io.on("connection", (socket) => {
   console.log("A user connected");
 
-  socket.on("joinRoom", async (data) => {
+  socket.on("joinRoom", (data) => {
     const message = JSON.parse(data);;
-    const user = await userDBManager.getUserBySessionToken(message.sessionToken);
-    
-    if (user != undefined) {
-      const username = user.username;
-
-      const room = gameManager.fetchRoom(message.roomId);
-      const players = room.getPlayers();
-      const roomCode = room.getCode();
-      const roomSettings = room.getSettings();
-
-      // Player Joins Room
-      socket.join(roomId);
-
-      // Send Room Data to Player
-      socket.emit("welcomeNewPlayer", express.json({ roomPlayers: players, roomCode: roomCode, roomSettings: roomSettings}));
-
-      // Send Player Joined to Other Players
-      socket.to(roomId).emit("playerJoined", express.json({ newPlayerUsername: username }));
-    }
+    const username = message.username;
+  
+    const room = gameManager.fetchRoom(message.roomId);
+    const players = room.getPlayers();
+    const roomCode = room.getCode();
+    const roomSettings = room.getSettings();
+    // Player Joins Room
+    socket.join(roomId);
+    // Send Room Data to Player
+    socket.emit("welcomeNewPlayer", express.json({ roomPlayers: players, roomCode: roomCode, roomSettings: roomSettings}));
+    // Send Player Joined to Other Players
+    socket.to(roomId).emit("playerJoined", express.json({ newPlayerUsername: username }));
 
   });
 
   // TODO: Maybe add some return message to user who sent this so they knwo when to clsoe connection on their end
-  socket.on("leaveRoom", async (data) => {
+  socket.on("leaveRoom", (data) => {
     const message = JSON.parse(data);
-    const user = await userDBManager.getUserBySessionToken(message.sessionToken);
+    const username = message.username;
 
-    if (user != undefined){
-      const room = gameManager.fetchRoom(message.roomId);
-      room.removePlayer(user);
-
-      if (room.isGameMaster(user)){
-        // TODO: Close the room (delete it from the game manager)
-        socket.to(roomId).emit("roomClose");
-      } else {
-        // Send Player Left to Other Players
-        socket.to(roomId).emit("playerLeft", express.json({ playerUsername: user.username , reason: "left"}));
-      }
-      
-
-      // CLose SOcket Connection with Player
-      socket.leave(roomId);
+    const room = gameManager.fetchRoom(message.roomId);
+    room.removePlayer(username);
+    if (room.isGameMaster(user)){
+      // TODO: Close the room (delete it from the game manager)
+      socket.to(roomId).emit("roomClose");
+    } else {
+      // Send Player Left to Other Players
+      socket.to(roomId).emit("playerLeft", express.json({ playerUsername: user.username , reason: "left"}));
     }
+    
+    // CLose SOcket Connection with Player
+    socket.leave(roomId);
 
   });
 
   // TODO: Maybe add check to see if user is game master
   socket.on("banPlayer", async (data) => {
     const message = JSON.parse(data);
-    const user = await userDBManager.getUserBySessionToken(message.sessionToken);
-    const banneUser = await userDBManager.getUserByUsername(message.bannedUsername);
+    const banneUser = message.playerToBanUsername;
 
-    if (user != undefined && banneUser != undefined && user.isGameMaster()){
-      const room = gameManager.fetchRoom(message.roomId);
-      room.removePlayer(banneUser);
-      room.banPlayer(banneUser.username);
+    const room = gameManager.fetchRoom(message.roomId);
+    room.removePlayer(banneUser);
+    room.banPlayer(banneUserusername);
 
-      // Send Player Left to Other Players
-      socket.to(roomId).emit("playerLeft", express.json({ playerUsername: user.username , reason: "banned"}));
+    // Send Player Left to Other Players
+    socket.to(roomId).emit("playerLeft", express.json({ playerUsername: user.username , reason: "banned"}));
 
-      // CLose SOcket Connection with Player
-      socket.leave(roomId);
-    }
+    // CLose SOcket Connection with Player
+    socket.leave(roomId);
+
   })
 
   socket.on("changeSetting", (data) => {
@@ -405,11 +392,34 @@ io.on("connection", (socket) => {
   })
 
 
-  socket.on("readyToStartGame", (data) => {})
+  socket.on("readyToStartGame", async (data) => {
+    const message = JSON.parse(data);
+    const username = message.username;
 
-  socket.on("startGame", (data) => {})
+    socket.to(roomId).emit("playerReadyToStartGame", express.json({ playerUsername: username }));
 
-  socket.on("submitAnswer", (data) => {})
+  })
+
+  // TODO: ADD Game Logic
+  socket.on("startGame", (data) => {
+    const message = JSON.parse(data);
+    const username = message.username;
+
+    socket.to(roomId).emit("startTheGame");
+    socket.emit("startTheGame");
+  })
+
+  // TODO: Add Game Logic
+  socket.on("submitAnswer", (data) => {
+    const message = JSON.parse(data);
+    
+    const actions = []
+    actions.push(new PlayerAction(message.username, message.timeDelay, message.isCorrect, message.powerupCode, message.powerupVictimUsername));
+
+
+
+    
+  })
 
   socket.on("submitEmote", (data) => {})
 

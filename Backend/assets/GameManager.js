@@ -161,29 +161,24 @@ class GameManager {
     let victimToThieves = new Map();
 
     actions.forEach((action) => {
-      totalScores.set(action.playerToken, 0);
-      stolenScores.set(action.playerToken, 0);
-      victimToThieves.set(action.playerToken, []);
+      totalScores.set(action.getPlayer(), 0);
+      stolenScores.set(action.getPlayer(), 0);
+      victimToThieves.set(action.getPlayer(), []);
     });
 
     // Calculate the score for each player based on time delay and correctness (and 2x powerup)
     const maxScore = scorePerDifficulty[room.getDifficultySetting()];
-    const maxTime = room.getTimeSetting();
+    const maxTime = room.getTimeSetting() * 1000;
     actions.forEach((action) => {
-      if (action.isCorrect) {
+      if (action.getCorrect()) {
         // If took too long, no points; else give mark based on how quickly answer pressed
-        let correctnessMark =
-          action.timeDelay > maxTime
-            ? 0
-            : (maxTime - action.timeDelay) / maxTime;
+        let correctnessMark = action.getDelay() > maxTime ? 0 : (maxTime - action.getDelay()) / maxTime;
 
         // Round the score and double if 2x powerup used
-        let score =
-          Math.round(correctnessMark * maxScore) *
-          (action.powerupUsed === PowerupEnum.DOUBLE_POINTS ? 2 : 1);
+        let score = Math.round(correctnessMark * maxScore) * (action.getPowerup() === PowerupEnum.DOUBLE_POINTS ? 2 : 1);
 
         // Update the total score for the player
-        totalScores.set(action.playerToken, score);
+        totalScores.set(action.getPlayer(), score);
       }
     });
 
@@ -193,17 +188,17 @@ class GameManager {
     let playerScores = [...totalScores.values()].filter((score) => score > 0);
     const lowestScore = playerScores.length > 0 ? Math.min(...playerScores) : 0;
     actions.forEach((action) => {
-      if (action.powerupUsed === PowerupEnum.FREE_LUNCH) {
-        totalScores.set(action.playerToken, lowestScore);
+      if (action.getPowerup() === PowerupEnum.FREE_LUNCH) {
+        totalScores.set(action.getPlayer(), lowestScore);
       }
     });
 
     // Calculate Steal Points powerup
     actions.forEach((action) => {
-      if (action.powerupUsed === PowerupEnum.STEAL_POINTS) {
-        let thieves = victimToThieves.get(action.powerupVictimToken);
-        thieves.push(action.playerToken);
-        victimToThieves.set(action.powerupVictimToken, thieves);
+      if (action.getPowerup() === PowerupEnum.STEAL_POINTS) {
+        let thieves = victimToThieves.get(action.getVictim());
+        thieves.push(action.getPlayer());
+        victimToThieves.set(action.getVictim(), thieves);
       }
     });
 

@@ -4,17 +4,17 @@
  */
 class PlayerAction {
   constructor(
-    playerToken,
+    mainPlayer,
     timeDelay,
     isCorrect,
     powerupUsed,
-    powerupVictimToken
+    powerupVictim
   ) {
     /**
      * The unique user token of the player who performed this
      * PlayerAction.
      */
-    this.playerToken = playerToken;
+    this.mainPlayer = mainPlayer;
 
     /**
      * The number of milliseconds that elapsed between the start
@@ -42,8 +42,29 @@ class PlayerAction {
      * This field is populated only if (powerupUsed == PowerupEnum.STEAL_POINTS).
      * Otherwise, this field should be null.
      */
-    this.powerupVictimToken = powerupVictimToken;
+    this.powerupVictim = powerupVictim;
   }
+
+  getPlayer() {
+    return this.mainPlayer;
+  }
+
+  getDelay() {
+    return this.timeDelay;
+  }
+
+  getCorrect() {
+    return this.isCorrect;
+  }
+
+  getPowerup() {
+    return this.powerupUsed;
+  }
+
+  getVictim() {
+    return this.powerupVictim;
+  }
+
 }
 
 module.exports = PlayerAction;

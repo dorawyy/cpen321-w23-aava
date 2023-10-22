@@ -66,28 +66,25 @@ class GameRoom {
    * Purpose: Updates the state of the room to the opposite of what it currently is
    * @returns {Number} The current state of the room
    */
-  updateState(){
-    if (this.roomState == roomState.WAITING){
+  updateState() {
+    if (this.roomState == roomState.WAITING) {
       this.roomState = roomState.IN_PROGRESS;
       return roomState.IN_PROGRESS;
-    }
-    else {
+    } else {
       this.roomState = roomState.WAITING;
       return roomState.WAITING;
     }
   }
 
-  addAction(action){
-    this.actionsArray.push(action)
+  addAction(action) {
+    this.actionsArray.push(action);
   }
 
-  resetActions(){
+  resetActions() {
     this.actionsArray = [];
   }
 
-  addPlayerScore(){
-    
-  }
+  addPlayerScore() {}
 
   /* Some other functions */
 
@@ -95,26 +92,42 @@ class GameRoom {
     this.gameQuestions = questions;
   }
 
-  getCode(){
+  getCode() {
     return this.roomCode;
   }
 
-  /** 
+  /**
    * Purpose: Checks whether the room is currently in waiting
    * @returns {Boolean} True if the room is waiting, false if in progress
    */
-  isIdle(){
+  isIdle() {
     return this.roomState == roomState.WAITING;
   }
 
   /* Player Interaction */
 
+  /**
+   * Returns true if `username` is the username of the game room master,
+   * false otherwise.
+   */
   isGameMaster(username) {
     return this.roomPlayers[0].user.username === username;
   }
 
   getPlayers() {
     return this.roomPlayers;
+  }
+
+  /**
+   * Purpose: Fetches the player with `username`as the username.
+   */
+  getPlayer(username) {
+    const players = this.getPlayers();
+    for (let p of players) {
+      if (p.user.username === username) {
+        return p;
+      }
+    }
   }
 
   /**
@@ -138,20 +151,22 @@ class GameRoom {
    * @return None
    */
   removePlayer(username) {
-    this.roomPlayers = this.roomPlayers.filter(player => player.user.username !== user.username);
+    this.roomPlayers = this.roomPlayers.filter(
+      (player) => player.user.username !== username
+    );
   }
 
   banPlayer(username) {
     this.bannedUsers.push(username);
   }
 
-    /**
+  /**
    * Purpose; Checks whether a username is banned from this game room.
    * @param {String} [username] The username to check
    * @returns {Boolean} True if the username is banned, false otherwise
    */
   isUserBanned(username) {
-      return this.bannedUsers.includes(username);
+    return this.bannedUsers.includes(username);
   }
 
   /* Setting Interaction */
@@ -165,10 +180,10 @@ class GameRoom {
    *    - difficulty: the difficulty of the questions
    *    - maxPlayers: the maximum number of players allowed in the room
    *    - time: the time allowed to answer a question
-   *    - total: the total number of questions in the game 
+   *    - total: the total number of questions in the game
    * @param {String} [value]: the new value of the setting
    * @return None
-   * 
+   *
    */
   updateSetting(setting, value) {
     switch (setting) {
@@ -216,7 +231,7 @@ class GameRoom {
     return this.creationTime;
   }
 
-  getSettings(){
+  getSettings() {
     return this.roomSettings;
   }
 }

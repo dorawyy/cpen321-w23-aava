@@ -318,10 +318,20 @@ const sendQuestion = (socket, roomId) => {
   }, START_Q_DELAY + READ_Q_DELAY);
 };
 
-// TODO: Add USername to joinRoom and leaveRoom and banPlayer
-// TODO: validate sessionToken header
 io.on("connection", (socket) => {
   console.log("A user connected");
+
+  const sessionToken = socket.handshake.query.sessionToken;
+  console.log("Checking their session token: " + sessionToken);
+  userDBManager.getUserBySessionToken(sessionToken).then((user) => {
+    if (user === undefined) {
+      // Disconnect this client. They do not have a valid sessionToken
+      socket.disconnect();
+    }
+  });
+
+  console.log("Client has a valid sessionToken");
+
   // TODO: delete after. This is used for testing
   if (gameManager.fetchRoom("ABC123") === undefined) {
     gameManager.testing();
@@ -332,22 +342,20 @@ io.on("connection", (socket) => {
     const message = JSON.parse(data);
 
     const username = message.username;
-    const room = gameManager.fetchRoom(message.roomCode);
+    const room = gameManager.fetchRoomById(message.roomId);
 
     if (room === undefined) {
-      // TODO: close the socket connection, because the room
-      // no longer exists
+      socket.emit("error", {
+        message: "The room you are trying to join no longer exists.",
+      });
 
       return;
     }
 
-    // Security check that the client's room id is valid
-    if (message.roomId !== room.roomId) {
-      // TODO: close the socket connection, the roomId doesn't match
-      // the actual room's id
-    }
-
     const players = room.getPlayers();
+
+    // This will hold the player fields that we want to include
+    // in our welcomeNewPlayer event payload
     const playersJson = [];
     let newPlayerRank;
 
@@ -358,74 +366,119 @@ io.on("connection", (socket) => {
       });
 
       if (player.user.username === message.username) {
+        // Keep the new player's rank to send in the payload of playerJoined
         newPlayerRank = player.user.rank;
+
+        // Since joinRoom is the first event that is emitted by a client
+        // after they connect to the socket, we need to store their socket id
+        console.log(
+          `User ${username} with socket.id=${socket.id} joined room ${roomName}`
+        );
+
+        player.setSocketId(socket.id);
+        console.log("set player's socket id to " + player.getSocketId());
       }
     }
 
     const roomSettings = room.getSettings();
 
     // Player Joins Room
-    socket.join(message.roomId);
+    socket.join(room.roomId);
 
     // Send Room Data to Player
     socket.emit("welcomeNewPlayer", {
       roomPlayers: playersJson,
-      roomCode: message.roomCode,
+      roomCode: room.roomCode,
       roomSettings: roomSettings,
     });
 
-    console.log("welcome emitted");
-
-    // Send Player Joined to Other Players
+    // Notify players in the room that a new player has joined
     socket.to(message.roomId).emit("playerJoined", {
       newPlayerUsername: username,
       newPlayerRank: newPlayerRank,
     });
   });
 
-  // TODO: Maybe add some return message to user who sent this so they knwo when to clsoe connection on their end
   socket.on("leaveRoom", (data) => {
     const message = JSON.parse(data);
     const username = message.username;
+    const roomId = message.roomId;
 
-    const room = gameManager.fetchRoom(message.roomId);
-    room.removePlayer(username);
-    if (room.isGameMaster(user)) {
-      // TODO: Close the room (delete it from the game manager)
-      socket.to(roomId).emit("roomClose");
+    const room = gameManager.fetchRoom(roomId);
+
+    if (room.isGameMaster(username)) {
+      // Now remove all players from room.
+      for (let player of room.getPlayers()) {
+        const playerUsername = player.user.username;
+        room.removePlayer(playerUsername);
+
+        // Be sure to also close remove them from this socket room
+        let playerSocket = io.sockets.sockets.get(player.getSocketId());
+        if (playerSocket) {
+          playerSocket.leave(roomId);
+          playerSocket.emit("roomClosed");
+        }
+      }
+
+      // The room should now be empty. Remove the room so that no one
+      // can join it.
+      assert(room.getPlayers().length === 0);
+      const success = gameManager.removeRoomById(roomId);
+
+      if (!success) {
+        throw new Error("Could not remove room with id " + room.roomId);
+      }
+
+      console.log("Room was removed successfully");
     } else {
-      // Send Player Left to Other Players
+      // Notify other players still in the room that a player
+      // has left
       socket
         .to(roomId)
-        .emit(
-          "playerLeft",
-          express.json({ playerUsername: user.username, reason: "left" })
-        );
-    }
+        .emit("playerLeft", { playerUsername: username, reason: "left" });
 
-    // CLose SOcket Connection with Player
-    socket.leave(roomId);
+      // Notify the player who left that their request has been fulfilled.
+      socket.emit("removedFromRoom", {
+        reason: "left",
+      });
+    }
   });
 
-  // TODO: Maybe add check to see if user is game master
   socket.on("banPlayer", async (data) => {
     const message = JSON.parse(data);
-    const banneUser = message.playerToBanUsername;
+    const roomId = message.roomId;
+    const username = message.username;
+    const bannedUsername = message.playerToBanUsername;
 
-    const room = gameManager.fetchRoom(message.roomId);
-    room.removePlayer(banneUser);
-    room.banPlayer(banneUserusername);
+    const room = gameManager.fetchRoom(roomId);
 
-    // Send Player Left to Other Players
+    if (!room.isGameMaster(username)) {
+      socket.emit("error", {
+        message: "You must be the game room owner to ban another user.",
+      });
+
+      return;
+    }
+
+    room.removePlayer(bannedUsername);
+    room.banPlayer(bannedUsername);
+
+    // Notify other players that a player has been banned from the room
     socket
       .to(roomId)
       .emit(
         "playerLeft",
-        express.json({ playerUsername: user.username, reason: "banned" })
+        express.json({ playerUsername: bannedUsername, reason: "banned" })
       );
 
-    // CLose SOcket Connection with Player
-    socket.leave(roomId);
+    // Notify the banned player that they have been banned
+    const bannedPlayer = room.getPlayer(bannedUsername);
+    const bannedPlayerSocketId = bannedPlayer.getSocketId();
+
+    let bannedPlayerSocket = io.sockets.sockets.get(bannedPlayerSocketId);
+    bannedPlayerSocket.emit("removedFromRoom", {
+      reason: "banned",
+    });
   });
 
   socket.on("changeSetting", (data) => {

@@ -81,6 +81,30 @@ class GameManager {
   }
 
   /**
+   * Purpose: Fetches the game room with the given room Id. If no game room
+   * matches roomId, returns undefined.
+   * @param {String} [roomId]: The unique id of the game room to get
+   * @return {GameRoom} The game room with id matching roomId
+   */
+  fetchRoomById(roomId) {
+    [...this.roomCodeToGameRoom.values()].find(
+      (gameRoom) => gameRoom.roomId === roomId
+    );
+  }
+
+  /**
+   * Purpose: Removes a room from the current list of active rooms. There
+   * must not be any players in the room before calling this function.
+   * @param {String} [roomId]: The unique id of the game room to remove.
+   * @return {Boolean} True if room was removed successfully, false otherwise.
+   */
+  removeRoomById(roomId) {
+    const roomToRemove = this.fetchRoomById(roomId);
+    const roomCode = roomToRemove.roomCode;
+    return this.roomCodeToGameRoom.delete(roomCode);
+  }
+
+  /**
    * Purpose: Returns all the public game rooms that still have
    * space for new users to join.
    *
@@ -254,45 +278,43 @@ class GameManager {
 
   /* Room Interaction Stuff */
 
-  updateRoomState(rooCode){
+  updateRoomState(rooCode) {
     let room = this.fetchRoom(roomCode);
     const newState = room.updateState();
     roomCodeToGameRoom.set(roomCode, room);
     return newState;
   }
 
-  fetchNextQuestion(roomCode){
+  fetchNextQuestion(roomCode) {
     let room = this.fetchRoom(roomCode);
     let question = room.getNextQuestion();
     roomCodeToGameRoom.set(roomCode, room);
     return question;
   }
 
-  fetchQuestionsQuantity(roomCode){
+  fetchQuestionsQuantity(roomCode) {
     let room = this.fetchRoom(roomCode);
     return room.gameQuestions.length;
   }
 
   /**
    * Purpose: Adds action to room
-   * @param {*} roomCode 
-   * @param {*} response 
+   * @param {*} roomCode
+   * @param {*} response
    * @returns if all players in player list sent an action
    */
-  addResponseToRoom(roomCode, response){
+  addResponseToRoom(roomCode, response) {
     let room = this.fetchRoom(roomCode);
     room.addAction(response);
     roomCodeToGameRoom.set(roomCode, room);
-    return (room.actionsArray.length == room.getPlayers().length);
+    return room.actionsArray.length == room.getPlayers().length;
   }
 
-  resetResponses(roomCode){
+  resetResponses(roomCode) {
     let room = this.fetchRoom(roomCode);
     room.resetActions();
     roomCodeToGameRoom.set(roomCode, room);
   }
-
-
 }
 
 module.exports = GameManager;

@@ -55,6 +55,33 @@ class Settings {
      */
     this.totalQuestions = total;
   }
+
+  updateIsPublic(isPublic) {
+    this.roomIsPublic = isPublic;
+  }
+
+  addCategory(category) {
+    this.questionCategories.push(category);
+  }
+
+  removeCategory(category) {
+    this.questionCategories = this.questionCategories.filter(e => e !== category);
+  }
+
+  updateDifficulty(difficulty) {
+    this.questionDifficulty = difficulty;
+  }
+
+  updateMaxPlayers(maxPlayers) {
+    this.maxPlayers = maxPlayers;
+  }
+
+  updateTime(time) {
+    this.questionTime = time;
+  }
+  updateTotal(total) {
+    this.totalQuestions = total;
+  }
 }
 
 module.exports = Settings;

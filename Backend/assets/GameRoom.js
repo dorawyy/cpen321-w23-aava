@@ -52,6 +52,10 @@ class GameRoom {
     this.creationTime = Date.now();
   }
 
+  isGameMaster(user) {
+    return this.roomPlayers[0].user === user;
+  }
+
   /**
    * Purpose: If there is still available space in this room, adds the
    * new player.
@@ -69,30 +73,55 @@ class GameRoom {
 
   /**
    * Purpose: Removes a player from the game room
-   * @param {Player} [player]: the username of the player to be removed
+   * @param {User} [user]: the username of the player to be removed
    * @return None
    */
-  removePlayer(player) {
-    const index = this.roomPlayers.indexOf(player);
-    if (index > -1) {
-      this.roomPlayers.splice(index, 1);
-    }
+  removePlayer(user) {
+    this.roomPlayers = this.roomPlayers.filter(player => player.user !== user);
+  }
+
+  banPlayer(username) {
+    this.bannedUsers.push(username);
   }
 
   /**
    * Purpose: Updates the settings of the game room
-   * @param {Settings} [newSettings]: the new settings for the room
+   * @param {String} [setting]: the setting to be updated
+   *    - isPublic: whether the room is public or private
+   *    - add-category: adds a category to the list of categories
+   *    - remove-category: removes a category from the list of categories
+   *    - difficulty: the difficulty of the questions
+   *    - maxPlayers: the maximum number of players allowed in the room
+   *    - time: the time allowed to answer a question
+   *    - total: the total number of questions in the game 
+   * @param {String} [value]: the new value of the setting
    * @return None
+   * 
    */
-  updateSettings(isPublic, categories, difficulty, maxPlayers, time, total) {
-    this.roomSettings = new Settings(
-      isPublic,
-      categories,
-      difficulty,
-      maxPlayers,
-      time,
-      total
-    );
+  updateSetting(setting, value) {
+    switch (setting) {
+      case "isPublic":
+        this.roomSettings.updateIsPublic(value);
+        break;
+      case "add-category":
+        this.roomSettings.addCategory(value);
+        break;
+      case "remove-category":
+        this.roomSettings.removeCategory(value);
+        break;
+      case "difficulty":
+        this.roomSettings.updateDifficulty(value);
+        break;
+      case "maxPlayers":
+        this.roomSettings.updateMaxPlayers(value);
+        break;
+      case "time":
+        this.roomSettings.updateTime(value);
+        break;
+      case "total":
+        this.roomSettings.updateTotal(value);
+        break;
+    }
   }
 
   getCategorySetting() {
@@ -126,6 +155,18 @@ class GameRoom {
    */
   isUserBanned(username) {
     return this.bannedUsers.includes(username);
+  }
+
+  getPlayers(){
+    return this.roomPlayers;
+  }
+
+  getCode(){
+    return this.roomCode;
+  }
+
+  getSettings(){
+    return this.roomSettings;
   }
 }
 

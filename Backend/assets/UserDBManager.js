@@ -91,7 +91,17 @@ class UserDBManager {
     if (user) {
       return user;
     } else {
-      return;
+      return undefined;
+    }
+  }
+
+  async getUserByUsername(username) {
+    const user = await this.usersCollection.findOne({ username: username });
+    
+    if (user) {
+      return user;
+    } else {
+      return undefined;
     }
   }
 }

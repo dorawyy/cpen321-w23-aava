@@ -3,26 +3,8 @@ package com.aava.cpen321project;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 
-
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-
-public class LoginActivity extends Activity {
-    private GoogleSignInClient mGoogleSignInClient;
-    private Integer RC_SIGN_IN = 1;
-    final static String TAG = "MenuActivity";
+public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

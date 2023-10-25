@@ -113,7 +113,6 @@ public class LoginActivity extends AppCompatActivity {
                 serverIntent.putExtra("KEY_STRING", userN);
                 startActivity(serverIntent);
 
-
             }
         }
 

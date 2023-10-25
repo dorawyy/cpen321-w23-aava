@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">cpen321project</string>
+    <string name="kashoot">Kashoot!</string>
+    <string name="play">PLAY!</string>
 </resources>

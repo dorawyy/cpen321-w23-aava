@@ -1,101 +1,143 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0099CC"
     android:orientation="vertical"
     android:gravity="center_horizontal">
 
-    <TextView
-        android:id="@+id/titleText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:text="Kashoot!"
-        android:textSize="40sp"
-        android:textStyle="bold"
-        android:textColor="#FFFFFF" />
-
-    <TextView
-        android:id="@+id/playText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:text="PLAY!"
-        android:textColor="#FFFFFF" />
-
-    <ImageButton
-        android:id="@+id/playButton"
-        android:layout_width="741dp"
-        android:layout_height="877dp"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/midground_hex"
-        android:contentDescription="Description of the image"
-        android:scaleX="0.6"
-        android:scaleY="0.6"
-        android:src="@drawable/menu_play_icon" />
-
-    <!-- Horizontal LinearLayout for the ImageButtons next to the playButton -->
-    <LinearLayout
+    <RelativeLayout
+        android:id="@+id/menu_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
+        android:layout_height="match_parent">
 
-        <ImageButton
-            android:id="@+id/createButton"
-            android:layout_width="305dp"
-            android:layout_height="402dp"
-            android:layout_marginRight="20dp"
-            android:background="@drawable/midground_hex"
-            android:scaleX="0.6"
-            android:scaleY="0.6"
-            android:src="@drawable/menu_create_icon" />
 
-        <ImageButton
-            android:id="@+id/codeButton1"
-            android:layout_width="240dp"
-            android:layout_height="379dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/midground_hex"
-            android:src="@drawable/menu_code_icon" />
-
-        <ImageButton
-            android:id="@+id/codeButton2"
-            android:layout_width="274dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginLeft="20dp"
-            android:background="@drawable/midground_hex"
-            android:scaleX="0.6"
-            android:scaleY="0.6"
-            android:src="@drawable/menu_code_icon" />
-    </LinearLayout>
+            android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/accountText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="90dp"
-        android:text="ACCOUNT"
-        android:textColor="#FFFFFF"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+            <!-- Header -->
 
-    <TextView
-        android:id="@+id/userText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello, Alice"
-        android:textSize="18sp"
-        android:textColor="#FFFFFF" />
+            <TextView
+                android:id="@+id/titleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="50dp"
+                android:text="@string/kashoot"
+                android:textSize="40sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF" />
 
-    <ImageView
-        android:id="@+id/logoImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="50dp"
-        android:src="@drawable/logo"
-        android:background="?android:attr/selectableItemBackground" />
 
-</LinearLayout>
+            <!-- Play Button -->
+            <ImageView
+                android:id="@+id/playButton"
+                android:layout_width="150dp"
+                android:layout_height="200dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/midground_hex"
+                android:clickable="true"
+                android:focusable="true"
+                android:onClick="onPlayButtonClick"
+                android:contentDescription="Play"
+                android:src="@drawable/menu_play_icon" />
+
+            <TextView
+                android:id="@+id/playText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="50dp"
+                android:text="@string/play"
+                android:textColor="#FFFFFF" />
+
+            <!-- Horizontal Layout for the ImageButtons next to the playButton -->
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="20dp">
+
+                <!-- Code Button 1 -->
+                <ImageView
+                    android:id="@+id/codeButton1"
+                    android:layout_width="150dp"
+                    android:layout_height="200dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/midground_hex"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:onClick="onCodeButton1Click"
+                    android:contentDescription="Enter Code"
+                    android:src="@drawable/menu_code_icon" />
+
+
+                <LinearLayout
+                    android:layout_width="150dp"
+                    android:layout_height="250dp"
+                    android:orientation="vertical">
+
+                            <!-- Account Button -->
+                            <ImageView
+                                android:id="@+id/accountButton"
+                                android:layout_width="150dp"
+                                android:layout_height="200dp"
+                                android:layout_marginLeft="20dp"
+                                android:background="@drawable/midground_hex"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:onClick="onAccountButtonClick"
+                                android:contentDescription="Account"
+                                android:src="@drawable/menu_code_icon" />
+
+                            <TextView
+                                android:id="@+id/accountText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="90dp"
+                                android:text="ACCOUNT"
+                                android:textColor="#FFFFFF"
+                                android:textSize="20sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/userText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Hello, Alice"
+                                android:textSize="18sp"
+                                android:textColor="#FFFFFF" />
+                </LinearLayout>
+
+                <!-- Create Button -->
+                <ImageView
+                    android:id="@+id/createButton"
+                    android:layout_width="150dp"
+                    android:layout_height="200dp"
+                    android:background="@drawable/midground_hex"
+                    android:clickable="true"
+                    android:contentDescription="Create"
+                    android:focusable="true"
+                    android:onClick="onCreateButtonClick"
+                    android:src="@drawable/menu_create_icon" />
+
+            </LinearLayout>
+
+
+            <ImageView
+                android:id="@+id/logoImage"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="50dp"
+                android:src="@drawable/logo"
+                android:background="?android:attr/selectableItemBackground" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
 

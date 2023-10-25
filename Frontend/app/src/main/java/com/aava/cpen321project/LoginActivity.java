@@ -73,13 +73,14 @@ public class LoginActivity extends Activity {
 
             // Signed in successfully, show authenticated UI.
             //TODO
-            ///updateUI(account);
+            updateUI(account);
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
             Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
             //updateUI(null);
         }
+    }
 
         @Override
         protected void onStart() {
@@ -106,14 +107,14 @@ public class LoginActivity extends Activity {
                 //Move to another activity
                 final String userN = account.getGivenName() + account.getFamilyName();
 
-                Intent serverIntent = new Intent(MainActivity.this, ServerInfoActivity.class);
+                Intent serverIntent = new Intent(LoginActivity.this, MenuActivity.class);
                 serverIntent.putExtra("KEY_STRING", userN);
                 startActivity(serverIntent);
 
 
             }
         }
-    }
+
 }
 
 

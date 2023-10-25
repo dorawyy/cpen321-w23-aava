@@ -29,6 +29,7 @@
         android:layout_height="877dp"
         android:layout_marginTop="20dp"
         android:background="@drawable/midground_hex"
+        android:contentDescription="Description of the image"
         android:scaleX="0.6"
         android:scaleY="0.6"
         android:src="@drawable/menu_play_icon" />
@@ -98,8 +99,3 @@
 
 </LinearLayout>
 
-
-
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>

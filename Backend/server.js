@@ -305,17 +305,23 @@ const io = new Server(server);
 
 // Assumes roomId == roomCode
 const sendQuestion = (socket, roomId) => {
+  // Reset the PlayerAction array in the room
   gameManager.resetResponses(roomId);
-  setTimeout(() => {
-    const question = gameManager.fetchNextQuestion(roomId);
-    socket.to(roomId).emit("startQuestion", express.json(question));
-    socket.emit("startQuestion", express.json(question));
-  }, START_Q_DELAY);
+  
+  // Fetch the next question OBject
+  const questionObject = gameManager.fetchNextQuestion(roomId);
+  
+  // Get necessary parameters from question Object to send to the client
+  const question = questionObject.question;
+  const correctAnswer = questionObject.correctAnswer;
+  let answers = questionObject.incorrectAnswers;
+  answers.push(correctAnswer);
+  answers.sort(() => Math.random() - 0.5);
+  const correctIndex = answers.indexOf(correctAnswer);
 
-  setTimeout(() => {
-    socket.to(roomId).emit("startAnswerPeriod");
-    socket.emit("startAnswerPeriod");
-  }, START_Q_DELAY + READ_Q_DELAY);
+
+  socket.to(roomId).emit("startQuestion", {question, answers, correctIndex});
+  socket.emit("startQuestion", {question, answers, correctIndex});
 };
 
 io.on("connection", (socket) => {
@@ -345,10 +351,7 @@ io.on("connection", (socket) => {
     const room = gameManager.fetchRoomById(message.roomId);
 
     if (room === undefined) {
-      socket.emit("error", {
-        message: "The room you are trying to join no longer exists.",
-      });
-
+      socket.emit("error", { message: "The room you are trying to join no longer exists."});
       return;
     }
 
@@ -547,11 +550,6 @@ io.on("connection", (socket) => {
 
     if (res == 0) {
       gameManager.updateRoomState(roomId);
-      socket
-        .to(roomId)
-        .emit("startTheGame", express.json({ timeLimit, totalQuestions }));
-      socket.emit("startTheGame", express.json({ timeLimit, totalQuestions }));
-
       sendQuestion(socket, roomId);
     }
   });
@@ -591,14 +589,16 @@ io.on("connection", (socket) => {
         socket.emit("endAnswerPeriod", express.json({scores}));
 
         // If no remaiing questiosns, end game, else send next questions
-        if (gameManager.fetchQuestionsQuantity(roomId) != 0) {
-          sendQuestion(socket, roomId);
-        } else {
-          setTimeout(() => {
+        setTimeout(() => {
+          if (gameManager.fetchQuestionsQuantity(roomId) != 0) {
+            sendQuestion(socket, roomId);
+          } 
+          else {
             socket.to(roomId).emit("endGame", express.json({scores: totalScores}));
             socket.emit("endGame", express.json({scores: totalScores}));
-          }, START_Q_DELAY);
-        }
+          }
+        }, START_Q_DELAY);
+        
       }
     }
   });

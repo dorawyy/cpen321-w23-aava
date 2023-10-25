@@ -3,8 +3,14 @@ package com.aava.cpen321project;
 import static java.lang.System.currentTimeMillis;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
@@ -12,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -104,11 +111,20 @@ public class GameActivity extends AppCompatActivity {
     private String roomId;
     private boolean isOwner;
 
+    private JSONArray roomPlayers;
+    private int readyCount;
+
+    private boolean roomIsPublic;
+    private JSONArray roomQuestionCategories;
+    private String roomQuestionDifficulty;
+    private int roomMaxPlayers;
+    private int roomQuestionTime;
+    private int roomQuestionCount;
+
+    private boolean started;
+    private int questionNumber;
     private String questionDescription;
-    private String answer1Description;
-    private String answer2Description;
-    private String answer3Description;
-    private String answer4Description;
+    private String[] answerDescriptions;
     private int correctAnswer;
 
     private long questionStartTimeMillis;
@@ -136,16 +152,6 @@ public class GameActivity extends AppCompatActivity {
             put("roomId", roomId);
             put("sessionToken", sessionToken);
         }});
-
-        // Initialize the layout.
-        enableLayout(lobbyUniversalLayout, false, true);
-        if (isOwner) {
-            enableLayout(lobbyOwnerLayout, false, true);
-            // Disable Start button by default, as more players need to join.
-            lobbyOwnerStartImage.setClickable(false);
-        } else {
-            enableLayout(lobbyJoinerLayout, false, true);
-        }
     }
 
     // Overridden for functionality upon leaving GameActivity
@@ -161,20 +167,254 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
+    // Start the question sequence
+    private void startQuestion() {
+        // Show countdown layout
+        countdownCountLabel.setText("3");
+        countdownCountLabel.setVisibility(View.INVISIBLE);
+        countdownReadyLabel.setVisibility(View.VISIBLE);
+        enableLayout(countdownLayout, true, true);
+
+        new CountDownTimer(5000, 1000) {
+            public void onTick(long millisUntilFinished) {
+                if (millisUntilFinished == 3000) {
+                    countdownReadyLabel.setVisibility(View.INVISIBLE);
+                    countdownCountLabel.setVisibility(View.VISIBLE);
+                } else if (millisUntilFinished == 2000) {
+                    countdownCountLabel.setText("2");
+                } else if (millisUntilFinished == 1000) {
+                    countdownCountLabel.setText("1");
+                }
+            }
+            public void onFinish() {
+                // Set label values
+                headerLabel.setText("Q" + questionNumber);
+                questionLabel.setText(questionDescription);
+                questionAnswer1Label.setText(answerDescriptions[0]);
+                questionAnswer2Label.setText(answerDescriptions[1]);
+                questionAnswer3Label.setText(answerDescriptions[2]);
+                questionAnswer4Label.setText(answerDescriptions[3]);
+
+                // Switch layouts
+                disableLayout(countdownLayout);
+                enableLayout(questionLayout, true, false);
+                enableLayout(powerupLayout, true, true);
+
+                // Start another countdown
+                new CountDownTimer(5000, 10) {
+                    public void onTick(long millisUntilFinished) {
+                        questionTimerLabel.setText()
+                    }
+                    public void onFinish() {
+
+                    }
+                }
+            }
+        }
+    }
+
     // Get and set socket value, set all event receiving functionality
     private void getSetSocket() {
         socket = SocketManager.getInstance();
 
         // On connect
         socket.on(Socket.EVENT_CONNECT, args -> {
-           Log.d(TAG, "Connected!");
+            Log.d(TAG, "Connected!");
         });
 
-        // TODO: Implement all handling for server->client communication
+        // On receiving a one-time welcome message
+        socket.on("welcomeNewPlayer", args -> {
+            JSONObject data = (JSONObject) args[0];
+            try {
+                roomPlayers = data.getJSONArray("roomPlayers");
+                JSONObject roomSettings = data.getJSONObject("roomSettings");
+                roomIsPublic = roomSettings.getBoolean("roomIsPublic");
+                roomQuestionCategories = roomSettings.getJSONArray("questionCategories");
+                roomQuestionDifficulty = roomSettings.getString("questionDifficulty");
+                roomMaxPlayers = roomSettings.getInt("maxPlayers");
+                roomQuestionTime = roomSettings.getInt("questionTime");
+                roomQuestionCount = roomSettings.getInt("totalQuestions");
+
+                // Initialize the layout.
+                enableLayout(lobbyUniversalLayout, false, true);
+                if (isOwner) {
+                    enableLayout(lobbyOwnerLayout, false, true);
+                    // Disable Start button by default, as more players need to join.
+                    lobbyOwnerStartImage.setClickable(false);
+                } else {
+                    enableLayout(lobbyJoinerLayout, false, true);
+                }
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        // On another player joining
+        socket.on("playerJoined", args -> {
+            JSONObject data = (JSONObject) args[0];
+            try {
+                JSONObject newPlayerData = new JSONObject();
+                newPlayerData.put("username", data.getString("newPlayerUsername"));
+                newPlayerData.put("rank", data.getInt("newPlayerRank"));
+                roomPlayers.put(newPlayerData);
+                // Disable Start button by default, as the new player needs to ready up.
+                lobbyOwnerStartImage.setClickable(false);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        // On another player leaving
+        socket.on("playerLeft", args -> {
+            JSONObject data = (JSONObject) args[0];
+            try {
+                String leftPlayerUsername = data.getString("playerUsername");
+                for (int p = 0; p < roomPlayers.length(); p++) {
+                    if (roomPlayers.getJSONObject(p).getString("username").equals(leftPlayerUsername)) {
+                        roomPlayers.remove(p);
+                        break;
+                    }
+                }
+                // Check if everyone remaining is ready.
+                if (isOwner && readyCount == roomPlayers.length() - 1) {
+                    lobbyOwnerStartImage.setClickable(true);
+                }
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        // On yourself leaving
+        socket.on("removedFromRoom", args -> {
+            JSONObject data = (JSONObject) args[0];
+            try {
+                String reason = data.getString("reason");
+                if (reason.equals("left")) {
+                    new AlertDialog.Builder(this)
+                            .setTitle("")
+                            .setMessage("You have successfully left the room.")
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.dismiss();
+                                    Intent intent = new Intent(GameActivity.this, MenuActivity.class);
+                                    startActivity(intent);
+                                }
+                            })
+                            .create()
+                            .show();
+                } else if (reason.equals("banned")) {
+                    new AlertDialog.Builder(this)
+                            .setTitle("")
+                            .setMessage("You have been kicked from the room.")
+                            .setPositiveButton("Damn", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.dismiss();
+                                    Intent intent = new Intent(GameActivity.this, MenuActivity.class);
+                                    startActivity(intent);
+                                }
+                            })
+                            .create()
+                            .show();
+                }
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        // On room owner leaving
+        socket.on("roomClosed", args -> {
+            new AlertDialog.Builder(this)
+                    .setTitle("")
+                    .setMessage("Unfortunately, the room owner has left. You will be sent to the main menu.")
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                            Intent intent = new Intent(GameActivity.this, MenuActivity.class);
+                            startActivity(intent);
+                        }
+                    })
+                    .create()
+                    .show();
+        });
+
+        // On setting change
+        socket.on("changedSetting", args -> {
+            JSONObject data = (JSONObject) args[0];
+            try {
+                String option = data.getString("settingOption");
+                switch (option) {
+                    case "isPublic":
+                        roomIsPublic = data.getBoolean("optionValue");
+                        break;
+                    case "difficulty":
+                        roomQuestionDifficulty = data.getString("optionValue");
+                        break;
+                    case "maxPlayers":
+                        roomMaxPlayers = data.getInt("optionValue");
+                        break;
+                    case "timeLimit":
+                        roomQuestionTime = data.getInt("optionValue");
+                        break;
+                    case "numQuestions":
+                        roomQuestionCount = data.getInt("optionValue");
+                        break;
+                    default: // Will be a category set
+                        // TODO: Shouldn't the category be a string, not a number?
+                }
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        // On another player readying
+        socket.on("playerReadyToStartGame", args -> {
+            JSONObject data = (JSONObject) args[0];
+            try {
+                String playerReadyUsername = data.getString("playerUsername");
+                readyCount++;
+                if (isOwner && readyCount == roomPlayers.length() - 1) {
+                    lobbyOwnerStartImage.setClickable(true);
+                }
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        // On question start
+        socket.on("startQuestion", args -> {
+            JSONObject data = (JSONObject) args[0];
+            try {
+                questionDescription = data.getString("question");
+                // TODO: ensure it's actually "answers" and "correctAnswer"
+                JSONArray incomingAnswerDescriptions = data.getJSONArray("answers");
+                for (int i = 0; i < 4; i++) {
+                    answerDescriptions[i] = incomingAnswerDescriptions.getString(i);
+                }
+                correctAnswer = data.getInt("correctAnswer");
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+            if (!started) {
+                started = true;
+                questionNumber = 1;
+                disableLayout(lobbyUniversalLayout);
+                if (isOwner) {
+                    disableLayout(lobbyOwnerLayout);
+                } else {
+                    disableLayout(lobbyJoinerLayout);
+                }
+            } else {
+                disableLayout(scoreboardLayout);
+            }
+            startQuestion();
+        });
 
         // On disconnect
         socket.on(Socket.EVENT_DISCONNECT, args -> {
-           Log.d(TAG, "Disconnected!");
+            Log.d(TAG, "Disconnected!");
         });
     }
 

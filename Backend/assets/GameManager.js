@@ -10,9 +10,12 @@ const User = require("./User.js");
 class GameManager {
   constructor() {
     this.roomCodeToGameRoom = new Map();
+    this.questionGenerator = new QuestionGenerator();
     this.possibleCategories = [];
     this.possibleDifficulties = ["easy", "medium", "hard"];
-    this.questionGenerator = new QuestionGenerator();
+    this.possibleAnswerTimeSeconds = [10, 15, 20, 25, 30];
+    this.possibleNumberOfQuestions = [10, 15, 20];
+    this.possibleMaxPlayers = [2, 3, 4, 5, 6];
   }
 
   /**
@@ -54,18 +57,21 @@ class GameManager {
     );
     const roomCode = "ABC123";
     const room = new GameRoom("roomId-1", gameMaster, roomCode, new Settings());
+
     this.roomCodeToGameRoom.set(roomCode, room);
 
     const gameMaster_2 = new Player(
       new User("random", "roomCreator-2", 1, "randomSessionToken")
     );
     const roomCode_2 = "XYZ123";
+
     const room_2 = new GameRoom(
       "roomId-2",
       gameMaster_2,
       roomCode_2,
       new Settings()
     );
+
     this.roomCodeToGameRoom.set(roomCode_2, room_2);
 
     return room;
@@ -87,7 +93,7 @@ class GameManager {
    * @return {GameRoom} The game room with id matching roomId
    */
   fetchRoomById(roomId) {
-    [...this.roomCodeToGameRoom.values()].find(
+    return [...this.roomCodeToGameRoom.values()].find(
       (gameRoom) => gameRoom.roomId === roomId
     );
   }

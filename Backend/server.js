@@ -287,15 +287,6 @@ app.post("/create-room", (req, res) => {
   // Or should we have the client do a POST /join-room request?
 });
 
-/**
- * TODO: delete this before final submission
- * API Endpoint for Testing features
- */
-app.get("/test", (req, res) => {
-  gameManager.generateQuestions(req.body.code);
-  res.send("Hello World!");
-});
-
 // Delay between start if game and question
 const START_Q_DELAY = 3000;
 // Time players alllowed to read questions before they can answer
@@ -483,44 +474,94 @@ io.on("connection", (socket) => {
 
   socket.on("changeSetting", (data) => {
     const message = JSON.parse(data);
-    const room = gameManager.fetchRoom(message.roomId);
+    const room = gameManager.fetchRoomById(message.roomId);
 
     const settingOption = message.settingOption;
     const optionValue = message.optionValue;
 
-    // Updates the Setting
+    let error = false;
+
+    // Updates the Setting if parameters were valid
     switch (true) {
       case settingOption == isPublic:
-        room.updateSetting("isPublic", optionValue);
-        break;
-      case settingOption.startsWith("category-"):
-        if (optionValue) {
-          room.updateSetting("add-category", settingOption.split("-")[1]);
+        if (optionValue !== true || optionValue !== false) {
+          error = true;
         } else {
-          room.updateSetting("remove-category", settingOption.split("-")[1]);
+          room.updateSetting("isPublic", optionValue);
         }
+
         break;
+
+      case settingOption.startsWith("category-"):
+        if (optionValue !== true || optionValue !== false) {
+          error = true;
+        } else {
+          const categoryName = settingOption.split("-")[1];
+          if (!gameManager.possibleCategories.includes(categoryName)) {
+            error = true;
+          } else {
+            if (optionValue) {
+              room.updateSetting("add-category", categoryName);
+            } else {
+              room.updateSetting("remove-category", categoryName);
+            }
+          }
+        }
+
+        break;
+
       case "difficulty":
-        room.updateSetting("difficulty", optionValue);
+        if (!gameManager.possibleDifficulties.includes(optionValue)) {
+          error = true;
+        } else {
+          room.updateSetting("difficulty", optionValue);
+        }
+
         break;
+
       case "maxPlayers":
-        room.updateSetting("maxPlayers", optionValue);
+        if (!gameManager.possibleMaxPlayers.includes(optionValue)) {
+          error = true;
+        } else {
+          room.updateSetting("maxPlayers", optionValue);
+        }
+
         break;
+
       case "timeLimit":
-        room.updateSetting("time", optionValue);
+        if (!gameManager.possibleAnswerTimeSeconds.includes(optionValue)) {
+          error = true;
+        } else {
+          room.updateSetting("time", optionValue);
+        }
+
         break;
+
       case "numQuestions":
-        room.updateSetting("total", optionValue);
+        if (!gameManager.possibleNumberOfQuestions.includes(optionValue)) {
+          error = true;
+        } else {
+          room.updateSetting("total", optionValue);
+        }
+
+        break;
+      default:
+        error = true;
         break;
     }
 
-    // Sends the updated setting to all players
-    socket
-      .to(roomId)
-      .emit(
-        "changedSetting",
-        express.json({ settingOption: settingOption, optionValue: optionValue })
-      );
+    if (error) {
+      // Only inform client of error
+      socket.emit("error", {
+        message: "You have passed in an invalid settings configuration.",
+      });
+    } else {
+      // Sends the updated setting to all players, including the game room owner
+      io.in(room.roomId).emit("changedSetting", {
+        settingOption: settingOption,
+        optionValue: optionValue,
+      });
+    }
   });
 
   socket.on("readyToStartGame", async (data) => {
@@ -540,7 +581,7 @@ io.on("connection", (socket) => {
     const message = JSON.parse(data);
     const roomId = message.roomId;
     const res = gameManager.generateQuestions(roomId);
-    const room = gameManager.fetchRoom(roomId);
+    const room = gameManager.fetchRoomById(roomId);
 
     const timeLimit = room.getTimeSetting();
     const totalQuestions = room.getTotalQuestionsSetting();
@@ -572,31 +613,32 @@ io.on("connection", (socket) => {
     );
     const allAnswersReceived = gameManager.addResponseToRoom(roodId, newAnswer);
 
-    if(allAnswersReceived){
+    if (allAnswersReceived) {
       // Get points per round
       const results = gameManager.calculateScore(roomId);
 
-      if (results.returnCode == 0){
-
+      if (results.returnCode == 0) {
         //Calculate new totals
         const scoreGain = results.scores;
         let totalScores = gameManager.addToPlayerScore(roomId, scoreGain);
 
         // Format Points per round response and send
         let scores = [];
-        scoreGain.forEach((pointsEarned , username) => {
-          scores.push({username, pointsEarned})
+        scoreGain.forEach((pointsEarned, username) => {
+          scores.push({ username, pointsEarned });
         });
-        socket.to(roomId).emit("endAnswerPeriod", express.json({scores}));
-        socket.emit("endAnswerPeriod", express.json({scores}));
+        socket.to(roomId).emit("endAnswerPeriod", express.json({ scores }));
+        socket.emit("endAnswerPeriod", express.json({ scores }));
 
         // If no remaiing questiosns, end game, else send next questions
         if (gameManager.fetchQuestionsQuantity(roomId) != 0) {
           sendQuestion(socket, roomId);
         } else {
           setTimeout(() => {
-            socket.to(roomId).emit("endGame", express.json({scores: totalScores}));
-            socket.emit("endGame", express.json({scores: totalScores}));
+            socket
+              .to(roomId)
+              .emit("endGame", express.json({ scores: totalScores }));
+            socket.emit("endGame", express.json({ scores: totalScores }));
           }, START_Q_DELAY);
         }
       }
@@ -616,6 +658,4 @@ io.on("connection", (socket) => {
         express.json({ username: username, emoteCode: emote })
       );
   });
-
-  socket.on("readyForNextQuestion", (data) => {});
 });

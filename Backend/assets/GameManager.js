@@ -199,7 +199,6 @@ class GameManager {
     if (room === undefined) return { returnCode: 1, scores: [] };
 
     const actions = room.actionsArray;
-    console.log(actions)
     //  Initialize the scores for each player in actions
     let totalScores = new Map();
     let stolenScores = new Map();

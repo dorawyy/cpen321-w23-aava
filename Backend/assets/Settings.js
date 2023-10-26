@@ -8,7 +8,7 @@ class Settings {
     difficulty = "easy",
     maxPlayers = 6,
     time = 20,
-    total = 3
+    total = 10
   ) {
     /**
      * If true, the game room can be found via random matchmaking.

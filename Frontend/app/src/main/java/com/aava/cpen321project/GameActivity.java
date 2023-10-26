@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -22,7 +24,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +80,8 @@ public class GameActivity extends AppCompatActivity {
 
     private TextView stallBlurbLabel;
 
+    private LinearLayout scoreboardLesserColumn;
+    private LinearLayout scoreboardGreaterColumn;
     private TextView scoreboardLesserGainLabel;
     private TextView scoreboardLesserScoreLabel;
     private TextView scoreboardLesserUsernameLabel;
@@ -107,7 +113,8 @@ public class GameActivity extends AppCompatActivity {
     // State
 
     private Socket socket;
-    private String sessionToken; // To be access from elsewhere, using a dummy field for now
+    private String sessionToken; // To be accessed from elsewhere, using a dummy field for now
+    private String username; // To be accessed from elsewhere, using a dummy field for now
     private String roomId;
     private boolean isOwner;
 
@@ -126,8 +133,12 @@ public class GameActivity extends AppCompatActivity {
     private String questionDescription;
     private String[] answerDescriptions;
     private int correctAnswer;
+    private boolean lastQuestionCorrect;
 
     private long questionStartTimeMillis;
+    private CountDownTimer questionCountDownTimer;
+
+    private JSONArray scoreInfo;
 
     private boolean usedPowerup;
     private int powerupCode;
@@ -148,9 +159,9 @@ public class GameActivity extends AppCompatActivity {
 
         // Emit a joinRoom event, to notify the server that the player has joined.
         // All other events are emitted in the onClick function.
-        sendJSONMessage("joinRoom", new HashMap<String, String>() {{
+        sendJSONMessage("joinRoom", new HashMap<String, Object>() {{
             put("roomId", roomId);
-            put("sessionToken", sessionToken);
+            put("username", username);
         }});
     }
 
@@ -160,9 +171,9 @@ public class GameActivity extends AppCompatActivity {
         super.onPause();
         if (isFinishing()) {
             // Emit a leaveRoom event, to notify the server that the player has left.
-            sendJSONMessage("leaveRoom", new HashMap<String, String>() {{
+            sendJSONMessage("leaveRoom", new HashMap<String, Object>() {{
                 put("roomId", roomId);
-                put("sessionToken", sessionToken);
+                put("username", username);
             }});
         }
     }
@@ -175,7 +186,7 @@ public class GameActivity extends AppCompatActivity {
         countdownReadyLabel.setVisibility(View.VISIBLE);
         enableLayout(countdownLayout, true, true);
 
-        new CountDownTimer(5000, 1000) {
+        new CountDownTimer(5000, 1000) { // COUNTDOWN
             public void onTick(long millisUntilFinished) {
                 if (millisUntilFinished == 3000) {
                     countdownReadyLabel.setVisibility(View.INVISIBLE);
@@ -186,7 +197,7 @@ public class GameActivity extends AppCompatActivity {
                     countdownCountLabel.setText("1");
                 }
             }
-            public void onFinish() {
+            public void onFinish() { // QUESTION SHOW
                 // Set label values
                 headerLabel.setText("Q" + questionNumber);
                 questionLabel.setText(questionDescription);
@@ -194,6 +205,14 @@ public class GameActivity extends AppCompatActivity {
                 questionAnswer2Label.setText(answerDescriptions[1]);
                 questionAnswer3Label.setText(answerDescriptions[2]);
                 questionAnswer4Label.setText(answerDescriptions[3]);
+                questionAnswer1Label.setVisibility(View.INVISIBLE);
+                questionAnswer2Label.setVisibility(View.INVISIBLE);
+                questionAnswer3Label.setVisibility(View.INVISIBLE);
+                questionAnswer4Label.setVisibility(View.INVISIBLE);
+                questionAnswer1Image.setImageResource(R.drawable.answer_blank);
+                questionAnswer2Image.setImageResource(R.drawable.answer_blank);
+                questionAnswer3Image.setImageResource(R.drawable.answer_blank);
+                questionAnswer4Image.setImageResource(R.drawable.answer_blank);
 
                 // Switch layouts
                 disableLayout(countdownLayout);
@@ -201,16 +220,55 @@ public class GameActivity extends AppCompatActivity {
                 enableLayout(powerupLayout, true, true);
 
                 // Start another countdown
-                new CountDownTimer(5000, 10) {
+                new CountDownTimer(5000, 100) { // ANSWER SHOW
                     public void onTick(long millisUntilFinished) {
-                        questionTimerLabel.setText()
+                        questionTimerLabel.setText(String.format("%.1f", millisUntilFinished / 1000.0));
                     }
-                    public void onFinish() {
 
+                    public void onFinish() {
+                        questionAnswer1Label.setVisibility(View.VISIBLE);
+                        questionAnswer2Label.setVisibility(View.VISIBLE);
+                        questionAnswer3Label.setVisibility(View.VISIBLE);
+                        questionAnswer4Label.setVisibility(View.VISIBLE);
+                        questionAnswer1Image.setImageResource(R.drawable.answer_red);
+                        questionAnswer2Image.setImageResource(R.drawable.answer_green);
+                        questionAnswer3Image.setImageResource(R.drawable.answer_blue);
+                        questionAnswer4Image.setImageResource(R.drawable.answer_yellow);
+
+                        questionCountDownTimer = new CountDownTimer(roomQuestionTime * 1000, 100) {
+                            public void onTick(long millisUntilFinished) {
+                                questionTimerLabel.setText(String.format("%.1f", millisUntilFinished / 1000.0));
+                            }
+
+                            public void onFinish() {
+                                submitAnswer(false);
+                            }
+                        };
+                        questionCountDownTimer.start();
                     }
-                }
+                }.start();
             }
-        }
+        }.start();
+    }
+
+    // Submit an answer
+    private void submitAnswer(boolean isCorrect) {
+
+        lastQuestionCorrect = isCorrect;
+        sendJSONMessage("submitAnswer", new HashMap<String, Object>() {{
+            put("roomId", roomId);
+            put("username", username);
+            put("timeDelay", currentTimeMillis() - questionStartTimeMillis);
+            put("isCorrect", isCorrect);
+            put("powerupCode", usedPowerup ? powerupCode : -1);
+            put("powerupVictimUsername", powerupVictimUsername);
+        }});
+
+        usedPowerup = false;
+
+        disableLayout(questionLayout);
+        disableLayout(powerupLayout);
+        enableLayout(stallLayout, true, true);
     }
 
     // Get and set socket value, set all event receiving functionality
@@ -412,6 +470,76 @@ public class GameActivity extends AppCompatActivity {
             startQuestion();
         });
 
+        // On other player answering
+        socket.on("answerReceived", args -> {
+           //TODO: Implement
+        });
+
+        // On question ending
+        socket.on("showScoreboard", args -> {
+            JSONObject data = (JSONObject) args[0];
+            try {
+                scoreInfo = data.getJSONArray("scores");
+
+                // Sort players by score
+                List<JSONObject> scoreInfoList = new ArrayList<JSONObject>();
+                for (int i = 0; i < scoreInfo.length(); i++) {
+                    scoreInfoList.add(scoreInfo.getJSONObject(i));
+                }
+                Collections.sort(scoreInfoList, (a, b) -> {
+                    int scoreA;
+                    int scoreB;
+                    try {
+                        scoreA = a.getInt("updatedTotalPoints");
+                        scoreB = b.getInt("updatedTotalPoints");
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                    return scoreB - scoreA;
+                });
+
+                // Get player rank and neighboring ranks
+                int rank = -1;
+                for (int i = 0; i < scoreInfoList.size(); i++) {
+                    if (scoreInfoList.get(i).getString("username").equals(username)) {
+                        rank = i;
+                    }
+                }
+
+                // Set all labels
+                headerLabel.setText(lastQuestionCorrect ? "Correct!" : "Incorrect");
+                scoreboardRankLabel.setText(
+                        (rank == 0) ? "1st" : (rank == 1) ? "2nd" : (rank == 2) ? "3rd" : String.format("%dth", rank + 1)
+                );
+
+                if (rank == roomPlayers.length() - 1) {
+                    scoreboardLesserColumn.setVisibility(View.INVISIBLE);
+                } else {
+                    JSONObject lesserPlayer = scoreInfoList.get(rank + 1);
+                    scoreboardLesserGainLabel.setText(String.format("+%d", lesserPlayer.getInt("pointsEarned")));
+                    scoreboardLesserScoreLabel.setText(String.valueOf(lesserPlayer.getInt("updatedTotalPoints")));
+                    scoreboardLesserUsernameLabel.setText(lesserPlayer.getString("username"));
+                    scoreboardLesserColumn.setVisibility(View.VISIBLE);
+                }
+                if (rank == 0) {
+                    scoreboardGreaterColumn.setVisibility(View.INVISIBLE);
+                } else {
+                    JSONObject greaterPlayer = scoreInfoList.get(rank - 1);
+                    scoreboardGreaterGainLabel.setText(String.format("+%d", greaterPlayer.getInt("pointsEarned")));
+                    scoreboardGreaterScoreLabel.setText(String.valueOf(greaterPlayer.getInt("updatedTotalPoints")));
+                    scoreboardGreaterUsernameLabel.setText(greaterPlayer.getString("username"));
+                    scoreboardGreaterColumn.setVisibility(View.VISIBLE);
+                }
+
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+
+            // Switch screens
+            disableLayout(stallLayout);
+            enableLayout(scoreboardLayout, true, true);
+        });
+
         // On disconnect
         socket.on(Socket.EVENT_DISCONNECT, args -> {
             Log.d(TAG, "Disconnected!");
@@ -503,7 +631,10 @@ public class GameActivity extends AppCompatActivity {
         // LOBBY
         if (v == lobbyJoinerReadyImage) {
             // Emit readyToStartGame event, and disable the button
-            sendJSONMessage("readyToStartGame", new HashMap<String, String>() {});
+            sendJSONMessage("readyToStartGame", new HashMap<String, Object>() {{
+                put("roomId", roomId);
+                put("username", username);
+            }});
             v.setClickable(false);
             v.setAnimation(AnimationUtils.loadAnimation(GameActivity.this, R.anim.fade_out));
         } else if (v == lobbyOwnerEditImage) {
@@ -513,9 +644,8 @@ public class GameActivity extends AppCompatActivity {
             enableLayout(lobbyEditLayout, true, true);
         } else if (v == lobbyOwnerStartImage) {
             // Emit startGame event, and disable the button
-            sendJSONMessage("startGame", new HashMap<String, String>() {{
+            sendJSONMessage("startGame", new HashMap<String, Object>() {{
                 put("roomId", roomId);
-                put("sessionToken", sessionToken);
             }});
         } else if (v == lobbyEditCategoriesImage) {
             // Open Dialog, emit changeSetting event
@@ -536,6 +666,7 @@ public class GameActivity extends AppCompatActivity {
         else if (v == questionAnswer1Image || v == questionAnswer2Image ||
                 v == questionAnswer3Image || v == questionAnswer4Image) {
             // Manipulate answer fields, emit submitAnswer event, switch to stall layout
+            questionCountDownTimer.cancel();
 
             boolean isCorrect;
             if (v == questionAnswer1Image) {
@@ -547,21 +678,8 @@ public class GameActivity extends AppCompatActivity {
             } else {
                 isCorrect = correctAnswer == 4;
             }
-            long timeTakenMillis = currentTimeMillis() - questionStartTimeMillis;
-            usedPowerup = false;
 
-            sendJSONMessage("submitAnswer", new HashMap<String, String>() {{
-                put("roomId", roomId);
-                put("sessionToken", sessionToken);
-                put("timeDelay", String.valueOf(timeTakenMillis));
-                put("isCorrect", String.valueOf(isCorrect));
-                put("powerupCode", String.valueOf(powerupCode));
-                put("powerupVictimUsername", powerupVictimUsername);
-            }});
-
-            disableLayout(questionLayout);
-            enableLayout(stallLayout, true, true);
-            // TODO: Change the blurb in the stall layout here
+            submitAnswer(isCorrect);
         } else if (v == powerup1Image || v == powerup2Image || v == powerup3Image ||
                 v == powerup4Image || v == powerup5Image) {
             // Manipulate powerup fields, open Dialog if necessary
@@ -598,10 +716,10 @@ public class GameActivity extends AppCompatActivity {
     }
 
     // General function for sending an event through the socket
-    private void sendJSONMessage(String event, Map<String, String> fields) {
+    private void sendJSONMessage(String event, Map<String, Object> fields) {
         JSONObject message = new JSONObject();
         try {
-            for (Map.Entry<String, String> field : fields.entrySet()) {
+            for (Map.Entry<String, Object> field : fields.entrySet()) {
                 message.put(field.getKey(), field.getValue());
             }
             socket.emit(event, message);

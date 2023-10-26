@@ -1,6 +1,6 @@
 const GameRoom = require("./GameRoom.js");
 const QuestionGenerator = require("./QuestionGenerator.js");
-const PowerupEnum = require("./PowerupEnum.js");
+const PowerupEnum = require("./PowerUpEnum.js");
 const PlayerAction = require("./PlayerAction.js");
 const Settings = require("./Settings");
 const { v4: uuidv4 } = require("uuid");

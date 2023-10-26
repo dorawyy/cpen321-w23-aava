@@ -101,7 +101,7 @@ class QuestionGenerator {
       // If successfull, add each question to the array of questions
       if (response_code == ApiCode.SUCCESS) {
         result.forEach(elem => {
-          if (elem.type == QUESTION_TYPE_MULTIPLE){
+          if (elem.type == ApiCode.QUESTION_TYPE_MULTIPLE){
             const questionObj = new Question( 
               elem.question, 
               elem.correct_answer, 

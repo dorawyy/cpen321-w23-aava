@@ -84,7 +84,7 @@ class GameRoom {
     this.actionsArray = [];
   }
 
-  // Updates the points adn returns new
+  // Updates the points and returns new
   updateScores(scores) {
     let newTotals = [];
     for (let i = 0; i < this.roomPlayers.length; i++) {

@@ -10,6 +10,7 @@ const GameManager = require("./assets/GameManager.js");
 const UserDBManager = require("./assets/UserDBManager.js");
 const Player = require("./assets/Player.js");
 const User = require("./assets/User.js");
+const PlayerAction = require("./assets/PlayerAction.js");
 
 let gameManager = new GameManager();
 let userDBManager = new UserDBManager(db.getUsersCollection());
@@ -295,18 +296,22 @@ const READ_Q_DELAY = 2000;
 const io = new Server(server);
 
 // Assumes roomId == roomCode
-const sendQuestion = (socket, roomId) => {
-  gameManager.resetResponses(roomId);
-  setTimeout(() => {
-    const question = gameManager.fetchNextQuestion(roomId);
-    socket.to(roomId).emit("startQuestion", express.json(question));
-    socket.emit("startQuestion", express.json(question));
-  }, START_Q_DELAY);
+const sendQuestion = (socket, roomCode, roomId) => {
+  gameManager.resetResponses(roomCode);
+  const questionObject = gameManager.fetchNextQuestion(roomCode);
 
-  setTimeout(() => {
-    socket.to(roomId).emit("startAnswerPeriod");
-    socket.emit("startAnswerPeriod");
-  }, START_Q_DELAY + READ_Q_DELAY);
+  // Get necessary parameters from question Object to send to the client
+  const question = questionObject.question;
+  const correctAnswer = questionObject.correctAnswer;
+
+  let answers = questionObject.incorrectAnswers;
+  answers.push(correctAnswer);
+  answers.sort(() => Math.random() - 0.5);
+
+  const correctIndex = answers.indexOf(correctAnswer);
+
+  socket.to(roomId).emit("startQuestion", { question, answers, correctIndex });
+  socket.emit("startQuestion", { question, answers, correctIndex });
 };
 
 io.on("connection", (socket) => {
@@ -339,7 +344,6 @@ io.on("connection", (socket) => {
       socket.emit("error", {
         message: "The room you are trying to join no longer exists.",
       });
-
       return;
     }
 
@@ -576,31 +580,35 @@ io.on("connection", (socket) => {
       );
   });
 
-  // TODO: ADD Game Logic
   socket.on("startGame", (data) => {
     const message = JSON.parse(data);
     const roomId = message.roomId;
-    const res = gameManager.generateQuestions(roomId);
-    const room = gameManager.fetchRoomById(roomId);
+    const roomCode = gameManager.fetchRoomById(roomId).roomCode;
 
-    const timeLimit = room.getTimeSetting();
-    const totalQuestions = room.getTotalQuestionsSetting();
-
-    if (res == 0) {
-      gameManager.updateRoomState(roomId);
-      socket
-        .to(roomId)
-        .emit("startTheGame", express.json({ timeLimit, totalQuestions }));
-      socket.emit("startTheGame", express.json({ timeLimit, totalQuestions }));
-
-      sendQuestion(socket, roomId);
-    }
+    gameManager
+      .generateQuestions(roomCode)
+      .then(() => {
+        gameManager.updateRoomState(roomCode);
+        sendQuestion(socket, roomCode, roomId);
+      })
+      .catch((errCode) => {
+        let message = "";
+        if (errCode == 1) {
+          message = "Invalid RoomId";
+        } else if (errCode == 2) {
+          message = "No Categories Selected";
+        }
+        socket.emit("error", { message: message });
+      });
   });
 
   socket.on("submitAnswer", (data) => {
     const message = JSON.parse(data);
     const playerUsername = message.username;
     const roomId = message.roomId;
+    // const roomCode = gameManager.fetchRoomById(roomId).roomCode;
+    const room = gameManager.fetchRoomById(roomId);
+    const roomCode = room.roomCode;
 
     socket.to(roomId).emit("answerReceived", { playerUsername });
 
@@ -611,16 +619,19 @@ io.on("connection", (socket) => {
       message.powerupCode,
       message.powerupVictimUsername
     );
-    const allAnswersReceived = gameManager.addResponseToRoom(roodId, newAnswer);
+    const allAnswersReceived = gameManager.addResponseToRoom(
+      roomCode,
+      newAnswer
+    );
 
     if (allAnswersReceived) {
       // Get points per round
-      const results = gameManager.calculateScore(roomId);
+      const results = gameManager.calculateScore(roomCode);
 
       if (results.returnCode == 0) {
         //Calculate new totals
         const scoreGain = results.scores;
-        let totalScores = gameManager.addToPlayerScore(roomId, scoreGain);
+        let totalScores = gameManager.addToPlayerScore(roomCode, scoreGain);
 
         // Format Points per round response and send
         let scores = [];

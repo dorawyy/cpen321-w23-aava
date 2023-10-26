@@ -40,3 +40,5 @@ class PowerupEnum {
      */
     static SECOND_LIFE = 4;
   }
+
+  module.exports = PowerupEnum;

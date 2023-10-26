@@ -172,7 +172,6 @@ class GameManager {
             neededQuestions
           );
           questions = questions.concat(response.questions);
-          console.log(questions.length);
         }
 
         // Randomize the order of the questions and add to the room
@@ -200,7 +199,7 @@ class GameManager {
     if (room === undefined) return { returnCode: 1, scores: [] };
 
     const actions = room.actionsArray;
-
+    console.log(actions)
     //  Initialize the scores for each player in actions
     let totalScores = new Map();
     let stolenScores = new Map();
@@ -216,17 +215,12 @@ class GameManager {
     const maxScore = scorePerDifficulty[room.getDifficultySetting()];
     const maxTime = room.getTimeSetting() * 1000;
     actions.forEach((action) => {
-      if (action.getCorrect()) {
+      if (action.getCorrect() && action.getPowerup() !== PowerupEnum.FREE_LUNCH) {
         // If took too long, no points; else give mark based on how quickly answer pressed
-        let correctnessMark =
-          action.getDelay() > maxTime
-            ? 0
-            : (maxTime - action.getDelay()) / maxTime;
+        let correctnessMark = action.getDelay() > maxTime ? 0 : (maxTime - action.getDelay()) / maxTime;
 
         // Round the score and double if 2x powerup used
-        let score =
-          Math.round(correctnessMark * maxScore) *
-          (action.getPowerup() === PowerupEnum.DOUBLE_POINTS ? 2 : 1);
+        let score = Math.round(correctnessMark * maxScore) * (action.getPowerup() === PowerupEnum.DOUBLE_POINTS ? 2 : 1);
 
         // Update the total score for the player
         totalScores.set(action.getPlayer(), score);
@@ -255,12 +249,14 @@ class GameManager {
 
     // Calculate the stolen scores
     victimToThieves.forEach((thieves, victim) => {
-      let stolenScore = totalScores.get(victim);
-      let scoreGain = Math.floor(stolenScore / thieves.length);
-      thieves.forEach((thief) => {
-        stolenScores.set(thief, stolenScores.get(thief) + scoreGain);
-      });
-      stolenScores.set(victim, stolenScores.get(victim) - stolenScore);
+      if (thieves.length > 0){
+        let stolenScore = totalScores.get(victim);
+        let scoreGain = Math.floor(stolenScore / thieves.length);
+        thieves.forEach((thief) => {
+          stolenScores.set(thief, stolenScores.get(thief) + scoreGain);
+        });
+        stolenScores.set(victim, stolenScores.get(victim) - stolenScore);
+      }
     });
 
     // Add the stolen scores to the total scores
@@ -301,7 +297,7 @@ class GameManager {
   addResponseToRoom(roomCode, response) {
     let room = this.fetchRoom(roomCode);
     room.addAction(response);
-    roomCodeToGameRoom.set(roomCode, room);
+    this.roomCodeToGameRoom.set(roomCode, room);
     return room.actionsArray.length == room.getPlayers().length;
   }
 
@@ -320,7 +316,7 @@ class GameManager {
   addToPlayerScore = (roomCode, scores) => {
     let room = this.fetchRoom(roomCode);
     let newScores = room.updateScores(scores);
-    roomCodeToGameRoom.set(roomCode, room);
+    this.roomCodeToGameRoom.set(roomCode, room);
     return newScores;
   };
 }

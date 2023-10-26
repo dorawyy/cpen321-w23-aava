@@ -10,6 +10,7 @@ const GameManager = require("./assets/GameManager.js");
 const UserDBManager = require("./assets/UserDBManager.js");
 const Player = require("./assets/Player.js");
 const User = require("./assets/User.js");
+const PlayerAction = require("./assets/PlayerAction.js")
 
 let gameManager = new GameManager();
 let userDBManager = new UserDBManager(db.getUsersCollection());
@@ -536,7 +537,6 @@ io.on("connection", (socket) => {
       );
   });
 
-  // TODO: ADD Game Logic
   socket.on("startGame", (data) => {
     const message = JSON.parse(data);
     const roomId = message.roomId;
@@ -563,6 +563,9 @@ io.on("connection", (socket) => {
     const message = JSON.parse(data);
     const playerUsername = message.username;
     const roomId = message.roomId;
+    // const roomCode = gameManager.fetchRoomById(roomId).roomCode;
+    const room = gameManager.fetchRoomById(roomId);
+    const roomCode = room.roomCode;
 
     socket.to(roomId).emit("answerReceived", { playerUsername });
 
@@ -573,34 +576,34 @@ io.on("connection", (socket) => {
       message.powerupCode,
       message.powerupVictimUsername
     );
-    const allAnswersReceived = gameManager.addResponseToRoom(roodId, newAnswer);
+    const allAnswersReceived = gameManager.addResponseToRoom(roomCode, newAnswer);
 
     if(allAnswersReceived){
       // Get points per round
-      const results = gameManager.calculateScore(roomId);
+      const results = gameManager.calculateScore(roomCode);
 
       if (results.returnCode == 0){
 
         //Calculate new totals
         const scoreGain = results.scores;
-        let totalScores = gameManager.addToPlayerScore(roomId, scoreGain);
+        let totalScores = gameManager.addToPlayerScore(roomCode, scoreGain);
 
         // Format Points per round response and send
         let scores = [];
         scoreGain.forEach((pointsEarned , username) => {
           scores.push({username, pointsEarned})
         });
-        socket.to(roomId).emit("endAnswerPeriod", express.json({scores}));
-        socket.emit("endAnswerPeriod", express.json({scores}));
+        socket.to(roomId).emit("endAnswerPeriod", {scores});
+        socket.emit("endAnswerPeriod", {scores});
 
         // If no remaiing questiosns, end game, else send next questions
         setTimeout(() => {
-          if (gameManager.fetchQuestionsQuantity(roomId) != 0) {
-            sendQuestion(socket, roomId);
+          if (gameManager.fetchQuestionsQuantity(roomCode) != 0) {
+            sendQuestion(socket, roomCode, roomId);
           } 
           else {
-            socket.to(roomId).emit("endGame", express.json({scores: totalScores}));
-            socket.emit("endGame", express.json({scores: totalScores}));
+            socket.to(roomId).emit("endGame", {scores: totalScores});
+            socket.emit("endGame", {scores: totalScores});
           }
         }, START_Q_DELAY);
         

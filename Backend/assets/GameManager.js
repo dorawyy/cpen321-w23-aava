@@ -87,7 +87,7 @@ class GameManager {
    * @return {GameRoom} The game room with id matching roomId
    */
   fetchRoomById(roomId) {
-    [...this.roomCodeToGameRoom.values()].find(
+    return [...this.roomCodeToGameRoom.values()].find(
       (gameRoom) => gameRoom.roomId === roomId
     );
   }
@@ -126,67 +126,62 @@ class GameManager {
    * @return {Number} 0 for success, 1 for room not found, 2 for no categories selected
    */
   generateQuestions(roomCode) {
-    //  Array of questions to be saved in the room
-    let questions = [];
+    return new Promise((resolve, reject) => {
+      let questions = [];
 
-    //  Gets the rooom using code, if code invalid return error code 1
-    const room = this.fetchRoom(roomCode);
-    if (room === undefined) return 1;
+      //  Gets the rooom using code, if code invalid return error code 1
+      const room = this.fetchRoom(roomCode);
+      if (room === undefined) reject(1);
 
-    //  Gets the relevant settings from the room for question generation:
-    //      list of categories, difficulty, and number of questions
-    // If no categories selected, return error code 2
-    const categories = room.getCategorySetting();
-    const difficulty = room.getDifficultySetting();
-    const toalQuestions = room.getTotalQuestionsSetting();
-    if (categories.length === 0) return 2;
+      //  Gets settings from room, If no categories selected, return error code 2
+      const categories = room.getCategorySetting();
+      const difficulty = room.getDifficultySetting();
+      const toalQuestions = room.getTotalQuestionsSetting();
+      if (categories.length === 0) reject(2);
 
-    // Gets the number of questions per category
-    let numPerCat = this.questionGenerator.getNumArr(
-      toalQuestions,
-      categories.length
-    );
+      // Gets the number of questions per category
+      let numPerCat = this.questionGenerator.getNumArr(toalQuestions, categories.length);
 
-    // Creates a query array of requests to the question generator for each category
-    const apiQueries = categories.map(async (category, i) => {
-      const response = await this.questionGenerator.getQuestions(
-        true,
-        true,
-        category,
-        difficulty,
-        numPerCat[i]
-      );
-      return response;
-    });
-
-    // Make the queries and save the responses
-    Promise.all(apiQueries).then(async (responses) => {
-      // Add questions from each response to the questions array
-      responses.forEach(
-        (elem) => (questions = questions.concat(elem.questions))
-      );
-      console.log(questions.length);
-
-      // If missing any questions, get random categories of same difficulty
-      const neededQuestions = toalQuestions - questions.length;
-      if (neededQuestions > 0) {
+      // Creates a query array of requests to the question generator for each category
+      const apiQueries = categories.map(async (category, i) => {
         const response = await this.questionGenerator.getQuestions(
-          false,
           true,
-          "",
+          true,
+          category,
           difficulty,
-          neededQuestions
+          numPerCat[i]
         );
-        questions = questions.concat(response.questions);
-        console.log(questions.length);
-      }
+        return response;
+      });
 
-      // Randomize the order of the questions and add to the room
-      questions.sort(() => Math.random() - 0.5);
-      room.updateGameQuestions(questions);
-    });
+      // Make the queries and save the responses
+      Promise.all(apiQueries).then(async (responses) => {
+        // Add questions from each response to the questions array
+        responses.forEach(
+          (elem) => (questions = questions.concat(elem.questions))
+        );
 
-    return 0;
+        // If missing any questions, get random categories of same difficulty
+        const neededQuestions = toalQuestions - questions.length;
+        if (neededQuestions > 0) {
+          const response = await this.questionGenerator.getQuestions(
+            false,
+            true,
+            "",
+            difficulty,
+            neededQuestions
+          );
+          questions = questions.concat(response.questions);
+          console.log(questions.length);
+        }
+
+        // Randomize the order of the questions and add to the room
+        questions.sort(() => Math.random() - 0.5);
+        room.updateGameQuestions(questions);
+
+        resolve(0);
+      });
+    })
   }
 
   /**
@@ -278,17 +273,17 @@ class GameManager {
 
   /* Room Interaction Stuff */
 
-  updateRoomState(rooCode) {
+  updateRoomState(roomCode) {
     let room = this.fetchRoom(roomCode);
     const newState = room.updateState();
-    roomCodeToGameRoom.set(roomCode, room);
+    this.roomCodeToGameRoom.set(roomCode, room);
     return newState;
   }
 
   fetchNextQuestion(roomCode) {
     let room = this.fetchRoom(roomCode);
     let question = room.getNextQuestion();
-    roomCodeToGameRoom.set(roomCode, room);
+    this.roomCodeToGameRoom.set(roomCode, room);
     return question;
   }
 
@@ -313,7 +308,7 @@ class GameManager {
   resetResponses(roomCode) {
     let room = this.fetchRoom(roomCode);
     room.resetActions();
-    roomCodeToGameRoom.set(roomCode, room);
+    this.roomCodeToGameRoom.set(roomCode, room);
   }
 
   /**

@@ -304,21 +304,19 @@ const READ_Q_DELAY = 2000;
 const io = new Server(server);
 
 // Assumes roomId == roomCode
-const sendQuestion = (socket, roomId) => {
-  // Reset the PlayerAction array in the room
-  gameManager.resetResponses(roomId);
-  
-  // Fetch the next question OBject
-  const questionObject = gameManager.fetchNextQuestion(roomId);
-  
+const sendQuestion = (socket, roomCode, roomId) => {
+  gameManager.resetResponses(roomCode);
+  const questionObject = gameManager.fetchNextQuestion(roomCode);
+
   // Get necessary parameters from question Object to send to the client
   const question = questionObject.question;
   const correctAnswer = questionObject.correctAnswer;
+
   let answers = questionObject.incorrectAnswers;
   answers.push(correctAnswer);
   answers.sort(() => Math.random() - 0.5);
-  const correctIndex = answers.indexOf(correctAnswer);
 
+  const correctIndex = answers.indexOf(correctAnswer);
 
   socket.to(roomId).emit("startQuestion", {question, answers, correctIndex});
   socket.emit("startQuestion", {question, answers, correctIndex});
@@ -542,16 +540,23 @@ io.on("connection", (socket) => {
   socket.on("startGame", (data) => {
     const message = JSON.parse(data);
     const roomId = message.roomId;
-    const res = gameManager.generateQuestions(roomId);
-    const room = gameManager.fetchRoom(roomId);
+    const roomCode = gameManager.fetchRoomById(roomId).roomCode;
 
-    const timeLimit = room.getTimeSetting();
-    const totalQuestions = room.getTotalQuestionsSetting();
-
-    if (res == 0) {
-      gameManager.updateRoomState(roomId);
-      sendQuestion(socket, roomId);
-    }
+    gameManager.generateQuestions(roomCode)
+    .then( () => {
+      gameManager.updateRoomState(roomCode);
+      sendQuestion(socket, roomCode, roomId);
+    })
+    .catch(errCode => {
+      let message = "";
+      if (errCode == 1){
+        message = "Invalid RoomId"
+      }
+      else if (errCode == 2){
+        message = "No Categories Selected"
+      }
+      socket.emit("error", {message: message});
+    });
   });
 
   socket.on("submitAnswer", (data) => {

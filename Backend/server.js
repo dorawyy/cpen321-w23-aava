@@ -44,7 +44,7 @@ app.use((req, res, next) => {
 });
 
 /* Starts the server and database */
-const server = app.listen(8081, async () => {
+const server = app.listen(8081, "0.0.0.0", async () => {
   console.log(
     "Server is running on port http://%s:%s",
     server.address().address,

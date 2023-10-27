@@ -1,11 +1,18 @@
+// Core Node.js modules
+const fs = require('fs');
+const https = require('https');
+
+// Third-party modules
+const fs = require('fs');
+const https = require('https');
 const express = require("express");
 const { Server } = require("socket.io");
-
-const app = express();
-const db = require("./database/dbSetup.js");
 const { v4: uuidv4 } = require("uuid");
 var assert = require("assert");
 
+// Custom application modules
+const app = express();
+const db = require("./database/dbSetup.js");
 const GameManager = require("./assets/GameManager.js");
 const UserDBManager = require("./assets/UserDBManager.js");
 const Player = require("./assets/Player.js");
@@ -14,6 +21,13 @@ const PlayerAction = require("./assets/PlayerAction.js");
 
 let gameManager = new GameManager();
 let userDBManager = new UserDBManager(db.getUsersCollection());
+
+// Read the SSL certificate files from the current directory
+const privateKey = fs.readFileSync('./key.pem', 'utf8');
+const certificate = fs.readFileSync('./cert.pem', 'utf8');
+
+const credentials = { key: privateKey, cert: certificate };
+const httpsServer = https.createServer(credentials, app);
 
 // Middleware to validate session token
 app.use(express.json());
@@ -44,7 +58,7 @@ app.use((req, res, next) => {
 });
 
 /* Starts the server and database */
-const server = app.listen(8081, "0.0.0.0", async () => {
+const server = httpsServer.listen(8081, "0.0.0.0", async () => {
   console.log(
     "Server is running on port http://%s:%s",
     server.address().address,

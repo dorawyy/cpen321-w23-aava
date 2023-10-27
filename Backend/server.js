@@ -1,7 +1,3 @@
-// Core Node.js modules
-const fs = require('fs');
-const https = require('https');
-
 // Third-party modules
 const fs = require('fs');
 const https = require('https');
@@ -12,7 +8,7 @@ var assert = require("assert");
 
 // Custom application modules
 const app = express();
-const db = require("./database/dbSetup.js");
+const db = require("./Database/dbSetup.js");
 const GameManager = require("./assets/GameManager.js");
 const UserDBManager = require("./assets/UserDBManager.js");
 const Player = require("./assets/Player.js");

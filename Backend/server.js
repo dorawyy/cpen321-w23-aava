@@ -498,10 +498,22 @@ io.on("connection", (socket) => {
     const settingOption = message.settingOption;
     const optionValue = message.optionValue;
 
+    if (
+      room === undefined ||
+      settingOption === undefined ||
+      optionValue === undefined
+    ) {
+      socket.emit("error", {
+        message: "You have passed in invalid parameters.",
+      });
+
+      return;
+    }
+
     let error = false;
 
-    switch (true) {
-      case settingOption == "isPublic":
+    switch (settingOption) {
+      case "isPublic":
         if (optionValue !== true || optionValue !== false) {
           error = true;
         } else {

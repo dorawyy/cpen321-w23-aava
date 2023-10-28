@@ -258,8 +258,6 @@ app.post("/join-room-by-code", (req, res) => {
           roomId: room.roomId,
           roomCode: room.roomCode,
         });
-
-        // TODO: Now nitialize the socket connection and pass in roomId
       } else {
         res.status(409).send({
           message: "The game room is currently full. Please try again later.",
@@ -289,12 +287,10 @@ app.post("/create-room", (req, res) => {
       },
     ],
     roomCode: room.roomCode,
+    roomId: room.roomId,
     roomSettings: room.roomSettings,
     gameQuestions: [],
   });
-
-  // TODO: now initialize the socket connection.
-  // Or should we have the client do a POST /join-room request?
 });
 
 // Delay between start if game and question

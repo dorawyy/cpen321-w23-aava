@@ -335,16 +335,18 @@ io.on("connection", (socket) => {
 
   if (sessionToken === undefined) {
     socket.disconnect();
+    console.log("Client disconnected");
   }
 
   userDBManager.getUserBySessionToken(sessionToken).then((user) => {
     if (user === undefined) {
       // Disconnect this client. They do not have a valid sessionToken
       socket.disconnect();
+      console.log("Client disconnected");
+    } else {
+      console.log("Client has a valid sessionToken");
     }
   });
-
-  console.log("Client has a valid sessionToken");
 
   // TODO: delete after. This is used for testing
   if (gameManager.fetchRoom("ABC123") === undefined) {

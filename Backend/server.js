@@ -351,6 +351,8 @@ io.on("connection", (socket) => {
   }
 
   socket.on("joinRoom", (message) => {
+    console.log("Joining room...");
+
     const username = message.username;
     const room = gameManager.fetchRoomById(message.roomId);
 
@@ -409,6 +411,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("leaveRoom", (message) => {
+    console.log("Leaving room...");
+
     const username = message.username;
     const roomId = message.roomId;
 
@@ -453,6 +457,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("banPlayer", async (message) => {
+    console.log("Banning player...");
+
     const roomId = message.roomId;
     const username = message.username;
     const bannedUsername = message.playerToBanUsername;
@@ -489,6 +495,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("changeSetting", (message) => {
+    console.log("Changing game settings...");
+
     const room = gameManager.fetchRoomById(message.roomId);
 
     const settingOption = message.settingOption;
@@ -586,6 +594,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("readyToStartGame", async (message) => {
+    console.log("Player is ready to start game...");
+
     const roomId = message.roomId;
     const username = message.username;
 
@@ -595,6 +605,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("startGame", (message) => {
+    console.log("starting game...");
     const roomId = message.roomId;
     const roomCode = gameManager.fetchRoomById(roomId).roomCode;
 
@@ -616,6 +627,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("submitAnswer", (message) => {
+    console.log("Submitting answer...");
+
     const playerUsername = message.username;
     const roomId = message.roomId;
 
@@ -667,6 +680,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("submitEmote", (message) => {
+    console.log("Submitting emote...");
+
     const roomId = message.roomId;
     const username = message.username;
     const emoteCode = message.emoteCode;

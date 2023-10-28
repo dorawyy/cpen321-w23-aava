@@ -315,9 +315,12 @@ const sendQuestion = (socket, roomCode, roomId) => {
   answers.sort(() => Math.random() - 0.5);
 
   const correctIndex = answers.indexOf(correctAnswer);
+  const questionData = { question, answers, correctIndex };
 
-  socket.to(roomId).emit("startQuestion", { question, answers, correctIndex });
-  socket.emit("startQuestion", { question, answers, correctIndex });
+  socket.to(roomId).emit("startQuestion", questionData);
+  socket.emit("startQuestion", questionData);
+
+  console.log(JSON.stringify(questionData));
 };
 
 io.on("connection", (socket) => {

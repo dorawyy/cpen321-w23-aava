@@ -661,7 +661,10 @@ io.on("connection", (socket) => {
         // Format Points per round response and send
         let scores = [];
         scoreGain.forEach((pointsEarned, username) => {
-          let updatedTotalPoints = totalScores.get(username);
+          let updatedTotalPoints = totalScores.filter(
+            (element) => element.username === username
+          )[0].finalScore;
+
           scores.push({ username, pointsEarned, updatedTotalPoints });
         });
 

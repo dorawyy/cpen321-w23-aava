@@ -63,6 +63,12 @@ const server = httpsServer.listen(8081, "0.0.0.0", async () => {
   if (await db.connect()) {
     gameManager.updateCategories();
   }
+
+  // TODO: delete after. This is used for testing
+  if (gameManager.fetchRoom("ABC123") === undefined) {
+    gameManager.testing();
+    console.log("test room added!");
+  }
 });
 
 /**
@@ -343,12 +349,6 @@ io.on("connection", (socket) => {
       console.log("Client has a valid sessionToken");
     }
   });
-
-  // TODO: delete after. This is used for testing
-  if (gameManager.fetchRoom("ABC123") === undefined) {
-    gameManager.testing();
-    console.log("test room added!");
-  }
 
   socket.on("joinRoom", (message) => {
     console.log("Joining room...");

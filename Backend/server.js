@@ -661,10 +661,14 @@ io.on("connection", (socket) => {
         // Format Points per round response and send
         let scores = [];
         scoreGain.forEach((pointsEarned, username) => {
-          scores.push({ username, pointsEarned });
+          let updatedTotalPoints = totalScores.get(username);
+          scores.push({ username, pointsEarned, updatedTotalPoints });
         });
-        socket.to(roomId).emit("showScoreboard", { scores });
-        socket.emit("showScoreboard", { scores });
+
+        const scoresData = { scores };
+
+        socket.to(roomId).emit("showScoreboard", scoresData);
+        socket.emit("showScoreboard", scoresData);
 
         // If no remaiing questiosns, end game, else send next questions
         if (gameManager.fetchQuestionsQuantity(roomCode) != 0) {

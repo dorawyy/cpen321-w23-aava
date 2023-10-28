@@ -383,7 +383,7 @@ io.on("connection", (socket) => {
         // Since joinRoom is the first event that is emitted by a client
         // after they connect to the socket, we need to store their socket id
         console.log(
-          `User ${username} with socket.id=${socket.id} joined room ${roomName}`
+          `User ${username} with socket.id=${socket.id} joined room ${room.roomCode}`
         );
 
         player.setSocketId(socket.id);

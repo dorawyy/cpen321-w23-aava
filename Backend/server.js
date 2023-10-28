@@ -304,7 +304,6 @@ const io = require("socket.io")(server, {
   },
 });
 
-// Assumes roomId == roomCode
 const sendQuestion = (socket, roomCode, roomId) => {
   gameManager.resetResponses(roomCode);
   const questionObject = gameManager.fetchNextQuestion(roomCode);
@@ -667,8 +666,8 @@ io.on("connection", (socket) => {
         socket.emit("endAnswerPeriod", { scores });
 
         // If no remaiing questiosns, end game, else send next questions
-        if (gameManager.fetchQuestionsQuantity(roomId) != 0) {
-          sendQuestion(socket, roomId);
+        if (gameManager.fetchQuestionsQuantity(roomCode) != 0) {
+          sendQuestion(socket, roomCode, roomId);
         } else {
           setTimeout(() => {
             socket.to(roomId).emit("endGame", { scores: totalScores });

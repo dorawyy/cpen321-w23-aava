@@ -501,7 +501,7 @@ io.on("connection", (socket) => {
     let error = false;
 
     switch (true) {
-      case settingOption == isPublic:
+      case settingOption == "isPublic":
         if (optionValue !== true || optionValue !== false) {
           error = true;
         } else {

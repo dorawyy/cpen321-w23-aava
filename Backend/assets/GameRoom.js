@@ -92,6 +92,10 @@ class GameRoom {
       let newPoints = scores.get(this.roomPlayers[i].user.username);
       let newScore = currScore + newPoints;
 
+      console.log(newPoints);
+      console.log(currScore);
+      console.log(newScore);
+
       this.roomPlayers[i].points = newScore;
       newTotals.push({
         username: this.roomPlayers[i].user.username,

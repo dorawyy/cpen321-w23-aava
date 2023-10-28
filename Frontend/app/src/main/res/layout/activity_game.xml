@@ -30,7 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            tools:srcCompat="@drawable/midground_hex" />
+            android:src="@drawable/midground_hex" />
 
         <!-- Universal Lobby -->
         <RelativeLayout
@@ -82,7 +82,7 @@
                         android:layout_width="300dp"
                         android:layout_height="wrap_content"
                         android:adjustViewBounds="true"
-                        tools:srcCompat="@drawable/user_cloud_rect" />
+                        android:src="@drawable/user_cloud_rect" />
                 </RelativeLayout>
 
                 <LinearLayout
@@ -224,6 +224,39 @@
             android:layout_height="match_parent"
             android:visibility="invisible">
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="40dp">
+
+                <ImageView
+                    android:id="@+id/game_lobby_joiner_ready_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:adjustViewBounds="true"
+                    android:src="@drawable/lobby_ready"
+                    android:focusable="true"
+                    android:clickable="true"
+                    android:onClick="onClick" />
+
+                <TextView
+                    android:id="@+id/game_lobby_joiner_ready_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignStart="@+id/game_lobby_joiner_ready_image"
+                    android:layout_alignTop="@+id/game_lobby_joiner_ready_image"
+                    android:layout_alignEnd="@+id/game_lobby_joiner_ready_image"
+                    android:layout_alignBottom="@+id/game_lobby_joiner_ready_image"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginBottom="5dp"
+                    android:fontFamily="@font/quantico_bold"
+                    android:gravity="center"
+                    android:text="READY!"
+                    android:textColor="@color/white"
+                    android:textSize="30dp" />
+            </RelativeLayout>
         </RelativeLayout>
 
         <!-- Owner Lobby -->
@@ -233,6 +266,80 @@
             android:layout_height="match_parent"
             android:visibility="invisible">
 
+            <LinearLayout
+                android:layout_width="350dp"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_centerHorizontal="true"
+                android:gravity="bottom"
+                android:layout_marginBottom="40dp">
+
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/game_lobby_owner_edit_image"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/lobby_edit"
+                        android:focusable="true"
+                        android:clickable="true"
+                        android:onClick="onClick" />
+
+                    <TextView
+                        android:id="@+id/game_lobby_owner_edit_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignStart="@+id/game_lobby_owner_edit_image"
+                        android:layout_alignTop="@+id/game_lobby_owner_edit_image"
+                        android:layout_alignEnd="@+id/game_lobby_owner_edit_image"
+                        android:layout_alignBottom="@+id/game_lobby_owner_edit_image"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginEnd="20dp"
+                        android:layout_marginBottom="5dp"
+                        android:fontFamily="@font/quantico_bold"
+                        android:gravity="center"
+                        android:text="EDIT"
+                        android:textColor="@color/white"
+                        android:textSize="30dp" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/game_lobby_owner_start_image"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/lobby_start"
+                        android:focusable="true"
+                        android:clickable="true"
+                        android:onClick="onClick" />
+
+                    <TextView
+                        android:id="@+id/game_lobby_owner_start_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignStart="@+id/game_lobby_owner_start_image"
+                        android:layout_alignTop="@+id/game_lobby_owner_start_image"
+                        android:layout_alignEnd="@+id/game_lobby_owner_start_image"
+                        android:layout_alignBottom="@+id/game_lobby_owner_start_image"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginEnd="20dp"
+                        android:layout_marginBottom="5dp"
+                        android:fontFamily="@font/quantico_bold"
+                        android:gravity="center"
+                        android:text="START!"
+                        android:textColor="@color/white"
+                        android:textSize="30dp" />
+                </RelativeLayout>
+            </LinearLayout>
         </RelativeLayout>
 
         <!-- Edit -->
@@ -320,10 +427,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:adjustViewBounds="true"
-                        android:src="@tools:sample/avatars"
-                        app:srcCompat="@drawable/answer_red"
+                        android:src="@drawable/answer_red"
                         android:focusable="true"
-                        android:clickable="true"
+                        android:clickable="false"
                         android:onClick="onClick" />
 
                     <TextView
@@ -355,10 +461,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:adjustViewBounds="true"
-                        android:src="@tools:sample/avatars"
-                        app:srcCompat="@drawable/answer_green"
+                        android:src="@drawable/answer_green"
                         android:focusable="true"
-                        android:clickable="true"
+                        android:clickable="false"
                         android:onClick="onClick" />
 
                     <TextView
@@ -390,10 +495,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:adjustViewBounds="true"
-                        android:src="@tools:sample/avatars"
-                        app:srcCompat="@drawable/answer_blue"
+                        android:src="@drawable/answer_blue"
                         android:focusable="true"
-                        android:clickable="true"
+                        android:clickable="false"
                         android:onClick="onClick" />
 
                     <TextView
@@ -425,10 +529,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:adjustViewBounds="true"
-                        android:src="@tools:sample/avatars"
-                        app:srcCompat="@drawable/answer_yellow"
+                        android:src="@drawable/answer_yellow"
                         android:focusable="true"
-                        android:clickable="true"
+                        android:clickable="false"
                         android:onClick="onClick" />
 
                     <TextView
@@ -547,7 +650,7 @@
                         android:layout_width="75dp"
                         android:layout_height="75dp"
                         android:layout_marginTop="5dp"
-                        tools:srcCompat="@drawable/emoji_spunchbop" />
+                        android:src="@drawable/emoji_spunchbop" />
 
                     <TextView
                         android:id="@+id/game_scoreboard_lesser_username_label"
@@ -595,7 +698,7 @@
                         android:layout_width="120dp"
                         android:layout_height="120dp"
                         android:layout_marginTop="0dp"
-                        tools:srcCompat="@drawable/emoji_focus" />
+                        android:src="@drawable/emoji_focus" />
 
                     <TextView
                         android:id="@+id/game_scoreboard_current_username_label"
@@ -642,7 +745,7 @@
                         android:layout_width="75dp"
                         android:layout_height="75dp"
                         android:layout_marginTop="5dp"
-                        tools:srcCompat="@drawable/emoji_bitelip" />
+                        android:src="@drawable/emoji_bitelip" />
 
                     <TextView
                         android:id="@+id/game_scoreboard_greater_username_label"
@@ -702,7 +805,7 @@
                 android:layout_centerInParent="true"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
-                tools:srcCompat="@drawable/scoreboard_rect" />
+                android:src="@drawable/scoreboard_rect" />
         </RelativeLayout>
 
         <!-- PowerUp -->
@@ -721,7 +824,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="86dp"
                 android:scaleType="fitXY"
-                app:srcCompat="@drawable/powerup_on"
+                android:src="@drawable/powerup_on"
                 android:focusable="true"
                 android:clickable="true"
                 android:onClick="onClick" />
@@ -735,7 +838,7 @@
                 android:layout_marginEnd="10dp"
                 android:layout_toStartOf="@+id/game_powerup_image3"
                 android:scaleType="fitXY"
-                app:srcCompat="@drawable/powerup_on"
+                android:src="@drawable/powerup_on"
                 android:focusable="true"
                 android:clickable="true"
                 android:onClick="onClick" />
@@ -749,7 +852,7 @@
                 android:layout_marginEnd="10dp"
                 android:layout_toStartOf="@+id/game_powerup_image2"
                 android:scaleType="fitXY"
-                app:srcCompat="@drawable/powerup_on"
+                android:src="@drawable/powerup_on"
                 android:focusable="true"
                 android:clickable="true"
                 android:onClick="onClick" />
@@ -763,7 +866,7 @@
                 android:layout_marginTop="-42dp"
                 android:layout_toEndOf="@+id/game_powerup_image3"
                 android:scaleType="fitXY"
-                app:srcCompat="@drawable/powerup_on"
+                android:src="@drawable/powerup_on"
                 android:focusable="true"
                 android:clickable="true"
                 android:onClick="onClick" />
@@ -777,7 +880,7 @@
                 android:layout_marginTop="-42dp"
                 android:layout_toEndOf="@+id/game_powerup_image4"
                 android:scaleType="fitXY"
-                app:srcCompat="@drawable/powerup_on"
+                android:src="@drawable/powerup_on"
                 android:focusable="true"
                 android:clickable="true"
                 android:onClick="onClick" />

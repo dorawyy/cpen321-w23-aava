@@ -53,7 +53,12 @@ class GameManager {
   // TODO: DELETE THIS FUNCTION AFTER TESTING IS DONE
   testing() {
     const gameMaster = new Player(
-      new User("random", "roomCreator-1", 3, "randomSessionToken")
+      new User(
+        "token-1",
+        "username-1",
+        3,
+        "0aae56ce-3788-4c3d-81fc-c1fe397c0cd9"
+      )
     );
     const roomCode = "ABC123";
     const room = new GameRoom("roomId-1", gameMaster, roomCode, new Settings());
@@ -61,7 +66,12 @@ class GameManager {
     this.roomCodeToGameRoom.set(roomCode, room);
 
     const gameMaster_2 = new Player(
-      new User("random", "roomCreator-2", 1, "randomSessionToken")
+      new User(
+        "token-1",
+        "username-1",
+        1,
+        "0aae56ce-3788-4c3d-81fc-c1fe397c0cd9"
+      )
     );
     const roomCode_2 = "XYZ123";
 
@@ -146,7 +156,10 @@ class GameManager {
       if (categories.length === 0) reject(2);
 
       // Gets the number of questions per category
-      let numPerCat = this.questionGenerator.getNumArr(toalQuestions, categories.length);
+      let numPerCat = this.questionGenerator.getNumArr(
+        toalQuestions,
+        categories.length
+      );
 
       // Creates a query array of requests to the question generator for each category
       const apiQueries = categories.map(async (category, i) => {
@@ -186,13 +199,13 @@ class GameManager {
 
         resolve(0);
       });
-    })
+    });
   }
 
   /**
    * Purpose: Calculates the score of each player in the room for the round
    * @param {String} [roomCode]: the room code of the game room
-   * @return {Object} Object containing return code and map of player tokens to scores:
+   * @return {Object} Object containing return code and map of player username to scores:
    *                 returnCode: 0 for success, 1 for room not found
    *                 scores: Map of player users to scores
    */
@@ -220,12 +233,20 @@ class GameManager {
     const maxScore = scorePerDifficulty[room.getDifficultySetting()];
     const maxTime = room.getTimeSetting() * 1000;
     actions.forEach((action) => {
-      if (action.getCorrect() && action.getPowerup() !== PowerupEnum.FREE_LUNCH) {
+      if (
+        action.getCorrect() &&
+        action.getPowerup() !== PowerupEnum.FREE_LUNCH
+      ) {
         // If took too long, no points; else give mark based on how quickly answer pressed
-        let correctnessMark = action.getDelay() > maxTime ? 0 : (maxTime - action.getDelay()) / maxTime;
+        let correctnessMark =
+          action.getDelay() > maxTime
+            ? 0
+            : (maxTime - action.getDelay()) / maxTime;
 
         // Round the score and double if 2x powerup used
-        let score = Math.round(correctnessMark * maxScore) * (action.getPowerup() === PowerupEnum.DOUBLE_POINTS ? 2 : 1);
+        let score =
+          Math.round(correctnessMark * maxScore) *
+          (action.getPowerup() === PowerupEnum.DOUBLE_POINTS ? 2 : 1);
 
         // Update the total score for the player
         totalScores.set(action.getPlayer(), score);
@@ -254,7 +275,7 @@ class GameManager {
 
     // Calculate the stolen scores
     victimToThieves.forEach((thieves, victim) => {
-      if (thieves.length > 0){
+      if (thieves.length > 0) {
         let stolenScore = totalScores.get(victim);
         let scoreGain = Math.floor(stolenScore / thieves.length);
         thieves.forEach((thief) => {
@@ -265,8 +286,8 @@ class GameManager {
     });
 
     // Add the stolen scores to the total scores
-    totalScores.forEach((score, token) => {
-      totalScores.set(token, score + stolenScores.get(token));
+    totalScores.forEach((score, username) => {
+      totalScores.set(username, score + stolenScores.get(username));
     });
 
     return { returnCode: 0, scores: totalScores };

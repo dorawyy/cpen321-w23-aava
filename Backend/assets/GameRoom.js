@@ -84,7 +84,7 @@ class GameRoom {
     this.actionsArray = [];
   }
 
-  // Updates the points and returns new
+  // Updates the points and returns new total scores
   updateScores(scores) {
     let newTotals = [];
     for (let i = 0; i < this.roomPlayers.length; i++) {
@@ -92,9 +92,10 @@ class GameRoom {
       let newPoints = scores.get(this.roomPlayers[i].user.username);
       let newScore = currScore + newPoints;
 
-      console.log(newPoints);
-      console.log(currScore);
-      console.log(newScore);
+      console.log(scores);
+      console.log(newPoints); //undefined
+      console.log(currScore); //0
+      console.log(newScore); //NAN
 
       this.roomPlayers[i].points = newScore;
       newTotals.push({

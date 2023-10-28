@@ -662,8 +662,8 @@ io.on("connection", (socket) => {
         scoreGain.forEach((pointsEarned, username) => {
           scores.push({ username, pointsEarned });
         });
-        socket.to(roomId).emit("endAnswerPeriod", { scores });
-        socket.emit("endAnswerPeriod", { scores });
+        socket.to(roomId).emit("showScoreboard", { scores });
+        socket.emit("showScoreboard", { scores });
 
         // If no remaiing questiosns, end game, else send next questions
         if (gameManager.fetchQuestionsQuantity(roomCode) != 0) {

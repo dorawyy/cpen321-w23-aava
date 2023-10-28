@@ -3,10 +3,7 @@ package com.aava.cpen321project;
 import static java.lang.System.currentTimeMillis;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -110,17 +107,20 @@ public class GameActivity extends AppCompatActivity {
 
     private Map<RelativeLayout, List<View>> clickableViews;
 
-    // State
+    // STATE VARIABLES
 
+    // Constant values that last throughout the duration of the game.
     private Socket socket;
-    private String sessionToken; // To be accessed from elsewhere, using a dummy field for now
     private String username; // To be accessed from elsewhere, using a dummy field for now
     private String roomId;
     private boolean isOwner;
 
+    // State concerning the players in the game room.
     private JSONArray roomPlayers;
     private int readyCount;
+    private JSONArray scoreInfo;
 
+    // State concerning the settings of the game room.
     private boolean roomIsPublic;
     private JSONArray roomQuestionCategories;
     private String roomQuestionDifficulty;
@@ -128,65 +128,64 @@ public class GameActivity extends AppCompatActivity {
     private int roomQuestionTime;
     private int roomQuestionCount;
 
+    // State concerning the phase of the game room.
     private boolean started;
     private int questionNumber;
+
+    // State concerning a particular question in the game.
     private String questionDescription;
-    private String[] answerDescriptions;
+    private final String[] answerDescriptions = new String[4];
     private int correctAnswer;
     private boolean lastQuestionCorrect;
-
-    private long questionStartTimeMillis;
+    private long answeringStartTime;
     private CountDownTimer questionCountDownTimer;
 
-    private JSONArray scoreInfo;
-
+    // State concerning the player's powerups.
     private boolean usedPowerup;
     private int powerupCode;
     private String powerupVictimUsername;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        // IMPORTANT: When this activity is started, it MUST be passed a roomId parameter. This
-        // is because it is assumed that the server has already assigned the device a game room.
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        getSetSocket();             // Sets the socket variable, and connects to the server.
-        getSetActivityParameters(); // Sets the roomId and isOwner variables.
-        getSetAllViews();           // Sets the view variables.
+        getSetSocket();             // Sets the socket object, and connects to the server.
+        getSetActivityParameters(); // Sets constant parameters passed from the menu activity.
+        getSetAllViews();           // Sets the view objects.
 
         // Emit a joinRoom event, to notify the server that the player has joined.
-        // All other events are emitted in the onClick function.
-        sendJSONMessage("joinRoom", new HashMap<String, Object>() {{
+        sendSocketJSON("joinRoom", new HashMap<String, Object>() {{
             put("roomId", roomId);
             put("username", username);
         }});
     }
 
-    // Overridden for functionality upon leaving GameActivity
+    // Overridden for functionality upon exiting GameActivity.
     @Override
     public void onPause() {
         super.onPause();
         if (isFinishing()) {
             // Emit a leaveRoom event, to notify the server that the player has left.
-            sendJSONMessage("leaveRoom", new HashMap<String, Object>() {{
+            sendSocketJSON("leaveRoom", new HashMap<String, Object>() {{
                 put("roomId", roomId);
                 put("username", username);
             }});
         }
     }
 
-    // Start the question sequence
+    // A container for all functionality for displaying and answering each question.
     private void startQuestion() {
-        // Show countdown layout
+        // Display a countdown in preparation for the question.
         countdownCountLabel.setText("3");
         countdownCountLabel.setVisibility(View.INVISIBLE);
         countdownReadyLabel.setVisibility(View.VISIBLE);
         enableLayout(countdownLayout, true, true);
 
-        new CountDownTimer(5000, 1000) { // COUNTDOWN
+        // Start a timer for the countdown; ends with the question being displayed.
+        new CountDownTimer(5000, 1000) {
+
+            // Update the countdown timer accordingly.
             public void onTick(long millisUntilFinished) {
                 if (millisUntilFinished == 3000) {
                     countdownReadyLabel.setVisibility(View.INVISIBLE);
@@ -197,14 +196,19 @@ public class GameActivity extends AppCompatActivity {
                     countdownCountLabel.setText("1");
                 }
             }
-            public void onFinish() { // QUESTION SHOW
-                // Set label values
+
+            // Display the question and powerups but not the answers yet.
+            public void onFinish() {
+
+                // Set the descriptions for the header, question, and answers.
                 headerLabel.setText("Q" + questionNumber);
                 questionLabel.setText(questionDescription);
                 questionAnswer1Label.setText(answerDescriptions[0]);
                 questionAnswer2Label.setText(answerDescriptions[1]);
                 questionAnswer3Label.setText(answerDescriptions[2]);
                 questionAnswer4Label.setText(answerDescriptions[3]);
+
+                // Keep the answer descriptions hidden for now while the user reads the question.
                 questionAnswer1Label.setVisibility(View.INVISIBLE);
                 questionAnswer2Label.setVisibility(View.INVISIBLE);
                 questionAnswer3Label.setVisibility(View.INVISIBLE);
@@ -214,18 +218,23 @@ public class GameActivity extends AppCompatActivity {
                 questionAnswer3Image.setImageResource(R.drawable.answer_blank);
                 questionAnswer4Image.setImageResource(R.drawable.answer_blank);
 
-                // Switch layouts
+                // Display the question layout and the powerups layout.
                 disableLayout(countdownLayout);
                 enableLayout(questionLayout, true, false);
                 enableLayout(powerupLayout, true, true);
 
-                // Start another countdown
-                new CountDownTimer(5000, 100) { // ANSWER SHOW
+                // Start a timer for reading the question; ends with the possible answers being shown.
+                new CountDownTimer(5000, 100) {
+
+                    // Keep the timer on the screen updated.
                     public void onTick(long millisUntilFinished) {
                         questionTimerLabel.setText(String.format("%.1f", millisUntilFinished / 1000.0));
                     }
 
+                    // Show the possible answers.
                     public void onFinish() {
+
+                        // Reveal the answer descriptions.
                         questionAnswer1Label.setVisibility(View.VISIBLE);
                         questionAnswer2Label.setVisibility(View.VISIBLE);
                         questionAnswer3Label.setVisibility(View.VISIBLE);
@@ -235,11 +244,21 @@ public class GameActivity extends AppCompatActivity {
                         questionAnswer3Image.setImageResource(R.drawable.answer_blue);
                         questionAnswer4Image.setImageResource(R.drawable.answer_yellow);
 
+                        // Record the timestamp of when the answers were shown.
+                        answeringStartTime = currentTimeMillis();
+
+                        // Start a timer for answering the question; ends with a forceful null answer.
+                        // Gets cancelled before finishing upon an answer button being selected.
+                        // Needs to be saved to questionCountDownTimer so that it can be referenced
+                        // (cancelled) from elsewhere.
                         questionCountDownTimer = new CountDownTimer(roomQuestionTime * 1000, 100) {
+
+                            // Keep the timer on the screen updated.
                             public void onTick(long millisUntilFinished) {
                                 questionTimerLabel.setText(String.format("%.1f", millisUntilFinished / 1000.0));
                             }
 
+                            // Force a null answer - the player took too long.
                             public void onFinish() {
                                 submitAnswer(false);
                             }
@@ -251,27 +270,30 @@ public class GameActivity extends AppCompatActivity {
         }.start();
     }
 
-    // Submit an answer
+    // A general function for submitting an answer to a question to the server.
     private void submitAnswer(boolean isCorrect) {
 
+        // Save whether the question was answered correctly for use on the scoreboard screen.
         lastQuestionCorrect = isCorrect;
-        sendJSONMessage("submitAnswer", new HashMap<String, Object>() {{
+        sendSocketJSON("submitAnswer", new HashMap<String, Object>() {{
             put("roomId", roomId);
             put("username", username);
-            put("timeDelay", currentTimeMillis() - questionStartTimeMillis);
+            put("timeDelay", currentTimeMillis() - answeringStartTime);
             put("isCorrect", isCorrect);
             put("powerupCode", usedPowerup ? powerupCode : -1);
             put("powerupVictimUsername", powerupVictimUsername);
         }});
 
+        // Reset powerup state.
         usedPowerup = false;
 
+        // Since the question has been answered, switch to the next screen, waiting for the scoreboard.
         disableLayout(questionLayout);
         disableLayout(powerupLayout);
         enableLayout(stallLayout, true, true);
     }
 
-    // Get and set socket value, set all event receiving functionality
+    // Get and set socket value, and define all socket event receiving functionality.
     private void getSetSocket() {
         socket = SocketManager.getInstance();
 
@@ -293,7 +315,7 @@ public class GameActivity extends AppCompatActivity {
                 roomQuestionTime = roomSettings.getInt("questionTime");
                 roomQuestionCount = roomSettings.getInt("totalQuestions");
 
-                // Initialize the layout.
+                // Initialize the lobby layout.
                 enableLayout(lobbyUniversalLayout, false, true);
                 if (isOwner) {
                     enableLayout(lobbyOwnerLayout, false, true);
@@ -311,11 +333,12 @@ public class GameActivity extends AppCompatActivity {
         socket.on("playerJoined", args -> {
             JSONObject data = (JSONObject) args[0];
             try {
+                // Add the incoming data to the player state.
                 JSONObject newPlayerData = new JSONObject();
                 newPlayerData.put("username", data.getString("newPlayerUsername"));
                 newPlayerData.put("rank", data.getInt("newPlayerRank"));
                 roomPlayers.put(newPlayerData);
-                // Disable Start button by default, as the new player needs to ready up.
+                // If owner, disable Start button by default, as the new player needs to ready up.
                 lobbyOwnerStartImage.setClickable(false);
             } catch (JSONException e) {
                 throw new RuntimeException(e);
@@ -326,6 +349,7 @@ public class GameActivity extends AppCompatActivity {
         socket.on("playerLeft", args -> {
             JSONObject data = (JSONObject) args[0];
             try {
+                // Remove the data from the player state.
                 String leftPlayerUsername = data.getString("playerUsername");
                 for (int p = 0; p < roomPlayers.length(); p++) {
                     if (roomPlayers.getJSONObject(p).getString("username").equals(leftPlayerUsername)) {
@@ -333,7 +357,7 @@ public class GameActivity extends AppCompatActivity {
                         break;
                     }
                 }
-                // Check if everyone remaining is ready.
+                // Check if everyone remaining is ready, and allow starting if so.
                 if (isOwner && readyCount == roomPlayers.length() - 1) {
                     lobbyOwnerStartImage.setClickable(true);
                 }
@@ -342,7 +366,7 @@ public class GameActivity extends AppCompatActivity {
             }
         });
 
-        // On yourself leaving
+        // On yourself leaving, either manually or via kicking
         socket.on("removedFromRoom", args -> {
             JSONObject data = (JSONObject) args[0];
             try {
@@ -445,17 +469,19 @@ public class GameActivity extends AppCompatActivity {
         socket.on("startQuestion", args -> {
             JSONObject data = (JSONObject) args[0];
             try {
+                // Set all question state values.
                 questionDescription = data.getString("question");
-                // TODO: ensure it's actually "answers" and "correctAnswer"
                 JSONArray incomingAnswerDescriptions = data.getJSONArray("answers");
                 for (int i = 0; i < 4; i++) {
                     answerDescriptions[i] = incomingAnswerDescriptions.getString(i);
                 }
-                correctAnswer = data.getInt("correctAnswer");
+                correctAnswer = data.getInt("correctIndex");
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }
             if (!started) {
+                // If this is the first question, initialize some of the game state, and
+                // turn off the lobby view.
                 started = true;
                 questionNumber = 1;
                 disableLayout(lobbyUniversalLayout);
@@ -467,6 +493,8 @@ public class GameActivity extends AppCompatActivity {
             } else {
                 disableLayout(scoreboardLayout);
             }
+
+            // Start the question sequence.
             startQuestion();
         });
 
@@ -481,7 +509,7 @@ public class GameActivity extends AppCompatActivity {
             try {
                 scoreInfo = data.getJSONArray("scores");
 
-                // Sort players by score
+                // Sort players by score.
                 List<JSONObject> scoreInfoList = new ArrayList<JSONObject>();
                 for (int i = 0; i < scoreInfo.length(); i++) {
                     scoreInfoList.add(scoreInfo.getJSONObject(i));
@@ -498,7 +526,7 @@ public class GameActivity extends AppCompatActivity {
                     return scoreB - scoreA;
                 });
 
-                // Get player rank and neighboring ranks
+                // Get the player's current rank and the players whose ranks neighbor them.
                 int rank = -1;
                 for (int i = 0; i < scoreInfoList.size(); i++) {
                     if (scoreInfoList.get(i).getString("username").equals(username)) {
@@ -506,7 +534,7 @@ public class GameActivity extends AppCompatActivity {
                     }
                 }
 
-                // Set all labels
+                // Set all of the labels on the scoreboard screen.
                 headerLabel.setText(lastQuestionCorrect ? "Correct!" : "Incorrect");
                 scoreboardRankLabel.setText(
                         (rank == 0) ? "1st" : (rank == 1) ? "2nd" : (rank == 2) ? "3rd" : String.format("%dth", rank + 1)
@@ -535,7 +563,7 @@ public class GameActivity extends AppCompatActivity {
                 throw new RuntimeException(e);
             }
 
-            // Switch screens
+            // Display the scoreboard screen.
             disableLayout(stallLayout);
             enableLayout(scoreboardLayout, true, true);
         });
@@ -546,7 +574,7 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
-    // Get and set the roomId and isOwner values passed from MenuActivity
+    // Get and set the parameters passed from MenuActivity.
     private void getSetActivityParameters() {
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
@@ -556,7 +584,7 @@ public class GameActivity extends AppCompatActivity {
         else Log.e(TAG, "No parameters passed!");
     }
 
-    // Get and set all view values
+    // Get and set all View objects.
     private void getSetAllViews() {
         headerLabel = findViewById(R.id.game_header_label);
 
@@ -568,6 +596,7 @@ public class GameActivity extends AppCompatActivity {
         questionLayout = findViewById(R.id.game_question_layout);
         stallLayout = findViewById(R.id.game_stall_layout);
         scoreboardLayout = findViewById(R.id.game_scoreboard_layout);
+        powerupLayout = findViewById(R.id.game_powerup_layout);
 
         countdownReadyLabel = findViewById(R.id.game_countdown_ready_label);
         countdownCountLabel = findViewById(R.id.game_countdown_count_label);
@@ -584,6 +613,9 @@ public class GameActivity extends AppCompatActivity {
         questionTimerLabel = findViewById(R.id.game_question_timer_label);
 
         stallBlurbLabel = findViewById(R.id.game_stall_blurb_label);
+
+        scoreboardLesserColumn = findViewById(R.id.game_scoreboard_lesser_column);
+        scoreboardGreaterColumn = findViewById(R.id.game_scoreboard_greater_column);
 
         scoreboardLesserGainLabel = findViewById(R.id.game_scoreboard_lesser_gain_label);
         scoreboardLesserScoreLabel = findViewById(R.id.game_scoreboard_lesser_score_label);
@@ -625,13 +657,14 @@ public class GameActivity extends AppCompatActivity {
         }};
     }
 
-    // All onClick functionality, set most event emitting functionality
+    // This function should be referenced by every clickable View in the layout. The identity of
+    // the View determines the onClick functionality.
     public void onClick(View v) {
 
         // LOBBY
         if (v == lobbyJoinerReadyImage) {
             // Emit readyToStartGame event, and disable the button
-            sendJSONMessage("readyToStartGame", new HashMap<String, Object>() {{
+            sendSocketJSON("readyToStartGame", new HashMap<String, Object>() {{
                 put("roomId", roomId);
                 put("username", username);
             }});
@@ -644,7 +677,7 @@ public class GameActivity extends AppCompatActivity {
             enableLayout(lobbyEditLayout, true, true);
         } else if (v == lobbyOwnerStartImage) {
             // Emit startGame event, and disable the button
-            sendJSONMessage("startGame", new HashMap<String, Object>() {{
+            sendSocketJSON("startGame", new HashMap<String, Object>() {{
                 put("roomId", roomId);
             }});
         } else if (v == lobbyEditCategoriesImage) {
@@ -699,7 +732,7 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
-    // Disable a layout, disables all clickables
+    // Make a particular part of the layout invisible and unclickable.
     private void disableLayout(RelativeLayout layout) {
         layout.setAnimation(AnimationUtils.loadAnimation(GameActivity.this, R.anim.fade_out));
         for (View v : Objects.requireNonNull(clickableViews.get(layout))) {
@@ -707,7 +740,7 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
-    // Enable a layout, option to enable all clickables
+    // Make a particular part of the layout visible and clickable, if desired.
     private void enableLayout(RelativeLayout layout, boolean delayed, boolean activateClickables) {
         layout.setAnimation(AnimationUtils.loadAnimation(GameActivity.this, delayed ? R.anim.fade_in_delay : R.anim.fade_in));
         if (activateClickables) for (View v : Objects.requireNonNull(clickableViews.get(layout))) {
@@ -715,8 +748,8 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
-    // General function for sending an event through the socket
-    private void sendJSONMessage(String event, Map<String, Object> fields) {
+    // General function for sending a JSON object through the socket.
+    private void sendSocketJSON(String event, Map<String, Object> fields) {
         JSONObject message = new JSONObject();
         try {
             for (Map.Entry<String, Object> field : fields.entrySet()) {

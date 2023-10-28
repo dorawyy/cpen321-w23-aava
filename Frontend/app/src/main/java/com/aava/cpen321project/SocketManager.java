@@ -10,7 +10,7 @@ import io.socket.client.Socket;
 public class SocketManager {
 
     private static final String TAG = "SocketManager";
-    private static final String SERVER_URL = "127.0.0.1";
+    private static final String SERVER_URL = "35.212.247.165:8081";
 
     private static Socket socket;
 

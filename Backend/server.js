@@ -293,10 +293,8 @@ app.post("/create-room", (req, res) => {
   });
 });
 
-// Delay between start if game and question
-const START_Q_DELAY = 3000;
-// Time players alllowed to read questions before they can answer
-const READ_Q_DELAY = 2000;
+// Delay between start of game and question
+const SHOW_SCOREBOARD_MILLISECONDS = 10000;
 
 const io = require("socket.io")(server, {
   cors: {
@@ -667,12 +665,14 @@ io.on("connection", (socket) => {
 
         // If no remaiing questiosns, end game, else send next questions
         if (gameManager.fetchQuestionsQuantity(roomCode) != 0) {
-          sendQuestion(socket, roomCode, roomId);
+          setTimeout(() => {
+            sendQuestion(socket, roomCode, roomId);
+          }, SHOW_SCOREBOARD_MILLISECONDS);
         } else {
           setTimeout(() => {
             socket.to(roomId).emit("endGame", { scores: totalScores });
             socket.emit("endGame", { scores: totalScores });
-          }, START_Q_DELAY);
+          }, SHOW_SCOREBOARD_MILLISECONDS);
         }
       }
     }

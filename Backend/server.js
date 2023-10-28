@@ -1,8 +1,7 @@
 // Third-party modules
-const fs = require('fs');
-const https = require('https');
+const fs = require("fs");
+const https = require("https");
 const express = require("express");
-const { Server } = require("socket.io");
 const { v4: uuidv4 } = require("uuid");
 var assert = require("assert");
 
@@ -19,8 +18,8 @@ let gameManager = new GameManager();
 let userDBManager = new UserDBManager(db.getUsersCollection());
 
 // Read the SSL certificate files from the current directory
-const privateKey = fs.readFileSync('./key.pem', 'utf8');
-const certificate = fs.readFileSync('./cert.pem', 'utf8');
+const privateKey = fs.readFileSync("./key.pem", "utf8");
+const certificate = fs.readFileSync("./cert.pem", "utf8");
 
 const credentials = { key: privateKey, cert: certificate };
 const httpsServer = https.createServer(credentials, app);
@@ -303,7 +302,11 @@ const START_Q_DELAY = 3000;
 // Time players alllowed to read questions before they can answer
 const READ_Q_DELAY = 2000;
 
-const io = new Server(server);
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "*",
+  },
+});
 
 // Assumes roomId == roomCode
 const sendQuestion = (socket, roomCode, roomId) => {
@@ -329,6 +332,11 @@ io.on("connection", (socket) => {
 
   const sessionToken = socket.handshake.query.sessionToken;
   console.log("Checking their session token: " + sessionToken);
+
+  if (sessionToken === undefined) {
+    socket.disconnect();
+  }
+
   userDBManager.getUserBySessionToken(sessionToken).then((user) => {
     if (user === undefined) {
       // Disconnect this client. They do not have a valid sessionToken
@@ -344,9 +352,7 @@ io.on("connection", (socket) => {
     console.log("test room added!");
   }
 
-  socket.on("joinRoom", (data) => {
-    const message = JSON.parse(data);
-
+  socket.on("joinRoom", (message) => {
     const username = message.username;
     const room = gameManager.fetchRoomById(message.roomId);
 
@@ -404,8 +410,7 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("leaveRoom", (data) => {
-    const message = JSON.parse(data);
+  socket.on("leaveRoom", (message) => {
     const username = message.username;
     const roomId = message.roomId;
 
@@ -449,8 +454,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("banPlayer", async (data) => {
-    const message = JSON.parse(data);
+  socket.on("banPlayer", async (message) => {
     const roomId = message.roomId;
     const username = message.username;
     const bannedUsername = message.playerToBanUsername;
@@ -486,8 +490,7 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("changeSetting", (data) => {
-    const message = JSON.parse(data);
+  socket.on("changeSetting", (message) => {
     const room = gameManager.fetchRoomById(message.roomId);
 
     const settingOption = message.settingOption;
@@ -572,8 +575,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("readyToStartGame", async (data) => {
-    const message = JSON.parse(data);
+  socket.on("readyToStartGame", async (message) => {
     const roomId = message.roomId;
     const username = message.username;
 
@@ -582,8 +584,7 @@ io.on("connection", (socket) => {
       .emit("playerReadyToStartGame", { playerUsername: username });
   });
 
-  socket.on("startGame", (data) => {
-    const message = JSON.parse(data);
+  socket.on("startGame", (message) => {
     const roomId = message.roomId;
     const roomCode = gameManager.fetchRoomById(roomId).roomCode;
 
@@ -604,8 +605,7 @@ io.on("connection", (socket) => {
       });
   });
 
-  socket.on("submitAnswer", (data) => {
-    const message = JSON.parse(data);
+  socket.on("submitAnswer", (message) => {
     const playerUsername = message.username;
     const roomId = message.roomId;
 
@@ -656,8 +656,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("submitEmote", (data) => {
-    const message = JSON.parse(data);
+  socket.on("submitEmote", (message) => {
     const roomId = message.roomId;
     const username = message.username;
     const emoteCode = message.emoteCode;

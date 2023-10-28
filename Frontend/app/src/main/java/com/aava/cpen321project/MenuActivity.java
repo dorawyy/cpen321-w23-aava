@@ -4,18 +4,36 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MenuActivity extends AppCompatActivity {
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+public class MenuActivity extends AppCompatActivity implements View.OnClickListener{
 
     private TextView titleText, playText, accountText, userText;
     private ImageButton playButton, createButton, codeButton1, codeButton2;
 
     private ImageView logoImage;
+
+    private Socket mSocket;
+
+    {
+        try {
+            mSocket = IO.socket("https://yourserver.com");
+        } catch (Exception e) {
+            // Handle the exception
+            e.printStackTrace();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,11 +52,12 @@ public class MenuActivity extends AppCompatActivity {
         ImageView accountButton = findViewById(R.id.accountButton);
         ImageView createButton = findViewById(R.id.createButton);
 
+
         // Set click listeners
-        playButton.setOnClickListener((View.OnClickListener) this);
-        codeButton1.setOnClickListener((View.OnClickListener) this);
-        accountButton.setOnClickListener((View.OnClickListener) this);
-        createButton.setOnClickListener((View.OnClickListener) this);
+        playButton.setOnClickListener(this);
+        codeButton1.setOnClickListener(this);
+        accountButton.setOnClickListener(this);
+        createButton.setOnClickListener(this);
 
         logoImage = findViewById(R.id.logoImage);
 
@@ -81,6 +100,21 @@ public class MenuActivity extends AppCompatActivity {
         private void onCreateButtonClick () {
             Toast.makeText(this, "Create Button Clicked", Toast.LENGTH_SHORT).show();
             // Handle create button click
+
+
         }
+
+
+    public void createRoom(String sessionToken) {
+        try {
+            JSONObject data = new JSONObject();
+            data.put("sessionToken", sessionToken);
+
+            mSocket.emit("createRoom", data);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("SocketIO", "Error creating room");
+        }
+    }
 
 }

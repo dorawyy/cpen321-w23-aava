@@ -19,6 +19,18 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.testng.annotations.Test;
+
+//import static org.mockito.Mockito.*;
+//import org.mockito.Mockito;
+
+
+
 public class LoginActivity extends AppCompatActivity {
 
     private Integer RC_SIGN_IN = 1;
@@ -26,9 +38,22 @@ public class LoginActivity extends AppCompatActivity {
 
     private GoogleSignInClient mGoogleSignInClient;
 
+    private Socket mSocket;
+    {
+        try {
+            mSocket = IO.socket("http://35.212.247.165:8081/");
+        } catch (Exception e) {
+            // Handle the exception
+            e.printStackTrace();
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mSocket.connect();
+
         setContentView(R.layout.activity_login); // Replace with your login layout name
 
                 // Configure sign-in to request the user's ID, email address, and basic
@@ -42,6 +67,7 @@ public class LoginActivity extends AppCompatActivity {
                 findViewById(R.id.signin_button).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+
                         signIn();
                     }
                 });
@@ -74,7 +100,7 @@ public class LoginActivity extends AppCompatActivity {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
 
             // Signed in successfully, show authenticated UI.
-            //TODO
+            //TODO change function name and do spec stuff
             updateUI(account);
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
@@ -104,11 +130,11 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d(TAG, "Display URL: " + account.getPhotoUrl());
                 Log.d(TAG, "Given Name: " + account.getGivenName());
 
-                //Send the token to back-end
-                //account.getIdToken();
-                //Move to another activity
-                final String userN = account.getGivenName() + account.getFamilyName();
+                String token = account.getIdToken();
+                sendTokenToBackend(token);
 
+                final String userN = account.getGivenName() + account.getFamilyName();
+                //Take the logged in user to Menu
                 Intent serverIntent = new Intent(LoginActivity.this, MenuActivity.class);
                 serverIntent.putExtra("KEY_STRING", userN);
                 startActivity(serverIntent);
@@ -116,6 +142,38 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
 
+
+        private void sendTokenToBackend(String token) {
+            Log.d("Debug", "sendTokenToBackend called with token: " + token);
+            JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject.put("token", token);
+                mSocket.emit("login", jsonObject);
+                Log.d("Debug", "Token sent to backend: " + jsonObject.toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+//        @Test
+//        public void testSendTokenToBackend() {
+//            // Arrange
+//            String token = "someToken";
+//            Socket mSocketMock = Mockito.mock(Socket.class);
+//            MyClass myClass = new MyClass(mSocketMock);
+//
+//            // Act
+//            myClass.sendTokenToBackend(token);
+//
+//            // Assert
+//            JSONObject expectedJson = new JSONObject();
+//            expectedJson.put("token", token);
+//            Mockito.verify(mSocketMock).emit("login", expectedJson);
+//        }
+
+
+
+    //TODO Handle the Server’s Response?
 }
 
 

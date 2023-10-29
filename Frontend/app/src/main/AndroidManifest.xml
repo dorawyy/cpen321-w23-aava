@@ -27,9 +27,6 @@
         <activity
             android:name=".MenuActivity"
             android:exported="false" />
-        <activity
-            android:name=".GameActivity"
-            android:exported="false" />
     </application>
 
 </manifest>

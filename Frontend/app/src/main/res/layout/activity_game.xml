@@ -1,786 +1,786 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/background">
-
-    <RelativeLayout
-        android:id="@+id/game_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <!-- Header -->
-        <TextView
-            android:id="@+id/game_header_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="25dp"
-            android:gravity="center"
-            android:fontFamily="@font/fugaz_one"
-            android:text=""
-            android:textColor="@color/white"
-            android:textSize="50dp" />
-
-        <!-- Hexagon -->
-        <ImageView
-            android:id="@+id/game_midground_hex"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            tools:srcCompat="@drawable/midground_hex" />
-
-        <!-- Universal Lobby -->
-        <RelativeLayout
-            android:id="@+id/game_lobby_universal_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="invisible">
-
-            <LinearLayout
-                android:id="@+id/game_lobby_universal_column"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/game_lobby_preface_label"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="30dp"
-                    android:layout_marginEnd="30dp"
-                    android:fontFamily="@font/quantico_regular"
-                    android:gravity="center"
-                    android:text="Code:"
-                    android:textColor="@color/white"
-                    android:textSize="17dp" />
-
-                <TextView
-                    android:id="@+id/game_lobby_code_label"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="30dp"
-                    android:layout_marginEnd="30dp"
-                    android:layout_marginBottom="25dp"
-                    android:fontFamily="@font/quantico_bold"
-                    android:gravity="center"
-                    android:text="J8N4T1"
-                    android:textColor="@color/white"
-                    android:textSize="30dp" />
-
-                <RelativeLayout
-                    android:id="@+id/game_lobby_user_cloud"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="20dp">
-
-                    <ImageView
-                        android:id="@+id/game_lobby_user_cloud_rect"
-                        android:layout_width="300dp"
-                        android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        tools:srcCompat="@drawable/user_cloud_rect" />
-                </RelativeLayout>
-
-                <LinearLayout
-                    android:id="@+id/game_lobby_setting_row"
-                    android:layout_width="match_parent"
-                    android:layout_height="175dp"
-                    android:orientation="horizontal"
-                    android:showDividers="middle"
-                    android:divider="@drawable/game_lobby_setting_divider"
-                    android:dividerPadding="10dp">
-
-                    <LinearLayout
-                        android:id="@+id/game_lobby_category_column"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="match_parent"
-                        android:paddingEnd="25dp"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/game_lobby_category_label"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="10dp"
-                            android:fontFamily="@font/quantico_regular"
-                            android:gravity="end"
-                            android:text="Categories"
-                            android:textColor="@color/white"
-                            android:textSize="15dp" />
-
-                        <TextView
-                            android:id="@+id/game_lobby_category1_label"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/quantico_regular"
-                            android:gravity="end"
-                            android:text="Geography"
-                            android:textColor="@color/white"
-                            android:textSize="17dp" />
-
-                        <TextView
-                            android:id="@+id/game_lobby_category2_label"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/quantico_regular"
-                            android:gravity="end"
-                            android:text="History"
-                            android:textColor="@color/white"
-                            android:textSize="17dp" />
-
-                        <TextView
-                            android:id="@+id/game_lobby_category3_label"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/quantico_regular"
-                            android:gravity="end"
-                            android:text="Pop Culture"
-                            android:textColor="@color/white"
-                            android:textSize="17dp" />
-
-                        <TextView
-                            android:id="@+id/game_lobby_category4_label"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/quantico_regular"
-                            android:gravity="end"
-                            android:text="Mathematics"
-                            android:textColor="@color/white"
-                            android:textSize="17dp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/game_lobby_setting_column"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="match_parent"
-                        android:paddingStart="25dp"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/game_lobby_setting_label"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="10dp"
-                            android:fontFamily="@font/quantico_regular"
-                            android:gravity="start"
-                            android:text="Settings"
-                            android:textColor="@color/white"
-                            android:textSize="15dp" />
-
-                        <TextView
-                            android:id="@+id/game_lobby_setting1_label"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/quantico_regular"
-                            android:gravity="start"
-                            android:text="Questions: 20"
-                            android:textColor="@color/white"
-                            android:textSize="17dp" />
-
-                        <TextView
-                            android:id="@+id/game_lobby_setting2_label"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/quantico_regular"
-                            android:gravity="start"
-                            android:text="Players: 6"
-                            android:textColor="@color/white"
-                            android:textSize="17dp" />
-
-                        <TextView
-                            android:id="@+id/game_lobby_setting3_label"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/quantico_regular"
-                            android:gravity="start"
-                            android:text="Time Limit: 5s"
-                            android:textColor="@color/white"
-                            android:textSize="17dp" />
-
-                        <TextView
-                            android:id="@+id/game_lobby_setting4_label"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/quantico_regular"
-                            android:gravity="start"
-                            android:text="Is Public: Yes"
-                            android:textColor="@color/white"
-                            android:textSize="17dp" />
-                    </LinearLayout>
-                </LinearLayout>
-            </LinearLayout>
-        </RelativeLayout>
-
-        <!-- Joiner Lobby -->
-        <RelativeLayout
-            android:id="@+id/game_lobby_joiner_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="invisible">
-
-        </RelativeLayout>
-
-        <!-- Owner Lobby -->
-        <RelativeLayout
-            android:id="@+id/game_lobby_owner_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="invisible">
-
-        </RelativeLayout>
-
-        <!-- Edit -->
-        <RelativeLayout
-            android:id="@+id/game_lobby_edit_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="invisible">
-
-        </RelativeLayout>
-
-        <!-- Countdown -->
-        <RelativeLayout
-            android:id="@+id/game_countdown_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="invisible">
-
-            <TextView
-                android:id="@+id/game_countdown_ready_label"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="30dp"
-                android:layout_marginEnd="30dp"
-                android:fontFamily="@font/quantico_bolditalic"
-                android:gravity="center"
-                android:text="Get Ready!"
-                android:textColor="@color/white"
-                android:textSize="50dp" />
-
-            <TextView
-                android:id="@+id/game_countdown_count_label"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="30dp"
-                android:layout_marginEnd="30dp"
-                android:fontFamily="@font/quantico_bold"
-                android:gravity="center"
-                android:text="3"
-                android:textColor="@color/white"
-                android:textSize="150dp"
-                android:visibility="invisible"/>
-        </RelativeLayout>
-
-        <!-- Question -->
-        <RelativeLayout
-            android:id="@+id/game_question_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:gravity="center_vertical"
-            android:visibility="invisible">
-
-            <TextView
-                android:id="@+id/game_question_description_label"
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:layout_marginStart="60dp"
-                android:layout_marginTop="25dp"
-                android:layout_marginEnd="60dp"
-                android:fontFamily="@font/quantico_regular"
-                android:gravity="center"
-                android:lineSpacingMultiplier="0.75"
-                android:text="What is 9+10? *vine boom sound effect* sheeeeeeeeesh ooga booga no cap on god ong"
-                android:textColor="#FFFFFF"
-                android:textSize="18dp" />
-
-            <LinearLayout
-                android:id="@+id/game_question_option_column"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/game_question_description_label"
-                android:layout_marginLeft="50dp"
-                android:layout_marginRight="50dp"
-                android:orientation="vertical">
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:id="@+id/game_question_answer1_image"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        android:src="@tools:sample/avatars"
-                        app:srcCompat="@drawable/answer_red"
-                        android:focusable="true"
-                        android:clickable="true"
-                        android:onClick="onClick" />
-
-                    <TextView
-                        android:id="@+id/game_question_answer1_label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignStart="@+id/game_question_answer1_image"
-                        android:layout_alignTop="@+id/game_question_answer1_image"
-                        android:layout_alignEnd="@+id/game_question_answer1_image"
-                        android:layout_alignBottom="@+id/game_question_answer1_image"
-                        android:layout_marginStart="20dp"
-                        android:layout_marginEnd="20dp"
-                        android:layout_marginBottom="5dp"
-                        android:fontFamily="@font/quantico_regular"
-                        android:gravity="center"
-                        android:lineSpacingMultiplier="0.75"
-                        android:text="ANswer 1? Or is it? *vsauce music starts playing*"
-                        android:textColor="@color/white"
-                        android:textSize="15dp" />
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp">
-
-                    <ImageView
-                        android:id="@+id/game_question_answer2_image"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        android:src="@tools:sample/avatars"
-                        app:srcCompat="@drawable/answer_green"
-                        android:focusable="true"
-                        android:clickable="true"
-                        android:onClick="onClick" />
-
-                    <TextView
-                        android:id="@+id/game_question_answer2_label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignStart="@id/game_question_answer2_image"
-                        android:layout_alignTop="@id/game_question_answer2_image"
-                        android:layout_alignEnd="@id/game_question_answer2_image"
-                        android:layout_alignBottom="@id/game_question_answer2_image"
-                        android:layout_marginStart="20dp"
-                        android:layout_marginEnd="20dp"
-                        android:layout_marginBottom="5dp"
-                        android:fontFamily="@font/quantico_regular"
-                        android:gravity="center"
-                        android:lineSpacingMultiplier="0.75"
-                        android:text="ANswer 1? Or is it? *vsauce music starts playing*"
-                        android:textColor="@color/white"
-                        android:textSize="15dp" />
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp">
-
-                    <ImageView
-                        android:id="@+id/game_question_answer3_image"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        android:src="@tools:sample/avatars"
-                        app:srcCompat="@drawable/answer_blue"
-                        android:focusable="true"
-                        android:clickable="true"
-                        android:onClick="onClick" />
-
-                    <TextView
-                        android:id="@+id/game_question_answer3_label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignStart="@+id/game_question_answer3_image"
-                        android:layout_alignTop="@+id/game_question_answer3_image"
-                        android:layout_alignEnd="@+id/game_question_answer3_image"
-                        android:layout_alignBottom="@+id/game_question_answer3_image"
-                        android:layout_marginStart="20dp"
-                        android:layout_marginEnd="20dp"
-                        android:layout_marginBottom="5dp"
-                        android:fontFamily="@font/quantico_regular"
-                        android:gravity="center"
-                        android:lineSpacingMultiplier="0.75"
-                        android:text="ANswer 1? Or is it? *vsauce music starts playing*"
-                        android:textColor="@color/white"
-                        android:textSize="15dp" />
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp">
-
-                    <ImageView
-                        android:id="@+id/game_question_answer4_image"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        android:src="@tools:sample/avatars"
-                        app:srcCompat="@drawable/answer_yellow"
-                        android:focusable="true"
-                        android:clickable="true"
-                        android:onClick="onClick" />
-
-                    <TextView
-                        android:id="@+id/game_question_answer4_label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignStart="@+id/game_question_answer4_image"
-                        android:layout_alignTop="@+id/game_question_answer4_image"
-                        android:layout_alignEnd="@+id/game_question_answer4_image"
-                        android:layout_alignBottom="@+id/game_question_answer4_image"
-                        android:layout_marginStart="20dp"
-                        android:layout_marginEnd="20dp"
-                        android:layout_marginBottom="5dp"
-                        android:fontFamily="@font/quantico_regular"
-                        android:gravity="center"
-                        android:lineSpacingMultiplier="0.75"
-                        android:text="ANswer 1? Or is it? *vsauce music starts playing*"
-                        android:textColor="@color/white"
-                        android:textSize="15dp" />
-                </RelativeLayout>
-
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/game_question_timer_label"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:layout_below="@+id/game_question_option_column"
-                android:fontFamily="@font/quantico_regular"
-                android:text="3.2"
-                android:textAlignment="center"
-                android:textColor="#FFFFFF"
-                android:textSize="25dp" />
-        </RelativeLayout>
-
-        <!-- Stall -->
-        <RelativeLayout
-            android:id="@+id/game_stall_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="invisible">
-
-            <TextView
-                android:id="@+id/game_stall_blurb_label"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="30dp"
-                android:layout_marginEnd="30dp"
-                android:fontFamily="@font/quantico_bold"
-                android:gravity="center"
-                android:text="Think you're fast enough?"
-                android:textColor="@color/white"
-                android:textSize="40dp" />
-
-            <TextView
-                android:id="@+id/game_stall_wait_label"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/game_stall_blurb_label"
-                android:layout_marginStart="50dp"
-                android:layout_marginEnd="50dp"
-                android:fontFamily="@font/quantico_italic"
-                android:gravity="center"
-                android:text="Waiting for other players..."
-                android:textColor="@color/white"
-                android:textSize="20dp" />
-        </RelativeLayout>
-
-        <!-- Scoreboard -->
-        <RelativeLayout
-            android:id="@+id/game_scoreboard_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="invisible">
-
-            <LinearLayout
-                android:id="@+id/game_scoreboard_row"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:id="@+id/game_scoreboard_lesser_column"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/game_scoreboard_lesser_gain_label"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/quantico_regular"
-                        android:gravity="center"
-                        android:text="+300"
-                        android:textColor="@color/white"
-                        android:textSize="15dp" />
-
-                    <TextView
-                        android:id="@+id/game_scoreboard_lesser_score_label"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="-5dp"
-                        android:fontFamily="@font/quantico_regular"
-                        android:gravity="center"
-                        android:text="2007"
-                        android:textColor="@color/white"
-                        android:textSize="25dp" />
-
-                    <ImageView
-                        android:id="@+id/game_scoreboard_lesser_image"
-                        android:layout_width="75dp"
-                        android:layout_height="75dp"
-                        android:layout_marginTop="5dp"
-                        tools:srcCompat="@drawable/emoji_spunchbop" />
-
-                    <TextView
-                        android:id="@+id/game_scoreboard_lesser_username_label"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:fontFamily="@font/quantico_regular"
-                        android:gravity="center"
-                        android:text="Player 5"
-                        android:textColor="@color/white"
-                        android:textSize="15dp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/game_scoreboard_current_column"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="30dp"
-                    android:layout_marginEnd="30dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/game_scoreboard_current_gain_label"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/quantico_regular"
-                        android:gravity="center"
-                        android:text="+604"
-                        android:textColor="@color/white"
-                        android:textSize="15dp" />
-
-                    <TextView
-                        android:id="@+id/game_scoreboard_current_score_label"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="-10dp"
-                        android:fontFamily="@font/quantico_regular"
-                        android:gravity="center"
-                        android:text="2205"
-                        android:textColor="@color/white"
-                        android:textSize="40dp" />
-
-                    <ImageView
-                        android:id="@+id/game_scoreboard_current_image"
-                        android:layout_width="120dp"
-                        android:layout_height="120dp"
-                        android:layout_marginTop="0dp"
-                        tools:srcCompat="@drawable/emoji_focus" />
-
-                    <TextView
-                        android:id="@+id/game_scoreboard_current_username_label"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:fontFamily="@font/quantico_regular"
-                        android:gravity="center"
-                        android:text="Player 5"
-                        android:textColor="@color/white"
-                        android:textSize="15dp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/game_scoreboard_greater_column"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/game_scoreboard_greater_gain_label"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/quantico_regular"
-                        android:gravity="center"
-                        android:text="+800"
-                        android:textColor="@color/white"
-                        android:textSize="15dp" />
-
-                    <TextView
-                        android:id="@+id/game_scoreboard_greater_score_label"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="-5dp"
-                        android:fontFamily="@font/quantico_regular"
-                        android:gravity="center"
-                        android:text="2590"
-                        android:textColor="@color/white"
-                        android:textSize="25dp" />
-
-                    <ImageView
-                        android:id="@+id/game_scoreboard_greater_image"
-                        android:layout_width="75dp"
-                        android:layout_height="75dp"
-                        android:layout_marginTop="5dp"
-                        tools:srcCompat="@drawable/emoji_bitelip" />
-
-                    <TextView
-                        android:id="@+id/game_scoreboard_greater_username_label"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:fontFamily="@font/quantico_regular"
-                        android:gravity="center"
-                        android:text="Player 1"
-                        android:textColor="@color/white"
-                        android:textSize="15dp" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/game_scoreboard_rank_label"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_above="@+id/game_scoreboard_row"
-                android:layout_marginTop="-10dp"
-                android:layout_marginBottom="45dp"
-                android:fontFamily="@font/quantico_bold"
-                android:gravity="center"
-                android:text="3rd"
-                android:textColor="@color/white"
-                android:textSize="25dp" />
-
-            <TextView
-                android:id="@+id/game_scoreboard_preface_label"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_above="@+id/game_scoreboard_rank_label"
-                android:fontFamily="@font/quantico_regular"
-                android:gravity="center"
-                android:text="You're in"
-                android:textColor="@color/white"
-                android:textSize="20dp" />
-
-            <TextView
-                android:id="@+id/game_scoreboard_blurb_label"
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:layout_below="@+id/game_scoreboard_row"
-                android:layout_marginStart="70dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="70dp"
-                android:fontFamily="@font/quantico_regular"
-                android:gravity="center"
-                android:text="Almost to the top!"
-                android:textColor="@color/white"
-                android:textSize="20dp" />
-
-            <ImageView
-                android:id="@+id/game_scoreboard_rect"
-                android:layout_width="match_parent"
-                android:layout_height="260dp"
-                android:layout_centerInParent="true"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                tools:srcCompat="@drawable/scoreboard_rect" />
-        </RelativeLayout>
-
-        <!-- PowerUp -->
-        <RelativeLayout
-            android:id="@+id/game_powerup_layout"
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:layout_below="@id/game_question_layout"
-            android:layout_marginTop="-25dp"
-            android:visibility="invisible">
-
-            <ImageView
-                android:id="@+id/game_powerup_image3"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="86dp"
-                android:scaleType="fitXY"
-                app:srcCompat="@drawable/powerup_on"
-                android:focusable="true"
-                android:clickable="true"
-                android:onClick="onClick" />
-
-            <ImageView
-                android:id="@+id/game_powerup_image2"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_alignTop="@+id/game_powerup_image3"
-                android:layout_marginTop="-42dp"
-                android:layout_marginEnd="10dp"
-                android:layout_toStartOf="@+id/game_powerup_image3"
-                android:scaleType="fitXY"
-                app:srcCompat="@drawable/powerup_on"
-                android:focusable="true"
-                android:clickable="true"
-                android:onClick="onClick" />
-
-            <ImageView
-                android:id="@+id/game_powerup_image1"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_alignTop="@+id/game_powerup_image2"
-                android:layout_marginTop="-42dp"
-                android:layout_marginEnd="10dp"
-                android:layout_toStartOf="@+id/game_powerup_image2"
-                android:scaleType="fitXY"
-                app:srcCompat="@drawable/powerup_on"
-                android:focusable="true"
-                android:clickable="true"
-                android:onClick="onClick" />
-
-            <ImageView
-                android:id="@+id/game_powerup_image4"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_alignTop="@+id/game_powerup_image3"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="-42dp"
-                android:layout_toEndOf="@+id/game_powerup_image3"
-                android:scaleType="fitXY"
-                app:srcCompat="@drawable/powerup_on"
-                android:focusable="true"
-                android:clickable="true"
-                android:onClick="onClick" />
-
-            <ImageView
-                android:id="@+id/game_powerup_image5"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_alignTop="@+id/game_powerup_image4"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="-42dp"
-                android:layout_toEndOf="@+id/game_powerup_image4"
-                android:scaleType="fitXY"
-                app:srcCompat="@drawable/powerup_on"
-                android:focusable="true"
-                android:clickable="true"
-                android:onClick="onClick" />
-        </RelativeLayout>
-    </RelativeLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
+<!--    xmlns:tools="http://schemas.android.com/tools"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="match_parent"-->
+<!--    android:background="@drawable/background">-->
+
+<!--    <RelativeLayout-->
+<!--        android:id="@+id/game_layout"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent">-->
+
+<!--        &lt;!&ndash; Header &ndash;&gt;-->
+<!--        <TextView-->
+<!--            android:id="@+id/game_header_label"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_centerHorizontal="true"-->
+<!--            android:layout_marginTop="25dp"-->
+<!--            android:gravity="center"-->
+<!--            android:fontFamily="@font/fugaz_one"-->
+<!--            android:text=""-->
+<!--            android:textColor="@color/white"-->
+<!--            android:textSize="50dp" />-->
+
+<!--        &lt;!&ndash; Hexagon &ndash;&gt;-->
+<!--        <ImageView-->
+<!--            android:id="@+id/game_midground_hex"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_centerInParent="true"-->
+<!--            tools:srcCompat="@drawable/midground_hex" />-->
+
+<!--        &lt;!&ndash; Universal Lobby &ndash;&gt;-->
+<!--        <RelativeLayout-->
+<!--            android:id="@+id/game_lobby_universal_layout"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:visibility="invisible">-->
+
+<!--            <LinearLayout-->
+<!--                android:id="@+id/game_lobby_universal_column"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:gravity="center"-->
+<!--                android:orientation="vertical">-->
+
+<!--                <TextView-->
+<!--                    android:id="@+id/game_lobby_preface_label"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginStart="30dp"-->
+<!--                    android:layout_marginEnd="30dp"-->
+<!--                    android:fontFamily="@font/quantico_regular"-->
+<!--                    android:gravity="center"-->
+<!--                    android:text="Code:"-->
+<!--                    android:textColor="@color/white"-->
+<!--                    android:textSize="17dp" />-->
+
+<!--                <TextView-->
+<!--                    android:id="@+id/game_lobby_code_label"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginStart="30dp"-->
+<!--                    android:layout_marginEnd="30dp"-->
+<!--                    android:layout_marginBottom="25dp"-->
+<!--                    android:fontFamily="@font/quantico_bold"-->
+<!--                    android:gravity="center"-->
+<!--                    android:text="J8N4T1"-->
+<!--                    android:textColor="@color/white"-->
+<!--                    android:textSize="30dp" />-->
+
+<!--                <RelativeLayout-->
+<!--                    android:id="@+id/game_lobby_user_cloud"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginBottom="20dp">-->
+
+<!--                    <ImageView-->
+<!--                        android:id="@+id/game_lobby_user_cloud_rect"-->
+<!--                        android:layout_width="300dp"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:adjustViewBounds="true"-->
+<!--                        tools:srcCompat="@drawable/user_cloud_rect" />-->
+<!--                </RelativeLayout>-->
+
+<!--                <LinearLayout-->
+<!--                    android:id="@+id/game_lobby_setting_row"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="175dp"-->
+<!--                    android:orientation="horizontal"-->
+<!--                    android:showDividers="middle"-->
+<!--                    android:divider="@drawable/game_lobby_setting_divider"-->
+<!--                    android:dividerPadding="10dp">-->
+
+<!--                    <LinearLayout-->
+<!--                        android:id="@+id/game_lobby_category_column"-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:layout_height="match_parent"-->
+<!--                        android:paddingEnd="25dp"-->
+<!--                        android:orientation="vertical">-->
+
+<!--                        <TextView-->
+<!--                            android:id="@+id/game_lobby_category_label"-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_marginBottom="10dp"-->
+<!--                            android:fontFamily="@font/quantico_regular"-->
+<!--                            android:gravity="end"-->
+<!--                            android:text="Categories"-->
+<!--                            android:textColor="@color/white"-->
+<!--                            android:textSize="15dp" />-->
+
+<!--                        <TextView-->
+<!--                            android:id="@+id/game_lobby_category1_label"-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:fontFamily="@font/quantico_regular"-->
+<!--                            android:gravity="end"-->
+<!--                            android:text="Geography"-->
+<!--                            android:textColor="@color/white"-->
+<!--                            android:textSize="17dp" />-->
+
+<!--                        <TextView-->
+<!--                            android:id="@+id/game_lobby_category2_label"-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:fontFamily="@font/quantico_regular"-->
+<!--                            android:gravity="end"-->
+<!--                            android:text="History"-->
+<!--                            android:textColor="@color/white"-->
+<!--                            android:textSize="17dp" />-->
+
+<!--                        <TextView-->
+<!--                            android:id="@+id/game_lobby_category3_label"-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:fontFamily="@font/quantico_regular"-->
+<!--                            android:gravity="end"-->
+<!--                            android:text="Pop Culture"-->
+<!--                            android:textColor="@color/white"-->
+<!--                            android:textSize="17dp" />-->
+
+<!--                        <TextView-->
+<!--                            android:id="@+id/game_lobby_category4_label"-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:fontFamily="@font/quantico_regular"-->
+<!--                            android:gravity="end"-->
+<!--                            android:text="Mathematics"-->
+<!--                            android:textColor="@color/white"-->
+<!--                            android:textSize="17dp" />-->
+<!--                    </LinearLayout>-->
+
+<!--                    <LinearLayout-->
+<!--                        android:id="@+id/game_lobby_setting_column"-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:layout_height="match_parent"-->
+<!--                        android:paddingStart="25dp"-->
+<!--                        android:orientation="vertical">-->
+
+<!--                        <TextView-->
+<!--                            android:id="@+id/game_lobby_setting_label"-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_marginBottom="10dp"-->
+<!--                            android:fontFamily="@font/quantico_regular"-->
+<!--                            android:gravity="start"-->
+<!--                            android:text="Settings"-->
+<!--                            android:textColor="@color/white"-->
+<!--                            android:textSize="15dp" />-->
+
+<!--                        <TextView-->
+<!--                            android:id="@+id/game_lobby_setting1_label"-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:fontFamily="@font/quantico_regular"-->
+<!--                            android:gravity="start"-->
+<!--                            android:text="Questions: 20"-->
+<!--                            android:textColor="@color/white"-->
+<!--                            android:textSize="17dp" />-->
+
+<!--                        <TextView-->
+<!--                            android:id="@+id/game_lobby_setting2_label"-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:fontFamily="@font/quantico_regular"-->
+<!--                            android:gravity="start"-->
+<!--                            android:text="Players: 6"-->
+<!--                            android:textColor="@color/white"-->
+<!--                            android:textSize="17dp" />-->
+
+<!--                        <TextView-->
+<!--                            android:id="@+id/game_lobby_setting3_label"-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:fontFamily="@font/quantico_regular"-->
+<!--                            android:gravity="start"-->
+<!--                            android:text="Time Limit: 5s"-->
+<!--                            android:textColor="@color/white"-->
+<!--                            android:textSize="17dp" />-->
+
+<!--                        <TextView-->
+<!--                            android:id="@+id/game_lobby_setting4_label"-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:fontFamily="@font/quantico_regular"-->
+<!--                            android:gravity="start"-->
+<!--                            android:text="Is Public: Yes"-->
+<!--                            android:textColor="@color/white"-->
+<!--                            android:textSize="17dp" />-->
+<!--                    </LinearLayout>-->
+<!--                </LinearLayout>-->
+<!--            </LinearLayout>-->
+<!--        </RelativeLayout>-->
+
+<!--        &lt;!&ndash; Joiner Lobby &ndash;&gt;-->
+<!--        <RelativeLayout-->
+<!--            android:id="@+id/game_lobby_joiner_layout"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:visibility="invisible">-->
+
+<!--        </RelativeLayout>-->
+
+<!--        &lt;!&ndash; Owner Lobby &ndash;&gt;-->
+<!--        <RelativeLayout-->
+<!--            android:id="@+id/game_lobby_owner_layout"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:visibility="invisible">-->
+
+<!--        </RelativeLayout>-->
+
+<!--        &lt;!&ndash; Edit &ndash;&gt;-->
+<!--        <RelativeLayout-->
+<!--            android:id="@+id/game_lobby_edit_layout"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:visibility="invisible">-->
+
+<!--        </RelativeLayout>-->
+
+<!--        &lt;!&ndash; Countdown &ndash;&gt;-->
+<!--        <RelativeLayout-->
+<!--            android:id="@+id/game_countdown_layout"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:visibility="invisible">-->
+
+<!--            <TextView-->
+<!--                android:id="@+id/game_countdown_ready_label"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_centerVertical="true"-->
+<!--                android:layout_marginStart="30dp"-->
+<!--                android:layout_marginEnd="30dp"-->
+<!--                android:fontFamily="@font/quantico_bolditalic"-->
+<!--                android:gravity="center"-->
+<!--                android:text="Get Ready!"-->
+<!--                android:textColor="@color/white"-->
+<!--                android:textSize="50dp" />-->
+
+<!--            <TextView-->
+<!--                android:id="@+id/game_countdown_count_label"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_centerVertical="true"-->
+<!--                android:layout_marginStart="30dp"-->
+<!--                android:layout_marginEnd="30dp"-->
+<!--                android:fontFamily="@font/quantico_bold"-->
+<!--                android:gravity="center"-->
+<!--                android:text="3"-->
+<!--                android:textColor="@color/white"-->
+<!--                android:textSize="150dp"-->
+<!--                android:visibility="invisible"/>-->
+<!--        </RelativeLayout>-->
+
+<!--        &lt;!&ndash; Question &ndash;&gt;-->
+<!--        <RelativeLayout-->
+<!--            android:id="@+id/game_question_layout"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:orientation="vertical"-->
+<!--            android:gravity="center_vertical"-->
+<!--            android:visibility="invisible">-->
+
+<!--            <TextView-->
+<!--                android:id="@+id/game_question_description_label"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="100dp"-->
+<!--                android:layout_marginStart="60dp"-->
+<!--                android:layout_marginTop="25dp"-->
+<!--                android:layout_marginEnd="60dp"-->
+<!--                android:fontFamily="@font/quantico_regular"-->
+<!--                android:gravity="center"-->
+<!--                android:lineSpacingMultiplier="0.75"-->
+<!--                android:text="What is 9+10? *vine boom sound effect* sheeeeeeeeesh ooga booga no cap on god ong"-->
+<!--                android:textColor="#FFFFFF"-->
+<!--                android:textSize="18dp" />-->
+
+<!--            <LinearLayout-->
+<!--                android:id="@+id/game_question_option_column"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_below="@+id/game_question_description_label"-->
+<!--                android:layout_marginLeft="50dp"-->
+<!--                android:layout_marginRight="50dp"-->
+<!--                android:orientation="vertical">-->
+
+<!--                <RelativeLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content">-->
+
+<!--                    <ImageView-->
+<!--                        android:id="@+id/game_question_answer1_image"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:adjustViewBounds="true"-->
+<!--                        android:src="@tools:sample/avatars"-->
+<!--                        app:srcCompat="@drawable/answer_red"-->
+<!--                        android:focusable="true"-->
+<!--                        android:clickable="true"-->
+<!--                        android:onClick="onClick" />-->
+
+<!--                    <TextView-->
+<!--                        android:id="@+id/game_question_answer1_label"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_alignStart="@+id/game_question_answer1_image"-->
+<!--                        android:layout_alignTop="@+id/game_question_answer1_image"-->
+<!--                        android:layout_alignEnd="@+id/game_question_answer1_image"-->
+<!--                        android:layout_alignBottom="@+id/game_question_answer1_image"-->
+<!--                        android:layout_marginStart="20dp"-->
+<!--                        android:layout_marginEnd="20dp"-->
+<!--                        android:layout_marginBottom="5dp"-->
+<!--                        android:fontFamily="@font/quantico_regular"-->
+<!--                        android:gravity="center"-->
+<!--                        android:lineSpacingMultiplier="0.75"-->
+<!--                        android:text="ANswer 1? Or is it? *vsauce music starts playing*"-->
+<!--                        android:textColor="@color/white"-->
+<!--                        android:textSize="15dp" />-->
+<!--                </RelativeLayout>-->
+
+<!--                <RelativeLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginTop="10dp">-->
+
+<!--                    <ImageView-->
+<!--                        android:id="@+id/game_question_answer2_image"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:adjustViewBounds="true"-->
+<!--                        android:src="@tools:sample/avatars"-->
+<!--                        app:srcCompat="@drawable/answer_green"-->
+<!--                        android:focusable="true"-->
+<!--                        android:clickable="true"-->
+<!--                        android:onClick="onClick" />-->
+
+<!--                    <TextView-->
+<!--                        android:id="@+id/game_question_answer2_label"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_alignStart="@id/game_question_answer2_image"-->
+<!--                        android:layout_alignTop="@id/game_question_answer2_image"-->
+<!--                        android:layout_alignEnd="@id/game_question_answer2_image"-->
+<!--                        android:layout_alignBottom="@id/game_question_answer2_image"-->
+<!--                        android:layout_marginStart="20dp"-->
+<!--                        android:layout_marginEnd="20dp"-->
+<!--                        android:layout_marginBottom="5dp"-->
+<!--                        android:fontFamily="@font/quantico_regular"-->
+<!--                        android:gravity="center"-->
+<!--                        android:lineSpacingMultiplier="0.75"-->
+<!--                        android:text="ANswer 1? Or is it? *vsauce music starts playing*"-->
+<!--                        android:textColor="@color/white"-->
+<!--                        android:textSize="15dp" />-->
+<!--                </RelativeLayout>-->
+
+<!--                <RelativeLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginTop="10dp">-->
+
+<!--                    <ImageView-->
+<!--                        android:id="@+id/game_question_answer3_image"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:adjustViewBounds="true"-->
+<!--                        android:src="@tools:sample/avatars"-->
+<!--                        app:srcCompat="@drawable/answer_blue"-->
+<!--                        android:focusable="true"-->
+<!--                        android:clickable="true"-->
+<!--                        android:onClick="onClick" />-->
+
+<!--                    <TextView-->
+<!--                        android:id="@+id/game_question_answer3_label"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_alignStart="@+id/game_question_answer3_image"-->
+<!--                        android:layout_alignTop="@+id/game_question_answer3_image"-->
+<!--                        android:layout_alignEnd="@+id/game_question_answer3_image"-->
+<!--                        android:layout_alignBottom="@+id/game_question_answer3_image"-->
+<!--                        android:layout_marginStart="20dp"-->
+<!--                        android:layout_marginEnd="20dp"-->
+<!--                        android:layout_marginBottom="5dp"-->
+<!--                        android:fontFamily="@font/quantico_regular"-->
+<!--                        android:gravity="center"-->
+<!--                        android:lineSpacingMultiplier="0.75"-->
+<!--                        android:text="ANswer 1? Or is it? *vsauce music starts playing*"-->
+<!--                        android:textColor="@color/white"-->
+<!--                        android:textSize="15dp" />-->
+<!--                </RelativeLayout>-->
+
+<!--                <RelativeLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginTop="10dp">-->
+
+<!--                    <ImageView-->
+<!--                        android:id="@+id/game_question_answer4_image"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:adjustViewBounds="true"-->
+<!--                        android:src="@tools:sample/avatars"-->
+<!--                        app:srcCompat="@drawable/answer_yellow"-->
+<!--                        android:focusable="true"-->
+<!--                        android:clickable="true"-->
+<!--                        android:onClick="onClick" />-->
+
+<!--                    <TextView-->
+<!--                        android:id="@+id/game_question_answer4_label"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_alignStart="@+id/game_question_answer4_image"-->
+<!--                        android:layout_alignTop="@+id/game_question_answer4_image"-->
+<!--                        android:layout_alignEnd="@+id/game_question_answer4_image"-->
+<!--                        android:layout_alignBottom="@+id/game_question_answer4_image"-->
+<!--                        android:layout_marginStart="20dp"-->
+<!--                        android:layout_marginEnd="20dp"-->
+<!--                        android:layout_marginBottom="5dp"-->
+<!--                        android:fontFamily="@font/quantico_regular"-->
+<!--                        android:gravity="center"-->
+<!--                        android:lineSpacingMultiplier="0.75"-->
+<!--                        android:text="ANswer 1? Or is it? *vsauce music starts playing*"-->
+<!--                        android:textColor="@color/white"-->
+<!--                        android:textSize="15dp" />-->
+<!--                </RelativeLayout>-->
+
+<!--            </LinearLayout>-->
+
+<!--            <TextView-->
+<!--                android:id="@+id/game_question_timer_label"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginTop="20dp"-->
+<!--                android:layout_below="@+id/game_question_option_column"-->
+<!--                android:fontFamily="@font/quantico_regular"-->
+<!--                android:text="3.2"-->
+<!--                android:textAlignment="center"-->
+<!--                android:textColor="#FFFFFF"-->
+<!--                android:textSize="25dp" />-->
+<!--        </RelativeLayout>-->
+
+<!--        &lt;!&ndash; Stall &ndash;&gt;-->
+<!--        <RelativeLayout-->
+<!--            android:id="@+id/game_stall_layout"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:visibility="invisible">-->
+
+<!--            <TextView-->
+<!--                android:id="@+id/game_stall_blurb_label"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="200dp"-->
+<!--                android:layout_centerVertical="true"-->
+<!--                android:layout_marginStart="30dp"-->
+<!--                android:layout_marginEnd="30dp"-->
+<!--                android:fontFamily="@font/quantico_bold"-->
+<!--                android:gravity="center"-->
+<!--                android:text="Think you're fast enough?"-->
+<!--                android:textColor="@color/white"-->
+<!--                android:textSize="40dp" />-->
+
+<!--            <TextView-->
+<!--                android:id="@+id/game_stall_wait_label"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_below="@+id/game_stall_blurb_label"-->
+<!--                android:layout_marginStart="50dp"-->
+<!--                android:layout_marginEnd="50dp"-->
+<!--                android:fontFamily="@font/quantico_italic"-->
+<!--                android:gravity="center"-->
+<!--                android:text="Waiting for other players..."-->
+<!--                android:textColor="@color/white"-->
+<!--                android:textSize="20dp" />-->
+<!--        </RelativeLayout>-->
+
+<!--        &lt;!&ndash; Scoreboard &ndash;&gt;-->
+<!--        <RelativeLayout-->
+<!--            android:id="@+id/game_scoreboard_layout"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:visibility="invisible">-->
+
+<!--            <LinearLayout-->
+<!--                android:id="@+id/game_scoreboard_row"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_centerHorizontal="true"-->
+<!--                android:layout_centerVertical="true"-->
+<!--                android:orientation="horizontal">-->
+
+<!--                <LinearLayout-->
+<!--                    android:id="@+id/game_scoreboard_lesser_column"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_gravity="center_vertical"-->
+<!--                    android:orientation="vertical">-->
+
+<!--                    <TextView-->
+<!--                        android:id="@+id/game_scoreboard_lesser_gain_label"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:fontFamily="@font/quantico_regular"-->
+<!--                        android:gravity="center"-->
+<!--                        android:text="+300"-->
+<!--                        android:textColor="@color/white"-->
+<!--                        android:textSize="15dp" />-->
+
+<!--                    <TextView-->
+<!--                        android:id="@+id/game_scoreboard_lesser_score_label"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginTop="-5dp"-->
+<!--                        android:fontFamily="@font/quantico_regular"-->
+<!--                        android:gravity="center"-->
+<!--                        android:text="2007"-->
+<!--                        android:textColor="@color/white"-->
+<!--                        android:textSize="25dp" />-->
+
+<!--                    <ImageView-->
+<!--                        android:id="@+id/game_scoreboard_lesser_image"-->
+<!--                        android:layout_width="75dp"-->
+<!--                        android:layout_height="75dp"-->
+<!--                        android:layout_marginTop="5dp"-->
+<!--                        tools:srcCompat="@drawable/emoji_spunchbop" />-->
+
+<!--                    <TextView-->
+<!--                        android:id="@+id/game_scoreboard_lesser_username_label"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginTop="10dp"-->
+<!--                        android:fontFamily="@font/quantico_regular"-->
+<!--                        android:gravity="center"-->
+<!--                        android:text="Player 5"-->
+<!--                        android:textColor="@color/white"-->
+<!--                        android:textSize="15dp" />-->
+<!--                </LinearLayout>-->
+
+<!--                <LinearLayout-->
+<!--                    android:id="@+id/game_scoreboard_current_column"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginStart="30dp"-->
+<!--                    android:layout_marginEnd="30dp"-->
+<!--                    android:orientation="vertical">-->
+
+<!--                    <TextView-->
+<!--                        android:id="@+id/game_scoreboard_current_gain_label"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:fontFamily="@font/quantico_regular"-->
+<!--                        android:gravity="center"-->
+<!--                        android:text="+604"-->
+<!--                        android:textColor="@color/white"-->
+<!--                        android:textSize="15dp" />-->
+
+<!--                    <TextView-->
+<!--                        android:id="@+id/game_scoreboard_current_score_label"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginTop="-10dp"-->
+<!--                        android:fontFamily="@font/quantico_regular"-->
+<!--                        android:gravity="center"-->
+<!--                        android:text="2205"-->
+<!--                        android:textColor="@color/white"-->
+<!--                        android:textSize="40dp" />-->
+
+<!--                    <ImageView-->
+<!--                        android:id="@+id/game_scoreboard_current_image"-->
+<!--                        android:layout_width="120dp"-->
+<!--                        android:layout_height="120dp"-->
+<!--                        android:layout_marginTop="0dp"-->
+<!--                        tools:srcCompat="@drawable/emoji_focus" />-->
+
+<!--                    <TextView-->
+<!--                        android:id="@+id/game_scoreboard_current_username_label"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginTop="10dp"-->
+<!--                        android:fontFamily="@font/quantico_regular"-->
+<!--                        android:gravity="center"-->
+<!--                        android:text="Player 5"-->
+<!--                        android:textColor="@color/white"-->
+<!--                        android:textSize="15dp" />-->
+<!--                </LinearLayout>-->
+
+<!--                <LinearLayout-->
+<!--                    android:id="@+id/game_scoreboard_greater_column"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_gravity="center_vertical"-->
+<!--                    android:orientation="vertical">-->
+
+<!--                    <TextView-->
+<!--                        android:id="@+id/game_scoreboard_greater_gain_label"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:fontFamily="@font/quantico_regular"-->
+<!--                        android:gravity="center"-->
+<!--                        android:text="+800"-->
+<!--                        android:textColor="@color/white"-->
+<!--                        android:textSize="15dp" />-->
+
+<!--                    <TextView-->
+<!--                        android:id="@+id/game_scoreboard_greater_score_label"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginTop="-5dp"-->
+<!--                        android:fontFamily="@font/quantico_regular"-->
+<!--                        android:gravity="center"-->
+<!--                        android:text="2590"-->
+<!--                        android:textColor="@color/white"-->
+<!--                        android:textSize="25dp" />-->
+
+<!--                    <ImageView-->
+<!--                        android:id="@+id/game_scoreboard_greater_image"-->
+<!--                        android:layout_width="75dp"-->
+<!--                        android:layout_height="75dp"-->
+<!--                        android:layout_marginTop="5dp"-->
+<!--                        tools:srcCompat="@drawable/emoji_bitelip" />-->
+
+<!--                    <TextView-->
+<!--                        android:id="@+id/game_scoreboard_greater_username_label"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginTop="10dp"-->
+<!--                        android:fontFamily="@font/quantico_regular"-->
+<!--                        android:gravity="center"-->
+<!--                        android:text="Player 1"-->
+<!--                        android:textColor="@color/white"-->
+<!--                        android:textSize="15dp" />-->
+<!--                </LinearLayout>-->
+<!--            </LinearLayout>-->
+
+<!--            <TextView-->
+<!--                android:id="@+id/game_scoreboard_rank_label"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_above="@+id/game_scoreboard_row"-->
+<!--                android:layout_marginTop="-10dp"-->
+<!--                android:layout_marginBottom="45dp"-->
+<!--                android:fontFamily="@font/quantico_bold"-->
+<!--                android:gravity="center"-->
+<!--                android:text="3rd"-->
+<!--                android:textColor="@color/white"-->
+<!--                android:textSize="25dp" />-->
+
+<!--            <TextView-->
+<!--                android:id="@+id/game_scoreboard_preface_label"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_above="@+id/game_scoreboard_rank_label"-->
+<!--                android:fontFamily="@font/quantico_regular"-->
+<!--                android:gravity="center"-->
+<!--                android:text="You're in"-->
+<!--                android:textColor="@color/white"-->
+<!--                android:textSize="20dp" />-->
+
+<!--            <TextView-->
+<!--                android:id="@+id/game_scoreboard_blurb_label"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="100dp"-->
+<!--                android:layout_below="@+id/game_scoreboard_row"-->
+<!--                android:layout_marginStart="70dp"-->
+<!--                android:layout_marginTop="5dp"-->
+<!--                android:layout_marginEnd="70dp"-->
+<!--                android:fontFamily="@font/quantico_regular"-->
+<!--                android:gravity="center"-->
+<!--                android:text="Almost to the top!"-->
+<!--                android:textColor="@color/white"-->
+<!--                android:textSize="20dp" />-->
+
+<!--            <ImageView-->
+<!--                android:id="@+id/game_scoreboard_rect"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="260dp"-->
+<!--                android:layout_centerInParent="true"-->
+<!--                android:layout_centerHorizontal="true"-->
+<!--                android:layout_centerVertical="true"-->
+<!--                tools:srcCompat="@drawable/scoreboard_rect" />-->
+<!--        </RelativeLayout>-->
+
+<!--        &lt;!&ndash; PowerUp &ndash;&gt;-->
+<!--        <RelativeLayout-->
+<!--            android:id="@+id/game_powerup_layout"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="150dp"-->
+<!--            android:layout_below="@id/game_question_layout"-->
+<!--            android:layout_marginTop="-25dp"-->
+<!--            android:visibility="invisible">-->
+
+<!--            <ImageView-->
+<!--                android:id="@+id/game_powerup_image3"-->
+<!--                android:layout_width="60dp"-->
+<!--                android:layout_height="60dp"-->
+<!--                android:layout_centerHorizontal="true"-->
+<!--                android:layout_marginTop="86dp"-->
+<!--                android:scaleType="fitXY"-->
+<!--                app:srcCompat="@drawable/powerup_on"-->
+<!--                android:focusable="true"-->
+<!--                android:clickable="true"-->
+<!--                android:onClick="onClick" />-->
+
+<!--            <ImageView-->
+<!--                android:id="@+id/game_powerup_image2"-->
+<!--                android:layout_width="60dp"-->
+<!--                android:layout_height="60dp"-->
+<!--                android:layout_alignTop="@+id/game_powerup_image3"-->
+<!--                android:layout_marginTop="-42dp"-->
+<!--                android:layout_marginEnd="10dp"-->
+<!--                android:layout_toStartOf="@+id/game_powerup_image3"-->
+<!--                android:scaleType="fitXY"-->
+<!--                app:srcCompat="@drawable/powerup_on"-->
+<!--                android:focusable="true"-->
+<!--                android:clickable="true"-->
+<!--                android:onClick="onClick" />-->
+
+<!--            <ImageView-->
+<!--                android:id="@+id/game_powerup_image1"-->
+<!--                android:layout_width="60dp"-->
+<!--                android:layout_height="60dp"-->
+<!--                android:layout_alignTop="@+id/game_powerup_image2"-->
+<!--                android:layout_marginTop="-42dp"-->
+<!--                android:layout_marginEnd="10dp"-->
+<!--                android:layout_toStartOf="@+id/game_powerup_image2"-->
+<!--                android:scaleType="fitXY"-->
+<!--                app:srcCompat="@drawable/powerup_on"-->
+<!--                android:focusable="true"-->
+<!--                android:clickable="true"-->
+<!--                android:onClick="onClick" />-->
+
+<!--            <ImageView-->
+<!--                android:id="@+id/game_powerup_image4"-->
+<!--                android:layout_width="60dp"-->
+<!--                android:layout_height="60dp"-->
+<!--                android:layout_alignTop="@+id/game_powerup_image3"-->
+<!--                android:layout_marginStart="10dp"-->
+<!--                android:layout_marginTop="-42dp"-->
+<!--                android:layout_toEndOf="@+id/game_powerup_image3"-->
+<!--                android:scaleType="fitXY"-->
+<!--                app:srcCompat="@drawable/powerup_on"-->
+<!--                android:focusable="true"-->
+<!--                android:clickable="true"-->
+<!--                android:onClick="onClick" />-->
+
+<!--            <ImageView-->
+<!--                android:id="@+id/game_powerup_image5"-->
+<!--                android:layout_width="60dp"-->
+<!--                android:layout_height="60dp"-->
+<!--                android:layout_alignTop="@+id/game_powerup_image4"-->
+<!--                android:layout_marginStart="10dp"-->
+<!--                android:layout_marginTop="-42dp"-->
+<!--                android:layout_toEndOf="@+id/game_powerup_image4"-->
+<!--                android:scaleType="fitXY"-->
+<!--                app:srcCompat="@drawable/powerup_on"-->
+<!--                android:focusable="true"-->
+<!--                android:clickable="true"-->
+<!--                android:onClick="onClick" />-->
+<!--        </RelativeLayout>-->
+<!--    </RelativeLayout>-->
+<!--</androidx.constraintlayout.widget.ConstraintLayout>-->

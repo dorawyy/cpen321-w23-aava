@@ -20,39 +20,42 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
 
+import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
+
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.testng.annotations.Test;
 
-//import static org.mockito.Mockito.*;
-//import org.mockito.Mockito;
+import java.io.IOException;
+
+import okhttp3.OkHttpClient;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import okhttp3.Request;
+import okhttp3.Response;
+
 
 
 
 public class LoginActivity extends AppCompatActivity {
 
     private Integer RC_SIGN_IN = 1;
-    final static String TAG = "MenuActivity";
+    final static String TAG = "LoginActivity";
 
     private GoogleSignInClient mGoogleSignInClient;
 
-    private Socket mSocket;
-    {
-        try {
-            mSocket = IO.socket("http://35.212.247.165:8081/");
-        } catch (Exception e) {
-            // Handle the exception
-            e.printStackTrace();
-        }
-    }
+    //private Socket socket;
+    String serverBaseUrl = "https://35.212.247.165:8081/";
+    private OkHttpClient httpClient = new OkHttpClient();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mSocket.connect();
+        //initializeSocket();
 
         setContentView(R.layout.activity_login); // Replace with your login layout name
 
@@ -67,8 +70,16 @@ public class LoginActivity extends AppCompatActivity {
                 findViewById(R.id.signin_button).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        createAccount("testToken","testUsername"); //TODO Test back-end here
 
-                        signIn();
+                        final String userN = "testUsername"; ///use it test for test
+                        Intent serverIntent = new Intent(LoginActivity.this, MenuActivity.class);
+                        serverIntent.putExtra("username", userN);
+                        serverIntent.putExtra("sessionToken", "testToken");
+                        startActivity(serverIntent);
+
+                        //signIn();
+
                     }
                 });
 
@@ -101,12 +112,12 @@ public class LoginActivity extends AppCompatActivity {
 
             // Signed in successfully, show authenticated UI.
             //TODO change function name and do spec stuff
-            updateUI(account);
+            loggedIn(account);
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
             Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
-            //updateUI(null);
+            loggedIn(null);
         }
     }
 
@@ -116,11 +127,11 @@ public class LoginActivity extends AppCompatActivity {
             // Check for existing Google Sign In account, if the user is already signed in
             // the GoogleSignInAccount will be non-null.
             GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-            updateUI(account);
+            loggedIn(account);
         }
 
 
-        private void updateUI(GoogleSignInAccount account) {
+        private void loggedIn(GoogleSignInAccount account) {
             if(account == null){
                 Log.d(TAG, "no users signed in");
             }
@@ -131,45 +142,147 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d(TAG, "Given Name: " + account.getGivenName());
 
                 String token = account.getIdToken();
-                sendTokenToBackend(token);
+                //sendTokenToBackend(token);
+
+                login(token);
 
                 final String userN = account.getGivenName() + account.getFamilyName();
                 //Take the logged in user to Menu
-                Intent serverIntent = new Intent(LoginActivity.this, MenuActivity.class);
-                serverIntent.putExtra("KEY_STRING", userN);
-                startActivity(serverIntent);
+
+//                Intent serverIntent = new Intent(LoginActivity.this, MenuActivity.class);
+//                serverIntent.putExtra("username", userN);
+//                serverIntent.putExtra("sessionToken", token);
+//                startActivity(serverIntent);
 
             }
         }
 
 
-        private void sendTokenToBackend(String token) {
-            Log.d("Debug", "sendTokenToBackend called with token: " + token);
-            JSONObject jsonObject = new JSONObject();
-            try {
-                jsonObject.put("token", token);
-                mSocket.emit("login", jsonObject);
-                Log.d("Debug", "Token sent to backend: " + jsonObject.toString());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
+//    private void initializeSocket() {
+//        socket = SocketManager.getInstance();
+//        socket.on(Socket.EVENT_CONNECT, args -> Log.d(TAG, "Connected!"));
+//        socket.connect();
+//    }
 
-//        @Test
-//        public void testSendTokenToBackend() {
-//            // Arrange
-//            String token = "someToken";
-//            Socket mSocketMock = Mockito.mock(Socket.class);
-//            MyClass myClass = new MyClass(mSocketMock);
-//
-//            // Act
-//            myClass.sendTokenToBackend(token);
-//
-//            // Assert
-//            JSONObject expectedJson = new JSONObject();
-//            expectedJson.put("token", token);
-//            Mockito.verify(mSocketMock).emit("login", expectedJson);
-//        }
+    private void createAccount(String gtoken, String gusername) {
+        try {
+            JSONObject data = new JSONObject();
+            data.put("token", gtoken);
+            data.put("username", gusername);
+
+            RequestBody body = RequestBody.create(MediaType.parse("application/json"), data.toString());
+            Request request = new Request.Builder()
+                    .url(serverBaseUrl + "/create-account") // update with your endpoint
+                    .post(body)
+                    .build();
+
+            httpClient.newCall(request).enqueue(new okhttp3.Callback() {
+                @Override
+                public void onFailure(okhttp3.Call call, IOException e) {
+                    e.printStackTrace();
+                    // Handle failure
+                }
+
+                @Override
+                public void onResponse(okhttp3.Call call, Response response) throws IOException {
+                    if (!response.isSuccessful()) {
+                        // Handle error
+                        return;
+                    }
+
+                    if (response.body() != null) {
+                        String jsonResponse = response.body().string();
+                        try {
+                            JSONObject responseObject = new JSONObject(jsonResponse);
+                            if (responseObject.has("token")) {
+                                String userToken = responseObject.getString("token");
+                                String username = responseObject.getString("username");
+                                int totalPoints = responseObject.getInt("totalPoints");
+                                // Handle success, update UI, etc.
+                                Log.d(TAG, "Created account backend: " + username);
+                                navigateToMenuActivity(username, userToken, totalPoints);
+                            } else if (responseObject.has("message")) {
+                                // Handle error
+                                String message = responseObject.getString("message");
+                                Log.e(TAG, "Error creating account: " + message);
+                                // Update UI to show error message, etc.
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Log.e(TAG, "Failed to parse create account response", e);
+                        }
+                    }
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e(TAG, "Failed to create JSON object for create account", e);
+        }
+    }
+
+    private void login(String token) {
+        try {
+            JSONObject data = new JSONObject();
+            data.put("token", token);
+
+            RequestBody body = RequestBody.create(MediaType.parse("application/json"), data.toString());
+            Request request = new Request.Builder()
+                    .url(serverBaseUrl + "/login") // update with your endpoint
+                    .post(body)
+                    .build();
+
+            httpClient.newCall(request).enqueue(new okhttp3.Callback() {
+                @Override
+                public void onFailure(okhttp3.Call call, IOException e) {
+                    e.printStackTrace();
+                    // Handle failure
+                }
+
+                @Override
+                public void onResponse(okhttp3.Call call, Response response) throws IOException {
+                    if (!response.isSuccessful()) {
+                        // Handle error
+                        return;
+                    }
+
+                    if (response.body() != null) {
+                        String jsonResponse = response.body().string();
+                        try {
+                            JSONObject responseObject = new JSONObject(jsonResponse);
+                            if (responseObject.has("token")) {
+                                String userToken = responseObject.getString("token");
+                                String username = responseObject.getString("username");
+                                int totalPoints = responseObject.getInt("totalPoints");
+                                String sessionToken = responseObject.getString("sessionToken");
+                                // Handle success, update UI, store session token, etc.
+                            } else if (responseObject.has("message")) {
+                                // Handle error
+                                String message = responseObject.getString("message");
+                                Log.e(TAG, "Error logging in: " + message);
+                                // Update UI to show error message, etc.
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Log.e(TAG, "Failed to parse login response", e);
+                        }
+                    }
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e(TAG, "Failed to create JSON object for login", e);
+        }
+    }
+
+    private void navigateToMenuActivity(String username, String userToken, int totalPoints) {
+        Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
+        intent.putExtra("username", username);
+        intent.putExtra("sessionToken", userToken);
+        intent.putExtra("totalPoints", totalPoints);
+        startActivity(intent);
+    }
+
+
 
 
 

@@ -115,7 +115,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
         private void onPlayButtonClick () {
             Toast.makeText(this, "Play Button Clicked", Toast.LENGTH_SHORT).show();
             // Handle play button click
-            joinRoomNext("username","sessiontoken","roomid",false);
+            joinRoomNext("username","roomId-2", "sessiontoken","XYZ123",false);
             //joinRandomRoom(sessionToken);
         }
 
@@ -224,7 +224,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
                             String roomId = responseObject.getString("roomId");
                             String roomCode = responseObject.getString("roomCode");
                             boolean isOwner = false;
-                            joinRoomNext(roomId, sessionToken, roomCode, isOwner);
+                            joinRoomNext(username, roomId, sessionToken, roomCode, isOwner);
                         } else if (responseObject.has("message")) {
                             String message = responseObject.getString("message");
                             Log.e(TAG, "Error joining random room: " + message);
@@ -245,8 +245,9 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
 
 
 
-    private void joinRoomNext(String roomId, String sessionToken, String roomCode, boolean isOwner) {
+    private void joinRoomNext(String username, String roomId, String sessionToken, String roomCode, boolean isOwner) {
         Intent intent = new Intent(this, GameActivity.class);
+        intent.putExtra("roomId", username);
         intent.putExtra("roomId", roomId);
         intent.putExtra("sessionToken", sessionToken);
         intent.putExtra("roomCode", roomCode);
@@ -319,7 +320,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
                             String roomId = responseObject.getString("roomId");
                             String roomCode = responseObject.getString("roomCode");
                             boolean isOwner = true;
-                            joinRoomNext(roomId, sessionToken, roomCode, isOwner);
+                            joinRoomNext(username, roomId, sessionToken, roomCode, isOwner);
                         } else if (responseObject.has("message")) {
                             String message = responseObject.getString("message");
                             Log.e(TAG, "Error creating room: " + message);

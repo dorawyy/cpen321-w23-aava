@@ -47,7 +47,7 @@ public class LoginActivity extends AppCompatActivity {
     private GoogleSignInClient mGoogleSignInClient;
 
     //private Socket socket;
-    String serverBaseUrl = "https://35.212.247.165:8081/";
+    String serverBaseUrl = "https://35.212.247.165:8081";
     private OkHttpClient httpClient = new OkHttpClient();
 
 

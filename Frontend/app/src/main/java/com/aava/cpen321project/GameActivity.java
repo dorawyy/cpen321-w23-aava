@@ -736,6 +736,11 @@ public class GameActivity extends AppCompatActivity {
             if (isOwner) {
                 availableCategories = bundle.getStringArray("questionCategories");
             }
+            Log.d(TAG, "Username: " + username);
+            Log.d(TAG, "Session Token: " + sessionToken);
+            Log.d(TAG, "Room Code: " + roomCode);
+            Log.d(TAG, "Room Id: " + roomId);
+            Log.d(TAG, "Owner? : " + String.valueOf(isOwner));
         }
         else Log.e(TAG, "No parameters passed!");
     }

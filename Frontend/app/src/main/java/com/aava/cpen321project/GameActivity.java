@@ -131,7 +131,7 @@ public class GameActivity extends AppCompatActivity {
     // Constant values that last throughout the duration of the game.
     private Socket mSocket;
     private String sessionToken = "0aae56ce-3788-4c3d-81fc-c1fe397c0cd9";
-    private String username = "Alex"; // To be accessed from elsewhere, using a dummy field for now
+    private String username = "username-1"; // To be accessed from elsewhere, using a dummy field for now
     private String roomId = "roomId-2";
     private String roomCode = "XYZ123";
     private boolean isOwner = true;
@@ -306,10 +306,12 @@ public class GameActivity extends AppCompatActivity {
 
         // Save whether the question was answered correctly for use on the scoreboard screen.
         lastQuestionCorrect = isCorrect;
+        long timeDelay = currentTimeMillis() - answeringStartTime;
+        Log.d(TAG, String.valueOf(timeDelay));
         sendSocketJSON("submitAnswer", new HashMap<String, Object>() {{
             put("roomId", roomId);
             put("username", username);
-            put("timeDelay", currentTimeMillis() - answeringStartTime);
+            put("timeDelay", timeDelay);
             put("isCorrect", isCorrect);
             put("powerupCode", usedPowerup ? powerupCode : -1);
             put("powerupVictimUsername", powerupVictimUsername);

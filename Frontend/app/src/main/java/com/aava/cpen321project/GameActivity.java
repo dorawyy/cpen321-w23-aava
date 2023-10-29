@@ -3,13 +3,16 @@ package com.aava.cpen321project;
 import static java.lang.System.currentTimeMillis;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
@@ -73,12 +76,24 @@ public class GameActivity extends AppCompatActivity {
     private ImageView lobbyOwnerEditImage;
     private ImageView lobbyOwnerStartImage;
 
-    private ImageView lobbyEditCategoriesImage;
+    private ImageView lobbyEditBackImage;
     private ImageView lobbyEditQuestionsImage;
     private ImageView lobbyEditPlayersImage;
     private ImageView lobbyEditTimeImage;
     private ImageView lobbyEditPublicImage;
-    private ImageView lobbyEditBackImage;
+    private ImageView lobbyEditDifficultyImage;
+    private ImageView lobbyEditCategoriesImage;
+    private TextView lobbyEditQuestionsLabel;
+    private TextView lobbyEditPlayersLabel;
+    private TextView lobbyEditTimeLabel;
+    private TextView lobbyEditPublicLabel;
+    private TextView lobbyEditDifficultyLabel;
+    private TextView lobbyEditCategory1Label;
+    private TextView lobbyEditCategory2Label;
+    private TextView lobbyEditCategory3Label;
+    private TextView lobbyEditCategory4Label;
+    private TextView lobbyEditCategory5Label;
+    private TextView[] lobbyEditCategoryLabels = new TextView[5];
 
     private TextView countdownReadyLabel;
     private TextView countdownCountLabel;
@@ -131,10 +146,18 @@ public class GameActivity extends AppCompatActivity {
     // Constant values that last throughout the duration of the game.
     private Socket mSocket;
     private String sessionToken = "0aae56ce-3788-4c3d-81fc-c1fe397c0cd9";
-    private String username = "username-1"; // To be accessed from elsewhere, using a dummy field for now
+    private String username = "username-1";
     private String roomId = "roomId-2";
     private String roomCode = "XYZ123";
     private boolean isOwner = true;
+    private String[] availableCategories;
+
+    // Constant options for room settings.
+    private String[] questionCountOptions = new String[] {"5", "10", "15", "20"};
+    private String[] maxPlayerOptions = new String[] {"3", "4", "5", "6"};
+    private String[] timeLimitOptions = new String[] {"5", "10", "15", "20"};
+    private String[] publicOptions = new String[] {"Public", "Private"};
+    private String[] difficultyOptions = new String[] {"Easy", "Medium", "Hard"};
 
     // State concerning the players in the game room.
     private JSONArray roomPlayers;
@@ -165,6 +188,9 @@ public class GameActivity extends AppCompatActivity {
     private boolean usedPowerup;
     private int powerupCode;
     private String powerupVictimUsername;
+
+    public GameActivity() {
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -702,9 +728,14 @@ public class GameActivity extends AppCompatActivity {
     private void getSetActivityParameters() {
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
+            username = bundle.getString("username");
+            sessionToken = bundle.getString("sessionToken");
             roomCode = bundle.getString("roomCode");
             roomId = bundle.getString("roomId");
             isOwner = bundle.getBoolean("isOwner");
+            if (isOwner) {
+                availableCategories = bundle.getStringArray("questionCategories");
+            }
         }
         else Log.e(TAG, "No parameters passed!");
     }
@@ -729,6 +760,28 @@ public class GameActivity extends AppCompatActivity {
 
         lobbyOwnerEditImage = findViewById(R.id.game_lobby_owner_edit_image);
         lobbyOwnerStartImage = findViewById(R.id.game_lobby_owner_start_image);
+
+        lobbyEditBackImage = findViewById(R.id.game_lobby_edit_back_image);
+        lobbyEditQuestionsImage = findViewById(R.id.game_lobby_edit_image_question_count);
+        lobbyEditPlayersImage = findViewById(R.id.game_lobby_edit_image_max_players);
+        lobbyEditTimeImage = findViewById(R.id.game_lobby_edit_image_time_limit);
+        lobbyEditPublicImage = findViewById(R.id.game_lobby_edit_image_is_public);
+        lobbyEditDifficultyImage = findViewById(R.id.game_lobby_edit_image_question_difficulty);
+        lobbyEditCategoriesImage = findViewById(R.id.game_lobby_edit_image_categories);
+        lobbyEditQuestionsLabel = findViewById(R.id.game_lobby_edit_label_question_count);
+        lobbyEditPlayersLabel = findViewById(R.id.game_lobby_edit_label_max_players);
+        lobbyEditTimeLabel = findViewById(R.id.game_lobby_edit_label_time_limit);
+        lobbyEditPublicLabel = findViewById(R.id.game_lobby_edit_label_is_public);
+        lobbyEditDifficultyLabel = findViewById(R.id.game_lobby_edit_label_question_difficulty);
+        lobbyEditCategory1Label = findViewById(R.id.game_lobby_edit_category1);
+        lobbyEditCategory2Label = findViewById(R.id.game_lobby_edit_category2);
+        lobbyEditCategory3Label = findViewById(R.id.game_lobby_edit_category3);
+        lobbyEditCategory4Label = findViewById(R.id.game_lobby_edit_category4);
+        lobbyEditCategory5Label = findViewById(R.id.game_lobby_edit_category5);
+        lobbyEditCategoryLabels = new TextView[] {
+                lobbyEditCategory1Label, lobbyEditCategory2Label, lobbyEditCategory3Label,
+                lobbyEditCategory4Label, lobbyEditCategory5Label
+        };
 
         countdownReadyLabel = findViewById(R.id.game_countdown_ready_label);
         countdownCountLabel = findViewById(R.id.game_countdown_count_label);
@@ -809,24 +862,155 @@ public class GameActivity extends AppCompatActivity {
                 disableLayout(lobbyUniversalLayout);
                 disableLayout(lobbyOwnerLayout);
                 enableLayout(lobbyEditLayout, true, true);
+            } else if (v == lobbyEditQuestionsImage) {
+                // Change question count and emit changeSetting event
+                new AlertDialog.Builder(this)
+                        .setTitle("Select Question Count")
+                        .setSingleChoiceItems(questionCountOptions, 0, null)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                                roomQuestionCount = Integer.parseInt(questionCountOptions[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()]);
+                                lobbyEditQuestionsLabel.setText(String.format("Questions: %d", roomQuestionCount));
+                                sendSocketJSON("changeSetting", new HashMap<String, Object>() {{
+                                    put("roomId", roomId);
+                                    put("settingOption", "total");
+                                    put("optionValue", roomQuestionCategories);
+                                }});
+                            }
+                        })
+                        .show();
+            } else if (v == lobbyEditPlayersImage) {
+                // Change max players and emit changeSetting event
+                new AlertDialog.Builder(this)
+                        .setTitle("Select Max Players")
+                        .setSingleChoiceItems(maxPlayerOptions, 0, null)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                                roomMaxPlayers = Integer.parseInt(maxPlayerOptions[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()]);
+                                lobbyEditPlayersLabel.setText(String.format("Max Players: %d", roomMaxPlayers));
+                                sendSocketJSON("changeSetting", new HashMap<String, Object>() {{
+                                    put("roomId", roomId);
+                                    put("settingOption", "maxPlayers");
+                                    put("optionValue", roomMaxPlayers);
+                                }});
+                            }
+                        })
+                        .show();
+            } else if (v == lobbyEditTimeImage) {
+                // Change time limit and emit changeSetting event
+                new AlertDialog.Builder(this)
+                        .setTitle("Select Time Limit Per Question")
+                        .setSingleChoiceItems(timeLimitOptions, 0, null)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                                roomQuestionTime = Integer.parseInt(timeLimitOptions[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()]);
+                                lobbyEditTimeLabel.setText(String.format("Time Limit: %d", roomQuestionTime));
+                                sendSocketJSON("changeSetting", new HashMap<String, Object>() {{
+                                    put("roomId", roomId);
+                                    put("settingOption", "timeLimit");
+                                    put("optionValue", roomQuestionTime);
+                                }});
+                            }
+                        })
+                        .show();
+
+            } else if (v == lobbyEditPublicImage) {
+                // Change room isPublic and emit changeSetting event
+                new AlertDialog.Builder(this)
+                        .setTitle("Select Room Publicity")
+                        .setSingleChoiceItems(publicOptions, 0, null)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                                roomIsPublic = Objects.equals(publicOptions[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()], "Public");
+                                lobbyEditPublicLabel.setText("Is Public: " + (roomIsPublic ? "Yes" : "No"));
+                                sendSocketJSON("changeSetting", new HashMap<String, Object>() {{
+                                    put("roomId", roomId);
+                                    put("settingOption", "isPublic");
+                                    put("optionValue", roomIsPublic);
+                                }});
+                            }
+                        })
+                        .show();
+            } else if (v == lobbyEditDifficultyImage) {
+                // Change question difficulty and emit changeSetting event
+                new AlertDialog.Builder(this)
+                        .setTitle("Select Question Difficulty")
+                        .setSingleChoiceItems(difficultyOptions, 0, null)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                                roomQuestionDifficulty = difficultyOptions[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()];
+                                lobbyEditDifficultyLabel.setText("Difficulty: " + roomQuestionDifficulty);
+                                sendSocketJSON("changeSetting", new HashMap<String, Object>() {{
+                                    put("roomId", roomId);
+                                    put("settingOption", "difficulty");
+                                    put("optionValue", roomQuestionDifficulty.toLowerCase());
+                                }});
+                            }
+                        })
+                        .show();
+            } else if (v == lobbyEditCategoriesImage) {
+                // Change question count and emit changeSetting event
+                new AlertDialog.Builder(this)
+                        .setTitle("Select Question Categories (Max 5)")
+                        .setMultiChoiceItems(availableCategories, null, null)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                                int categoryCount = 0;
+                                roomQuestionCategories = new JSONArray();
+                                SparseBooleanArray indicesChosen = ((AlertDialog) dialogInterface).getListView().getCheckedItemPositions();
+                                for (int index = 0; index < indicesChosen.size(); index++) {
+                                    if (indicesChosen.get(index)) {
+                                        String category = availableCategories[index];
+                                        roomQuestionCategories.put(category);
+                                        lobbyEditCategoryLabels[index].setText(category);
+                                        categoryCount++;
+                                        if (categoryCount == 5) break;
+                                    }
+                                }
+                                for (String category : availableCategories) {
+                                    boolean active = false;
+                                    for (int index = 0; index < roomQuestionCategories.length(); index++) {
+                                        try {
+                                            if (category.equals(roomQuestionCategories.get(index))) {
+                                                active = true;
+                                                break;
+                                            }
+                                        } catch (JSONException e) {
+                                            throw new RuntimeException(e);
+                                        }
+                                    }
+                                    boolean finalActive = active;
+                                    sendSocketJSON("changeSetting", new HashMap<String, Object>() {{
+                                        put("roomId", roomId);
+                                        put("settingOption", "category-" + category);
+                                        put("optionValue", finalActive);
+                                    }});
+                                }
+                            }
+                        })
+                        .show();
+            } else if (v == lobbyEditBackImage) {
+                // Switch to lobby layout
+                disableLayout(lobbyEditLayout);
+                enableLayout(lobbyUniversalLayout, true, true);
+                enableLayout(lobbyOwnerLayout, true, true);
             } else if (v == lobbyOwnerStartImage) {
                 // Emit startGame event, and disable the button
                 sendSocketJSON("startGame", new HashMap<String, Object>() {{
                     put("roomId", roomId);
                 }});
-            } else if (v == lobbyEditCategoriesImage) {
-                // Open Dialog, emit changeSetting event
-            } else if (v == lobbyEditQuestionsImage) {
-                // Open Dialog, emit changeSetting event
-            } else if (v == lobbyEditPlayersImage) {
-                // Open Dialog, emit changeSetting event
-            } else if (v == lobbyEditTimeImage) {
-                // Open Dialog, emit changeSetting event
-            } else if (v == lobbyEditBackImage) {
-                // Switch to lobby owner layout
-                disableLayout(lobbyEditLayout);
-                enableLayout(lobbyUniversalLayout, true, true);
-                enableLayout(lobbyOwnerLayout, true, true);
             }
 
             // GAMEPLAY

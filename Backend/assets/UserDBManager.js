@@ -16,15 +16,14 @@ class UserDBManager {
   }
 
   /**
-   * A new User entry is created in UserDB with the username
-   * specified by `username`.
-   *
-   * A unique token is generated for this new user, so `username`
-   * does not need to be unique (i.e. more than one user can have
-   * the same `username`).
-   *
-   * Returns the newly-created User object, or undefined if unsuccessful.
-   * Throws an error if a user already exists with the same token.
+   * Purpose: Creates a new entry in UserDB with username and a unique token
+   * @param {String} token: The unique token for the user (UNIQUE)
+   * @param {String} username: The username for the user (NOT UNIQUE - can be same as for multiple users)
+   * @returns {User} The newly created user as a User object if successful
+   *                 Undefined if unsuccessful
+   * @throws {Error} If a user already exists with the same token
+   * 
+   * ChatGPT usage: ___
    */
   async createNewUser(token, username) {
     // Check if a user already exists with the same token or username
@@ -49,6 +48,9 @@ class UserDBManager {
   }
 
   /**
+   * Purpose: Updates the rank of a user in UserDB
+   * 
+   * 
    * Updates a User's session token and returns the User after the update.
    *
    * If the User entry with token matching `token` cannot be found,

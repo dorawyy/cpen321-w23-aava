@@ -56,29 +56,79 @@ class Settings {
     this.totalQuestions = total;
   }
 
+  /**
+   * Purpose: Updates the isPublic setting
+   * @param {Boolean} isPublic 
+   * @returns None
+   * 
+   * ChatGPT usage: No
+   */
   updateIsPublic(isPublic) {
     this.roomIsPublic = isPublic;
   }
 
+  /**
+   * Purpose: Adds a category to the list of categories
+   * @param {String} category
+   * @returns None
+   * 
+   * ChatGPT usage: No
+   */
   addCategory(category) {
     this.questionCategories.push(category);
   }
 
+  /**
+   * Purpose: Removes a category from the list of categories
+   * @param {String} category
+   * @returns None
+   * 
+   * ChatGPT usage: No
+   */
   removeCategory(category) {
     this.questionCategories = this.questionCategories.filter(e => e !== category);
   }
 
+  /**
+   * Purpose: Updates the difficulty setting
+   * @param {String} difficulty
+   * @returns None
+   * 
+   * ChatGPT usage: No
+   */
   updateDifficulty(difficulty) {
     this.questionDifficulty = difficulty;
   }
 
+  /**
+   * Purpose: Updates the maxPlayers setting
+   * @param {Number} maxPlayers
+   * @returns None
+   * 
+   * ChatGPT usage: No
+   */
   updateMaxPlayers(maxPlayers) {
     this.maxPlayers = maxPlayers;
   }
 
+  /**
+   * Purpose: Updates the questionTime setting
+   * @param {Number} time
+   * @returns None
+   * 
+   * ChatGPT usage: No
+   */
   updateTime(time) {
     this.questionTime = time;
   }
+
+  /**
+   * Purpose: Updates the total number of Questions setting
+   * @param {Number} total
+   * @returns None
+   * 
+   * ChatGPT usage: No
+   */
   updateTotal(total) {
     this.totalQuestions = total;
   }

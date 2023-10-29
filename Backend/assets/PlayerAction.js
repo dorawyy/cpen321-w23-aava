@@ -45,22 +45,57 @@ class PlayerAction {
     this.powerupVictim = powerupVictim;
   }
 
+  /**
+   * Purpose: Gets list of players in the room
+   * @param None
+   * @returns {String} The list of players in the room
+   * 
+   * ChatGPT usage: No
+   */
   getPlayer() {
     return this.mainPlayer;
   }
 
+  /**
+   * Purpose: Gets the time it took to answer the question
+   * @param None
+   * @returns {Number} The time it took to answer question
+   * 
+   * ChatGPT usage: No
+   */
   getDelay() {
     return this.timeDelay;
   }
 
+  /**
+   * Purpose: Gets whether the answer was correct or not
+   * @param None
+   * @returns {Boolean} True if correct, false otherwise
+   * 
+   * ChatGPT usage: No
+   */
   getCorrect() {
     return this.isCorrect;
   }
 
+  /**
+   * Purpose: Gets the powerup used
+   * @param None
+   * @returns {Number} The powerup used
+   * 
+   * ChatGPT usage: No
+   */
   getPowerup() {
     return this.powerupUsed;
   }
 
+  /**
+   * Purpose: Gets the victim of the powerup
+   * @param None
+   * @returns {String} The victim of the powerup
+   * 
+   * ChatGPT usage: No
+   */
   getVictim() {
     return this.powerupVictim;
   }

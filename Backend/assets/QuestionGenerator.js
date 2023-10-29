@@ -12,6 +12,8 @@ class QuestionGenerator {
    * @param   None
    * @returns {[String]} A list of all the possible categories
    *                     Empty list if the API call fails
+   * 
+   * ChatGPT usage: No
    */
   getCategories = async () => {
     let return_arr = [];
@@ -39,6 +41,8 @@ class QuestionGenerator {
    * @param   {String} [difficulty]: The question difficulty we are querying 
    * @returns {Number} The number of questions in the category for the given difficulty
    *                   -1 if the API call fails 
+   * 
+   * ChatGPT usage: No
    */
   getQuestionQuantity = async (category, difficulty) => {
     let count = -1;
@@ -71,6 +75,8 @@ class QuestionGenerator {
    * @returns {Object} An object with
    *                   Response code: (0 for success, 1 refresh Token)
    *                   Question Array: an array of Question objects
+   * 
+   * ChatGPT usage: No
    */
   getQuestions = async (doSpecificCategory, doLimitMCQ, category, difficulty, quantity) => {
     
@@ -144,6 +150,8 @@ class QuestionGenerator {
    * @param   {Number} [totalQuestions]: The total number of questions to be generated
    * @param   {Number} [numberCategories]: The number of categories to be used
    * @returns {[Number]} An array of the number of questions per category
+   * 
+   * ChatGPT usage: No
   */
   getNumArr = (toalQuestions, numberCategories) => {
     // Calculates the mimimum number of questions per category

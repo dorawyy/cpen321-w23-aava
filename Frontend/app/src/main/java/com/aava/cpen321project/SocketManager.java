@@ -10,7 +10,7 @@ import io.socket.client.Socket;
 public class SocketManager {
 
     private static final String TAG = "SocketManager";
-    private static final String SERVER_URL = "35.212.247.165:8081";
+    private static final String SERVER_URL = "http://35.212.247.165:8081";
 
     private static Socket socket;
 
@@ -18,7 +18,7 @@ public class SocketManager {
         try {
             socket = IO.socket(SERVER_URL);
         } catch (URISyntaxException e) {
-            Log.e(TAG, "URISyntaxException");
+            Log.e(TAG, e.getReason());
         }
     }
 

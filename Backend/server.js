@@ -193,11 +193,6 @@ app.post("/join-random-room", (req, res) => {
   }
 
   // Prioritize rooms that have been waiting for a long time
-
-  // TODO: If we have a game room return from a game, we will need to "refresh"
-  // the room's creation time. Otherwise, that room will be very high priority
-  // because the server thinks that it was created a long time ago, when really
-  // the game room was playing a game and wasn't "waiting" for all that time.
   availableRooms.sort(
     (roomA, roomB) => roomA.getRoomCreationTime() - roomB.getRoomCreationTime()
   );
@@ -248,8 +243,6 @@ app.post("/join-random-room", (req, res) => {
       break;
     }
   }
-
-  // TODO: Now intialize the socket connection and pass in roomId
 
   return;
 });
@@ -533,7 +526,7 @@ io.on("connection", (socket) => {
     console.log("Changing game settings...");
 
     const room = gameManager.fetchRoomById(message.roomId);
-    
+
     const settingOption = message.settingOption;
     const optionValue = message.optionValue;
 
@@ -562,7 +555,7 @@ io.on("connection", (socket) => {
 
       case settingOption.startsWith("category-"):
         if (optionValue !== true && optionValue !== false) {
-          console.log(optionValue)
+          console.log(optionValue);
           error = true;
         } else {
           const categoryName = settingOption.split("-")[1];
@@ -803,10 +796,6 @@ io.on("connection", (socket) => {
             console.log("Could not remove room with id " + room.roomId);
           }
         }
-      }
-
-      if (!success) {
-        console.log("Could not remove room with id " + room.roomId);
       }
     }
   });

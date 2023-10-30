@@ -95,6 +95,9 @@ class UserDBManager {
     }
   }
 
+  /**
+   * TODO
+   */
   async getUserByUsername(username) {
     const user = await this.usersCollection.findOne({ username: username });
 
@@ -103,6 +106,33 @@ class UserDBManager {
     } else {
       return undefined;
     }
+  }
+
+  /**
+   * Adds `value` to the `rank` of the user that matches `username`.
+   * `value` must be an integer value.
+   * If the sum is negative, the user's `rank` becomes zero, which is the lowest
+   * value possible.
+   */
+  updateUserRank(username, value) {
+    if (typeof value !== "number" || !Number.isInteger(value)) {
+      return Promise.reject(new Error("Value must be an integer."));
+    }
+
+    return this.usersCollection
+      .updateOne({ username: username }, { $inc: { rank: value } })
+      .then((incrementResult) => {
+        if (incrementResult.modifiedCount === 0) {
+          throw new Error("User not found.");
+        }
+
+        if (value < 0) {
+          return this.usersCollection.updateOne(
+            { username: username, rank: { $lt: 0 } },
+            { $set: { rank: 0 } }
+          );
+        }
+      });
   }
 }
 

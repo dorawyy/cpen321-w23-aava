@@ -438,7 +438,7 @@ io.on("connection", (socket) => {
       const success = gameManager.removeRoomById(roomId);
 
       if (!success) {
-        throw new Error("Could not remove room with id " + room.roomId);
+        console.log("Could not remove room with id " + room.roomId);
       }
 
       console.log("Room was removed successfully");
@@ -683,7 +683,67 @@ io.on("connection", (socket) => {
             socket.to(roomId).emit("endGame", { scores: totalScores });
             socket.emit("endGame", { scores: totalScores });
           }, SHOW_SCOREBOARD_MILLISECONDS);
+
+          // Update ranks in user profile of all players
+          let roomPlayers = room.getPlayers();
+          let numPlayers = roomPlayers.length;
+          let rankValues = [];
+
+          // Sort the array of room players from highest to lowest points
+          roomPlayers.sort((a, b) => b.points - a.points);
+
+          switch (numPlayers) {
+            case 2:
+              rankValues = [1, -1];
+              break;
+
+            case 3:
+              rankValues = [2, 0, -2];
+              break;
+
+            case 4:
+              rankValues = [3, 1, -1, -3];
+              break;
+
+            case 5:
+              rankValues = [3, 2, 0, -2, -3];
+              break;
+
+            case 6:
+              rankValues = [3, 2, 1, -1, -2, -3];
+              break;
+          }
+
+          for (let i = 0; i < numPlayers; i++) {
+            let player = roomPlayers[i];
+            let value = rankValues[i];
+
+            userDBManager.updateUserRank(player.user.username, value);
+          }
+
+          // Now remove all players from room and delete the room.
+          for (let player of room.getPlayers()) {
+            const playerUsername = player.user.username;
+            room.removePlayer(playerUsername);
+
+            let playerSocket = io.sockets.sockets.get(player.getSocketId());
+            if (playerSocket) {
+              playerSocket.leave(roomId);
+              playerSocket.emit("roomClosed");
+            }
+          }
+
+          assert(room.getPlayers().length === 0);
+          const success = gameManager.removeRoomById(roomId);
+
+          if (!success) {
+            console.log("Could not remove room with id " + room.roomId);
+          }
         }
+      }
+
+      if (!success) {
+        console.log("Could not remove room with id " + room.roomId);
       }
     }
   });

@@ -25,18 +25,18 @@ class GameManager {
    * Purpose: Gets a list of the current categories available
    * @param None
    * @return None
-   * 
+   *
    * ChatGPT usage: No
    */
   updateCategories = async () => {
     this.possibleCategories = await this.questionGenerator.getCategories();
-  }
+  };
 
   /**
    * Purpose: Creates a new game room with a unique identifer (6 character HEX)
    * @param {Player} [gameMaster]: Player object of the user who created a room
    * @return {GameRoom} The game room that was created
-   * 
+   *
    * ChatGPT usage: Partial
    */
   createGameRoom(gameMaster) {
@@ -98,7 +98,7 @@ class GameManager {
    * Purpose: Fetches the game room with the given room code
    * @param {String} [roomCode]: the room code of the game room
    * @return {GameRoom} The game room that was fetched
-   * 
+   *
    * ChatGPT usage: No
    */
   fetchRoom(roomCode) {
@@ -110,8 +110,8 @@ class GameManager {
    * matches roomId, returns undefined.
    * @param {String} [roomId]: The unique id of the game room to get
    * @return {GameRoom} The game room with id matching roomId
-   * 
-   * ChatGPT usage: ___
+   *
+   * ChatGPT usage: No
    */
   fetchRoomById(roomId) {
     return [...this.roomCodeToGameRoom.values()].find(
@@ -124,8 +124,8 @@ class GameManager {
    * must not be any players in the room before calling this function.
    * @param {String} [roomId]: The unique id of the game room to remove.
    * @return {Boolean} True if room was removed successfully, false otherwise.
-   * 
-   * ChatGPT usage: ___
+   *
+   * ChatGPT usage: No
    */
   removeRoomById(roomId) {
     const roomToRemove = this.fetchRoomById(roomId);
@@ -139,8 +139,8 @@ class GameManager {
    * @param None
    * @return {Array[GameRoom]} All the public game rooms with space
    * for additional players.
-   * 
-   * ChatGPT usage: ___
+   *
+   * ChatGPT usage: Partial
    */
   getAvailableRooms() {
     return [...this.roomCodeToGameRoom.values()].filter(
@@ -155,7 +155,7 @@ class GameManager {
    * Purpose: Gets a list of questions for the game room based on its settings
    * @param {String} [roomCode]: the room code of the game room
    * @return {Number} 0 for success, 1 for room not found, 2 for no categories selected
-   * 
+   *
    * ChatGPT usage: Partial
    */
   generateQuestions(roomCode) {
@@ -225,7 +225,7 @@ class GameManager {
    * @return {Object} Object containing return code and map of player username to scores:
    *                 returnCode: 0 for success, 1 for room not found
    *                 scores: Map of player users to scores
-   * 
+   *
    * ChatGPT usage: No
    */
   calculateScore(roomCode) {
@@ -316,9 +316,9 @@ class GameManager {
 
   /**
    * Purpose: Changes room between WAITING and IN_PROGRESS
-   * @param {String} roomCode 
+   * @param {String} roomCode
    * @returns the new State of the room
-   * 
+   *
    * ChatGPT usage: No
    */
   updateRoomState(roomCode) {
@@ -332,7 +332,7 @@ class GameManager {
    * Purpose: Gets the next question of the room
    * @param {String} roomCode
    * @returns {Question} the next question of the room
-   * 
+   *
    * ChatGPT usage: No
    */
   fetchNextQuestion(roomCode) {
@@ -346,7 +346,7 @@ class GameManager {
    * Purpose: Gets the number of questions in the room
    * @param {String} roomCode
    * @returns {Number} the number of questions in the room
-   * 
+   *
    * ChatGPT usage: No
    */
   fetchQuestionsQuantity(roomCode) {
@@ -359,7 +359,7 @@ class GameManager {
    * @param {String} roomCode
    * @param {PlayerAction} response
    * @returns if all players in player list sent an action
-   * 
+   *
    * ChatGPT usage: No
    */
   addResponseToRoom(roomCode, response) {
@@ -373,7 +373,7 @@ class GameManager {
    * Purpose: Resets the actions array of the room
    * @param {String} roomCode
    * @returns None
-   * 
+   *
    * ChatGPT usage: No
    */
   resetResponses(roomCode) {
@@ -386,8 +386,8 @@ class GameManager {
    * Purpose: updates player scores and returns new totals
    * @param {*} roomCode
    * @param {*} scores Map of username --> points gained
-   * @returns The new scores of all players 
-   * 
+   * @returns The new scores of all players
+   *
    * ChatGPT usage: No
    */
   addToPlayerScore = (roomCode, scores) => {

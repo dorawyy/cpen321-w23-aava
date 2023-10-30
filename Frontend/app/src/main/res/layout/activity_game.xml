@@ -1135,7 +1135,7 @@
             android:id="@+id/game_powerup_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="visible">
+            android:visibility="invisible">
 
             <RelativeLayout
                 android:id="@+id/game_powerup_frame3"
@@ -1152,7 +1152,7 @@
                     android:scaleType="fitXY"
                     android:src="@drawable/powerup_on"
                     android:focusable="true"
-                    android:clickable="true"
+                    android:clickable="false"
                     android:onClick="onClick" />
 
                 <ImageView
@@ -1180,7 +1180,7 @@
                     android:scaleType="fitXY"
                     android:src="@drawable/powerup_on"
                     android:focusable="true"
-                    android:clickable="true"
+                    android:clickable="false"
                     android:onClick="onClick" />
 
                 <ImageView
@@ -1208,13 +1208,13 @@
                     android:scaleType="fitXY"
                     android:src="@drawable/powerup_on"
                     android:focusable="true"
-                    android:clickable="true"
+                    android:clickable="false"
                     android:onClick="onClick" />
 
                 <ImageView
                     android:id="@+id/game_powerup_icon1"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:adjustViewBounds="true"
                     android:layout_centerInParent="true"
                     android:src="@drawable/powerup1"/>
@@ -1236,7 +1236,7 @@
                     android:scaleType="fitXY"
                     android:src="@drawable/powerup_on"
                     android:focusable="true"
-                    android:clickable="true"
+                    android:clickable="false"
                     android:onClick="onClick" />
 
                 <ImageView
@@ -1264,7 +1264,7 @@
                     android:scaleType="fitXY"
                     android:src="@drawable/powerup_on"
                     android:focusable="true"
-                    android:clickable="true"
+                    android:clickable="false"
                     android:onClick="onClick" />
 
                 <ImageView

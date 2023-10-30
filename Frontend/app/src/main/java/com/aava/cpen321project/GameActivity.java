@@ -3,9 +3,7 @@ package com.aava.cpen321project;
 import static java.lang.System.currentTimeMillis;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -20,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,6 +38,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Random;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -119,6 +119,8 @@ public class GameActivity extends AppCompatActivity {
     private TextView questionAnswer2Label;
     private TextView questionAnswer3Label;
     private TextView questionAnswer4Label;
+    private List<ImageView> questionAnswerImages;
+    private List<TextView> questionAnswerLabels;
     private TextView questionTimerLabel;
 
     private TextView stallBlurbLabel;
@@ -151,6 +153,8 @@ public class GameActivity extends AppCompatActivity {
     private ImageView powerupIcon3Image;
     private ImageView powerupIcon4Image;
     private ImageView powerupIcon5Image;
+    private List<ImageView> powerupImages = new ArrayList<>();
+    private List<ImageView> powerupIconImages = new ArrayList<>();
 
     private Map<RelativeLayout, List<View>> clickableViews;
 
@@ -195,15 +199,20 @@ public class GameActivity extends AppCompatActivity {
     private int correctAnswer;
     private boolean lastQuestionCorrect;
     private long answeringStartTime;
-    private CountDownTimer questionCountDownTimer;
+    private CountDownTimer questionCountdownTimer;
+    private CountDownTimer answerCountdownTimer;
+    private String questionPhase;
 
     // State concerning the player's powerups.
-    private boolean usedPowerup;
-    private int powerupCode;
+    private final List<Integer> remainingPowerups = new ArrayList<Integer>() {{
+        add(0);add(1);add(2);add(3);add(4);
+    }};
+    private boolean chosenPowerup;
+    private int powerupCode = -1;
+    private List<String> otherPlayerUsernames =  new ArrayList<>();
     private String powerupVictimUsername;
-
-    public GameActivity() {
-    }
+    private Random rand = new Random();
+    private boolean extraLifeEnabled = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -231,13 +240,15 @@ public class GameActivity extends AppCompatActivity {
 
     // A container for all functionality for displaying and answering each question.
     private void startQuestion() {
+        questionPhase = "countdown";
+
         // Display a countdown in preparation for the question.
         runOnUiThread(() -> {
             countdownCountLabel.setText("3");
             countdownCountLabel.setVisibility(View.INVISIBLE);
             countdownReadyLabel.setVisibility(View.VISIBLE);
         });
-        enableLayout(countdownLayout, true, true);
+        enableLayout(countdownLayout, true, false);
 
         // Start a timer for the countdown; ends with the question being displayed.
         runOnUiThread(() -> {
@@ -258,12 +269,14 @@ public class GameActivity extends AppCompatActivity {
 
                 // Display the question and powerups but not the answers yet.
                 public void onFinish() {
+                    questionPhase = "question";
+
                     // Set the descriptions for the header, question, and answers.
                     questionLabel.setText(Html.fromHtml(questionDescription).toString());
-                    questionAnswer1Label.setText(answerDescriptions[0]);
-                    questionAnswer2Label.setText(answerDescriptions[1]);
-                    questionAnswer3Label.setText(answerDescriptions[2]);
-                    questionAnswer4Label.setText(answerDescriptions[3]);
+                    questionAnswer1Label.setText(Html.fromHtml(answerDescriptions[0]).toString());
+                    questionAnswer2Label.setText(Html.fromHtml(answerDescriptions[1]).toString());
+                    questionAnswer3Label.setText(Html.fromHtml(answerDescriptions[2]).toString());
+                    questionAnswer4Label.setText(Html.fromHtml(answerDescriptions[3]).toString());
 
                     // Keep the answer descriptions hidden for now while the user reads the question.
                     questionAnswer1Label.setVisibility(View.INVISIBLE);
@@ -274,15 +287,30 @@ public class GameActivity extends AppCompatActivity {
                     questionAnswer2Image.setImageResource(R.drawable.answer_blank);
                     questionAnswer3Image.setImageResource(R.drawable.answer_blank);
                     questionAnswer4Image.setImageResource(R.drawable.answer_blank);
+                    questionAnswer1Image.setClickable(false);
+                    questionAnswer2Image.setClickable(false);
+                    questionAnswer3Image.setClickable(false);
+                    questionAnswer4Image.setClickable(false);
 
                     // Display the question layout and the powerups layout.
                     disableLayout(countdownLayout);
                     enableLayout(questionLayout, true, false);
-                    // TODO: Re-enable
-                    // enableLayout(powerupLayout, true, true);
+                    enableLayout(powerupLayout, true, false);
+
+                    // Manually set which powerups should be clickable, and set their images
+                    runOnUiThread(() -> {
+                        for (int i = 0; i < 5; i++) {
+                            if (remainingPowerups.contains(i)) {
+                                powerupImages.get(i).setClickable(true);
+                                powerupImages.get(i).setImageResource(R.drawable.powerup_on);
+                            } else {
+                                powerupImages.get(i).setImageResource(R.drawable.powerup_blank);
+                            }
+                        }
+                    });
 
                     // Start a timer for reading the question; ends with the possible answers being shown.
-                    new CountDownTimer(5000, 100) {
+                    questionCountdownTimer = new CountDownTimer(5000, 100) {
 
                         // Keep the timer on the screen updated.
                         public void onTick(long millisUntilFinished) {
@@ -293,6 +321,7 @@ public class GameActivity extends AppCompatActivity {
 
                         // Show the possible answers.
                         public void onFinish() {
+                            questionPhase = "answer";
 
                             runOnUiThread(() -> {
                                 // Reveal the answer descriptions.
@@ -317,7 +346,7 @@ public class GameActivity extends AppCompatActivity {
                             // Gets cancelled before finishing upon an answer button being selected.
                             // Needs to be saved to questionCountDownTimer so that it can be referenced
                             // (cancelled) from elsewhere.
-                            questionCountDownTimer = new CountDownTimer(roomQuestionTime * 1000, 100) {
+                            answerCountdownTimer = new CountDownTimer(roomQuestionTime * 1000, 100) {
 
                                 // Keep the timer on the screen updated.
                                 public void onTick(long millisUntilFinished) {
@@ -331,9 +360,10 @@ public class GameActivity extends AppCompatActivity {
                                     submitAnswer(false);
                                 }
                             };
-                            questionCountDownTimer.start();
+                            answerCountdownTimer.start();
                         }
-                    }.start();
+                    };
+                    questionCountdownTimer.start();
                 }
             }.start();
         });
@@ -346,22 +376,26 @@ public class GameActivity extends AppCompatActivity {
         lastQuestionCorrect = isCorrect;
         long timeDelay = currentTimeMillis() - answeringStartTime;
         Log.d(TAG, String.valueOf(timeDelay));
+
+        Log.d(TAG, "Submitted powerup " + powerupCode);
+
         sendSocketJSON("submitAnswer", new HashMap<String, Object>() {{
             put("roomId", roomId);
             put("username", username);
             put("timeDelay", timeDelay);
             put("isCorrect", isCorrect);
-            put("powerupCode", usedPowerup ? powerupCode : -1);
+            put("powerupCode", powerupCode);
             put("powerupVictimUsername", powerupVictimUsername);
         }});
 
-        // Reset powerup state.
-        usedPowerup = false;
+        if (powerupCode != -1) {
+            powerupIconImages.get(powerupCode).setVisibility(View.INVISIBLE);
+            powerupCode = -1;
+        }
 
         // Since the question has been answered, switch to the next screen, waiting for the scoreboard.
         disableLayout(questionLayout);
-        // TODO: Re-enable
-        // disableLayout(powerupLayout);
+        disableLayout(powerupLayout);
         enableLayout(stallLayout, true, true);
     }
 
@@ -422,6 +456,13 @@ public class GameActivity extends AppCompatActivity {
                 JSONObject data = (JSONObject) args[0];
                 try {
                     roomPlayers = data.getJSONArray("roomPlayers");
+
+                    for (int i = 0; i < roomPlayers.length(); i++) {
+                        if (!roomPlayers.getJSONObject(i).getString("username").equals(username)) {
+                            otherPlayerUsernames.add(roomPlayers.getJSONObject(i).getString("username"));
+                        }
+                    }
+
                     JSONObject roomSettings = data.getJSONObject("roomSettings");
                     roomIsPublic = roomSettings.getBoolean("roomIsPublic");
                     roomQuestionDifficulty = roomSettings.getString("questionDifficulty");
@@ -466,6 +507,7 @@ public class GameActivity extends AppCompatActivity {
                     newPlayerData.put("username", data.getString("newPlayerUsername"));
                     newPlayerData.put("rank", data.getInt("newPlayerRank"));
                     roomPlayers.put(newPlayerData);
+                    otherPlayerUsernames.add(data.getString("newPlayerUsername"));
                     // If owner, disable Start button by default, as the new player needs to ready up.
                     // TODO: Undo comment
                     // lobbyOwnerStartImage.setClickable(false);
@@ -692,6 +734,8 @@ public class GameActivity extends AppCompatActivity {
                                 (rank == 0) ? "1st" : (rank == 1) ? "2nd" : (rank == 2) ? "3rd" : String.format("%dth", rank + 1)
                         );
 
+                        Log.d(TAG, "Rank: " + rank);
+
                         JSONObject currentPlayer = scoreInfoList.get(rank);
                         scoreboardCurrentGainLabel.setText(String.format("+%d", currentPlayer.getInt("pointsEarned")));
                         scoreboardCurrentScoreLabel.setText(String.valueOf(currentPlayer.getInt("updatedTotalPoints")));
@@ -892,6 +936,18 @@ public class GameActivity extends AppCompatActivity {
         questionAnswer2Label = findViewById(R.id.game_question_answer2_label);
         questionAnswer3Label = findViewById(R.id.game_question_answer3_label);
         questionAnswer4Label = findViewById(R.id.game_question_answer4_label);
+        questionAnswerImages = new ArrayList<ImageView>() {{
+            add(questionAnswer1Image);
+            add(questionAnswer2Image);
+            add(questionAnswer3Image);
+            add(questionAnswer4Image);
+        }};
+        questionAnswerLabels = new ArrayList<TextView> () {{
+            add(questionAnswer1Label);
+            add(questionAnswer2Label);
+            add(questionAnswer3Label);
+            add(questionAnswer4Label);
+        }};
         questionTimerLabel = findViewById(R.id.game_question_timer_label);
 
         stallBlurbLabel = findViewById(R.id.game_stall_blurb_label);
@@ -914,6 +970,31 @@ public class GameActivity extends AppCompatActivity {
         scoreboardRankLabel = findViewById(R.id.game_scoreboard_rank_label);
         scoreboardBlurbLabel = findViewById(R.id.game_scoreboard_blurb_label);
         scoreboardLeaveImage = findViewById(R.id.game_scoreboard_leave_image);
+
+        powerup1Image = findViewById(R.id.game_powerup_image1);
+        powerup2Image = findViewById(R.id.game_powerup_image2);
+        powerup3Image = findViewById(R.id.game_powerup_image3);
+        powerup4Image = findViewById(R.id.game_powerup_image4);
+        powerup5Image = findViewById(R.id.game_powerup_image5);
+        powerupIcon1Image = findViewById(R.id.game_powerup_icon1);
+        powerupIcon2Image = findViewById(R.id.game_powerup_icon2);
+        powerupIcon3Image = findViewById(R.id.game_powerup_icon3);
+        powerupIcon4Image = findViewById(R.id.game_powerup_icon4);
+        powerupIcon5Image = findViewById(R.id.game_powerup_icon5);
+        powerupImages = new ArrayList<ImageView>() {{
+            add(powerup1Image);
+            add(powerup2Image);
+            add(powerup3Image);
+            add(powerup4Image);
+            add(powerup5Image);
+        }};
+        powerupIconImages = new ArrayList<ImageView>() {{
+            add(powerupIcon1Image);
+            add(powerupIcon2Image);
+            add(powerupIcon3Image);
+            add(powerupIcon4Image);
+            add(powerupIcon5Image);
+        }};
 
         clickableViews = new HashMap<RelativeLayout, List<View>>() {{
             put(lobbyUniversalLayout, Arrays.asList());
@@ -1107,40 +1188,82 @@ public class GameActivity extends AppCompatActivity {
             }
 
             // GAMEPLAY
-            else if (v == questionAnswer1Image || v == questionAnswer2Image ||
-                    v == questionAnswer3Image || v == questionAnswer4Image) {
+            else if (questionAnswerImages.contains(v)) {
                 // Manipulate answer fields, emit submitAnswer event, switch to stall layout
-                questionCountDownTimer.cancel();
-
-                int chosenAnswer;
-                if (v == questionAnswer1Image) {
-                    chosenAnswer = 0;
-                } else if (v == questionAnswer2Image) {
-                    chosenAnswer = 1;
-                } else if (v == questionAnswer3Image) {
-                    chosenAnswer = 2;
-                } else {
-                    chosenAnswer = 3;
-                }
+                int chosenAnswer = questionAnswerImages.indexOf(v);
                 boolean isCorrect = chosenAnswer == correctAnswer;
                 Log.d(TAG, "Correct answer: " + String.valueOf(correctAnswer) + ", Answer: " + String.valueOf(chosenAnswer));
 
-                submitAnswer(isCorrect);
-            } else if (v == powerup1Image || v == powerup2Image || v == powerup3Image ||
-                    v == powerup4Image || v == powerup5Image) {
-                // Manipulate powerup fields, open Dialog if necessary
-                // TODO: Implement Dialogs
-
-                if (v == powerup1Image) {
-                    powerupCode = 1;
-                } else if (v == powerup2Image) {
-                    powerupCode = 2;
-                } else if (v == powerup3Image) {
-                    powerupCode = 3;
-                } else if (v == powerup4Image) {
-                    powerupCode = 4;
+                if (!isCorrect && extraLifeEnabled) { // Extra life
+                    extraLifeEnabled = false;
+                    questionAnswerImages.get(chosenAnswer).setClickable(false);
+                    questionAnswerImages.get(chosenAnswer).setImageResource(R.drawable.answer_blank);
+                    questionAnswerLabels.get(chosenAnswer).setVisibility(View.INVISIBLE);
                 } else {
-                    powerupCode = 5;
+                    answerCountdownTimer.cancel();
+                    submitAnswer(isCorrect);
+                }
+            } else if (powerupImages.contains(v)) {
+                powerupCode = powerupImages.indexOf(v);
+                Log.d(TAG, "Clicked powerup " + powerupCode);
+
+                // Permanently disable the current powerup
+                v.setClickable(false);
+                remainingPowerups.remove((Integer) powerupCode);
+
+                // Disable the other powerups for the current round
+                for (int i = 0; i < 5; i++) {
+                    ImageView otherV = powerupImages.get(i);
+                    if (!otherV.equals(v) && remainingPowerups.contains(i)) {
+                        otherV.setClickable(false);
+                        otherV.setImageResource(R.drawable.powerup_off);
+                    }
+                }
+
+                // Powerup-specific functionality
+                if (powerupCode == 1) { // Fifty-fifty
+                    int cancel1;
+                    int cancel2;
+                    do {
+                        cancel1 = rand.nextInt(4);
+                    } while (cancel1 == correctAnswer);
+                    do {
+                        cancel2 = rand.nextInt(4);
+                    } while (cancel2 == cancel1 || cancel2 == correctAnswer);
+                    questionAnswerImages.get(cancel1).setClickable(false);
+                    questionAnswerImages.get(cancel1).setImageResource(R.drawable.answer_blank);
+                    questionAnswerLabels.get(cancel1).setVisibility(View.INVISIBLE);
+                    questionAnswerImages.get(cancel2).setClickable(false);
+                    questionAnswerImages.get(cancel2).setImageResource(R.drawable.answer_blank);
+                    questionAnswerLabels.get(cancel2).setVisibility(View.INVISIBLE);
+
+                } else if (powerupCode == 2) { // Steal points
+                    String[] otherPlayerUsernamesArray = new String[otherPlayerUsernames.size()];
+                    if (otherPlayerUsernames.size() == 0) {
+                        Toast.makeText(this, "No other players!", Toast.LENGTH_SHORT).show();
+                        powerupCode = -1;
+                    }
+                    otherPlayerUsernames.toArray(otherPlayerUsernamesArray);
+                    new AlertDialog.Builder(this)
+                            .setTitle("Select Victim")
+                            .setSingleChoiceItems(otherPlayerUsernamesArray, 0, null)
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.dismiss();
+                                    powerupVictimUsername = otherPlayerUsernames.get(((AlertDialog) dialogInterface).getListView().getCheckedItemPosition());
+                                }
+                            })
+                            .show();
+                } else if (powerupCode == 3) {
+                    if (questionPhase.equals("question")) {
+                        questionCountdownTimer.cancel();
+                    } else if (questionPhase.equals("answer")) {
+                        answerCountdownTimer.cancel();
+                    }
+                    submitAnswer(false);
+                } else if (powerupCode == 4) {
+                    extraLifeEnabled = true;
                 }
             } else if (v == scoreboardLeaveImage) {
                 Intent intent = new Intent(GameActivity.this, MenuActivity.class);

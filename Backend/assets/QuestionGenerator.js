@@ -32,7 +32,6 @@ class QuestionGenerator {
       console.log(err);
     }
 
-    console.log(return_arr);
     return return_arr;
   };
 

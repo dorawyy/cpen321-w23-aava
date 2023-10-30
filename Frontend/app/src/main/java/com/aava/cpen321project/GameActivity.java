@@ -122,6 +122,7 @@ public class GameActivity extends AppCompatActivity {
     private List<ImageView> questionAnswerImages;
     private List<TextView> questionAnswerLabels;
     private TextView questionTimerLabel;
+    private TextView questionPlayersFinishedLabel;
 
     private TextView stallBlurbLabel;
 
@@ -202,6 +203,7 @@ public class GameActivity extends AppCompatActivity {
     private CountDownTimer questionCountdownTimer;
     private CountDownTimer answerCountdownTimer;
     private String questionPhase;
+    private int otherPlayersAnswered;
 
     // State concerning the player's powerups.
     private final List<Integer> remainingPowerups = new ArrayList<Integer>() {{
@@ -241,9 +243,11 @@ public class GameActivity extends AppCompatActivity {
     // A container for all functionality for displaying and answering each question.
     private void startQuestion() {
         questionPhase = "countdown";
+        otherPlayersAnswered = 0;
 
         // Display a countdown in preparation for the question.
         runOnUiThread(() -> {
+            questionPlayersFinishedLabel.setText("0");
             countdownCountLabel.setText("3");
             countdownCountLabel.setVisibility(View.INVISIBLE);
             countdownReadyLabel.setVisibility(View.VISIBLE);
@@ -687,6 +691,8 @@ public class GameActivity extends AppCompatActivity {
 
             // On other player answering
             mSocket.on("answerReceived", args -> {
+                otherPlayersAnswered++;
+                questionPlayersFinishedLabel.setText(String.valueOf(otherPlayersAnswered));
                 JSONObject data = (JSONObject) args[0];
                 try {
                     // Set all question state values.
@@ -949,6 +955,7 @@ public class GameActivity extends AppCompatActivity {
             add(questionAnswer4Label);
         }};
         questionTimerLabel = findViewById(R.id.game_question_timer_label);
+        questionPlayersFinishedLabel = findViewById(R.id.game_question_players_finished_label);
 
         stallBlurbLabel = findViewById(R.id.game_stall_blurb_label);
 

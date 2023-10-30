@@ -555,7 +555,6 @@ io.on("connection", (socket) => {
 
       case settingOption.startsWith("category-"):
         if (optionValue !== true && optionValue !== false) {
-          console.log(optionValue);
           error = true;
         } else {
           const categoryName = settingOption.split("-")[1];
@@ -595,7 +594,7 @@ io.on("connection", (socket) => {
         }
         break;
 
-      case settingOption === "numQuestions":
+      case settingOption === "total":
         if (!gameManager.possibleNumberOfQuestions.includes(optionValue)) {
           error = true;
         } else {

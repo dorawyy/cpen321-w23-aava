@@ -533,7 +533,7 @@ io.on("connection", (socket) => {
     console.log("Changing game settings...");
 
     const room = gameManager.fetchRoomById(message.roomId);
-
+    
     const settingOption = message.settingOption;
     const optionValue = message.optionValue;
 
@@ -551,9 +551,9 @@ io.on("connection", (socket) => {
 
     let error = false;
 
-    switch (settingOption) {
-      case "isPublic":
-        if (optionValue !== true || optionValue !== false) {
+    switch (true) {
+      case settingOption === "isPublic":
+        if (optionValue !== true && optionValue !== false) {
           error = true;
         } else {
           room.updateSetting("isPublic", optionValue);
@@ -561,7 +561,8 @@ io.on("connection", (socket) => {
         break;
 
       case settingOption.startsWith("category-"):
-        if (optionValue !== true || optionValue !== false) {
+        if (optionValue !== true && optionValue !== false) {
+          console.log(optionValue)
           error = true;
         } else {
           const categoryName = settingOption.split("-")[1];
@@ -577,7 +578,7 @@ io.on("connection", (socket) => {
         }
         break;
 
-      case "difficulty":
+      case settingOption === "difficulty":
         if (!gameManager.possibleDifficulties.includes(optionValue)) {
           error = true;
         } else {
@@ -585,7 +586,7 @@ io.on("connection", (socket) => {
         }
         break;
 
-      case "maxPlayers":
+      case settingOption === "maxPlayers":
         if (!gameManager.possibleMaxPlayers.includes(optionValue)) {
           error = true;
         } else {
@@ -593,7 +594,7 @@ io.on("connection", (socket) => {
         }
         break;
 
-      case "timeLimit":
+      case settingOption === "timeLimit":
         if (!gameManager.possibleAnswerTimeSeconds.includes(optionValue)) {
           error = true;
         } else {
@@ -601,7 +602,7 @@ io.on("connection", (socket) => {
         }
         break;
 
-      case "numQuestions":
+      case settingOption === "numQuestions":
         if (!gameManager.possibleNumberOfQuestions.includes(optionValue)) {
           error = true;
         } else {

@@ -1133,91 +1133,148 @@
         <!-- PowerUp -->
         <RelativeLayout
             android:id="@+id/game_powerup_layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginBottom="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:visibility="visible">
 
             <RelativeLayout
                 android:id="@+id/game_powerup_frame3"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="86dp">
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="30dp"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true">
 
                 <ImageView
                     android:id="@+id/game_powerup_image3"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
                     android:scaleType="fitXY"
                     android:src="@drawable/powerup_on"
                     android:focusable="true"
                     android:clickable="true"
                     android:onClick="onClick" />
+
+                <ImageView
+                    android:id="@+id/game_powerup_icon3"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:adjustViewBounds="true"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/powerup3"/>
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/game_powerup_frame2"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
                 android:layout_toStartOf="@+id/game_powerup_frame3"
-                android:layout_above="@+id/game_powerup_frame3">
+                android:layout_marginBottom="70dp"
+                android:layout_marginEnd="10dp">
 
                 <ImageView
                     android:id="@+id/game_powerup_image2"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
                     android:scaleType="fitXY"
                     android:src="@drawable/powerup_on"
                     android:focusable="true"
                     android:clickable="true"
                     android:onClick="onClick" />
+
+                <ImageView
+                    android:id="@+id/game_powerup_icon2"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:adjustViewBounds="true"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/powerup2"/>
             </RelativeLayout>
 
-            <ImageView
-                android:id="@+id/game_powerup_image1"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_alignTop="@+id/game_powerup_image2"
-                android:layout_marginTop="-42dp"
-                android:layout_marginEnd="10dp"
-                android:layout_toStartOf="@+id/game_powerup_image2"
-                android:scaleType="fitXY"
-                android:src="@drawable/powerup_on"
-                android:focusable="true"
-                android:clickable="true"
-                android:onClick="onClick" />
+            <RelativeLayout
+                android:id="@+id/game_powerup_frame1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_toStartOf="@+id/game_powerup_frame2"
+                android:layout_marginBottom="110dp"
+                android:layout_marginEnd="10dp">
 
-            <ImageView
-                android:id="@+id/game_powerup_image4"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_alignTop="@+id/game_powerup_frame3"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="-42dp"
+                <ImageView
+                    android:id="@+id/game_powerup_image1"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/powerup_on"
+                    android:focusable="true"
+                    android:clickable="true"
+                    android:onClick="onClick" />
+
+                <ImageView
+                    android:id="@+id/game_powerup_icon1"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:adjustViewBounds="true"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/powerup1"/>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/game_powerup_frame4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
                 android:layout_toEndOf="@+id/game_powerup_frame3"
-                android:scaleType="fitXY"
-                android:src="@drawable/powerup_on"
-                android:focusable="true"
-                android:clickable="true"
-                android:onClick="onClick" />
+                android:layout_marginBottom="70dp"
+                android:layout_marginStart="10dp">
 
-            <ImageView
-                android:id="@+id/game_powerup_image5"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_alignTop="@+id/game_powerup_image4"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="-42dp"
-                android:layout_toEndOf="@+id/game_powerup_image4"
-                android:scaleType="fitXY"
-                android:src="@drawable/powerup_on"
-                android:focusable="true"
-                android:clickable="true"
-                android:onClick="onClick" />
+                <ImageView
+                    android:id="@+id/game_powerup_image4"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/powerup_on"
+                    android:focusable="true"
+                    android:clickable="true"
+                    android:onClick="onClick" />
+
+                <ImageView
+                    android:id="@+id/game_powerup_icon4"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:adjustViewBounds="true"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/powerup4"/>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/game_powerup_frame5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_toEndOf="@+id/game_powerup_frame4"
+                android:layout_marginBottom="110dp"
+                android:layout_marginStart="10dp">
+
+                <ImageView
+                    android:id="@+id/game_powerup_image5"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/powerup_on"
+                    android:focusable="true"
+                    android:clickable="true"
+                    android:onClick="onClick" />
+
+                <ImageView
+                    android:id="@+id/game_powerup_icon5"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:adjustViewBounds="true"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/powerup5"/>
+            </RelativeLayout>
         </RelativeLayout>
     </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

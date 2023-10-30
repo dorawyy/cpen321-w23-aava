@@ -801,7 +801,6 @@ io.on("connection", (socket) => {
             let playerSocket = io.sockets.sockets.get(player.getSocketId());
             if (playerSocket) {
               playerSocket.leave(roomId);
-              playerSocket.emit("roomClosed");
             }
           }
 

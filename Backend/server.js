@@ -769,7 +769,7 @@ io.on("connection", (socket) => {
               break;
 
             default:
-              for (let i = 0; i < numPlayer; i++) {
+              for (let i = 0; i < numPlayers; i++) {
                 rankValues.push(0);
               }
 

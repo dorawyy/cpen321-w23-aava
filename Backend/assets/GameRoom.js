@@ -170,8 +170,12 @@ class GameRoom {
   /* Player Interaction */
 
   /**
-   * Returns true if `username` is the username of the game room master,
+   * Purpose: Returns whether the username matches that of the game room master.
+   * @param {String} username The username to check 
+   * @returns {Boolean} True if `username` is the username of the game room master,
    * false otherwise.
+   * 
+   * ChatGPT usage: No
    */
   isGameMaster(username) {
     return this.roomPlayers[0].user.username === username;

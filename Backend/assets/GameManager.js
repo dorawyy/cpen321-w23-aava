@@ -357,7 +357,7 @@ class GameManager {
    * Purpose: Adds action to room
    * @param {String} roomCode
    * @param {PlayerAction} response
-   * @returns if all players in player list sent an action
+   * @returns {Boolean} if all players in player list sent an action
    *
    * ChatGPT usage: No
    */
@@ -383,9 +383,9 @@ class GameManager {
 
   /**
    * Purpose: updates player scores and returns new totals
-   * @param {*} roomCode
-   * @param {*} scores Map of username --> points gained
-   * @returns The new scores of all players
+   * @param {String} roomCode
+   * @param {Map} scores Map of username --> points gained
+   * @returns {Map} The new scores of all players
    *
    * ChatGPT usage: No
    */

@@ -438,7 +438,7 @@ io.on("connection", (socket) => {
 
     const room = gameManager.fetchRoomById(roomId);
 
-    if (room.isGameMaster(username)) {
+    if (room != undefined && room.isGameMaster(username)) {
       // Now remove all players from room.
       for (let player of room.getPlayers()) {
         const playerUsername = player.user.username;

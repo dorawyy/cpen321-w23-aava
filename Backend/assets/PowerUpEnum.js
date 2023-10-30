@@ -3,15 +3,15 @@
  */
 class PowerupEnum {
     /**
+     * The user gets double the points for that question round.
+     */
+    static DOUBLE_POINTS = 0;
+  
+    /**
      * Removes two of the incorrect answers, halving the number of
      * answer options (originally four) available to the user.
      */
-    static FIFTY_FIFTY = 0;
-  
-    /**
-     * The user gets double the points for that question round.
-     */
-    static DOUBLE_POINTS = 1;
+    static FIFTY_FIFTY = 1;
   
     /**
      * The user specifies which player to steal points from.

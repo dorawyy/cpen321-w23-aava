@@ -231,7 +231,6 @@ class GameManager {
   calculateScore(roomCode) {
     // Max Score per difficulty
     const scorePerDifficulty = { easy: 100, medium: 200, hard: 300 };
-
     //  Fetch room, if room not found, return error code 1
     const room = this.fetchRoom(roomCode);
     if (room === undefined) return { returnCode: 1, scores: [] };

@@ -444,7 +444,7 @@ io.on("connection", (socket) => {
     const username = message.username;
     const roomId = message.roomId;
 
-    const room = gameManager.fetchRoom(roomId);
+    const room = gameManager.fetchRoomById(roomId);
 
     if (room.isGameMaster(username)) {
       // Now remove all players from room.
@@ -495,7 +495,7 @@ io.on("connection", (socket) => {
     const username = message.username;
     const bannedUsername = message.playerToBanUsername;
 
-    const room = gameManager.fetchRoom(roomId);
+    const room = gameManager.fetchRoomById(roomId);
 
     if (!room.isGameMaster(username)) {
       socket.emit("error", {

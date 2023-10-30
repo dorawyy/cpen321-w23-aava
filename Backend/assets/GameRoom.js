@@ -62,9 +62,9 @@ class GameRoom {
    * Purpose: Returns the next question in the game and removes it from the list of questions
    * @param None
    * @returns {Question} The next question in the game
-   * 
+   *
    * ChatGPT usage: No
-   */ 
+   */
   getNextQuestion() {
     return this.gameQuestions.shift();
   }
@@ -73,7 +73,7 @@ class GameRoom {
    * Purpose: Updates the state of the room to the opposite of what it currently is
    * @param None
    * @returns {Number} The current state of the room
-   * 
+   *
    * ChatGPT usage: No
    */
   updateState() {
@@ -90,7 +90,7 @@ class GameRoom {
    * Purpose: Adds an Action to the Actions Array
    * @param {PlayerAction} [action]: The action to be added
    * @returns None
-   * 
+   *
    * ChatGPT usage: No
    */
   addAction(action) {
@@ -101,7 +101,7 @@ class GameRoom {
    * Purpose: Resets the Actions Array to be empty
    * @param None
    * @returns None
-   * 
+   *
    * ChatGPT usage: No
    */
   resetActions() {
@@ -112,7 +112,7 @@ class GameRoom {
    * Purpose: Updates the points of each player
    * @param {Map} [scores]: A map of usernames to points earned in the round
    * @returns {Array} An array of objects containing the username and final score of each player {username, FinalScore}
-   * 
+   *
    * ChatGPT usage: No
    */
   updateScores(scores) {
@@ -138,7 +138,7 @@ class GameRoom {
    * Purpose: Updates the list of questions in the game
    * @param {Array} [questions]: An array of Question objects
    * @returns None
-   * 
+   *
    * ChatGPT usage: No
    */
   updateGameQuestions(questions) {
@@ -149,7 +149,7 @@ class GameRoom {
    * Purpose: Returns the room Code (6 character HEX)
    * @param None
    * @returns {String} The room code
-   * 
+   *
    * ChatGPT usage: No
    */
   getCode() {
@@ -160,7 +160,7 @@ class GameRoom {
    * Purpose: Checks whether the room is currently in waiting
    * @param None
    * @returns {Boolean} True if the room is waiting, false if in progress
-   * 
+   *
    * ChatGPT usage: No
    */
   isIdle() {
@@ -181,7 +181,7 @@ class GameRoom {
    * Purpose: Returns the list of players in the game room
    * @param None
    * @returns {Array} An array of Player objects
-   * 
+   *
    * ChatGPT usage: No
    */
   getPlayers() {
@@ -192,8 +192,8 @@ class GameRoom {
    * Purpose: Fetches the player with `username` as the username
    * @param {String} [username]: The username of the player to be fetched
    * @returns {Player} The player with the given username
-   * 
-   * ChatGPT usage: ___
+   *
+   * ChatGPT usage: No
    */
   getPlayer(username) {
     const players = this.getPlayers();
@@ -209,8 +209,8 @@ class GameRoom {
    * new player.
    * @param {Player} [player]: the player to be added
    * @return {Boolean} true if the player was added successfully, false otherwise.
-   * 
-   * ChatGPT usage: ___
+   *
+   * ChatGPT usage: No
    */
   addPlayer(player) {
     if (this.roomPlayers.length < this.roomSettings.maxPlayers) {
@@ -225,8 +225,8 @@ class GameRoom {
    * Purpose: Removes a player from the game room
    * @param {User} [user]: the username of the player to be removed
    * @return None
-   * 
-   * ChatGPT usage: ___
+   *
+   * ChatGPT usage: No
    */
   removePlayer(username) {
     this.roomPlayers = this.roomPlayers.filter(
@@ -238,8 +238,8 @@ class GameRoom {
    * Purpose: Bans a user from the game room
    * @param {String} [username]: the username of the player to be banned
    * @return None
-   * 
-   * ChatGPT usage: ___
+   *
+   * ChatGPT usage: No
    */
   banPlayer(username) {
     this.bannedUsers.push(username);
@@ -249,7 +249,7 @@ class GameRoom {
    * Purpose; Checks whether a username is banned from this game room.
    * @param {String} [username] The username to check
    * @returns {Boolean} True if the username is banned, false otherwise
-   * 
+   *
    * ChatGPT usage: No
    */
   isUserBanned(username) {
@@ -303,9 +303,9 @@ class GameRoom {
    * Purpose: Returns the list of categories from settings
    * @param None
    * @returns {Array} An array of categories
-   * 
+   *
    * ChatGPT usage: No
-   */ 
+   */
   getCategorySetting() {
     return this.roomSettings.questionCategories;
   }
@@ -314,7 +314,7 @@ class GameRoom {
    * Purpose: Returns the difficulty from settings
    * @param None
    * @returns {String} The difficulty
-   * 
+   *
    * ChatGPT usage: No
    */
   getDifficultySetting() {
@@ -325,7 +325,7 @@ class GameRoom {
    * Purpose: Returns the max time per question from settings
    * @param None
    * @returns {Number} The time per question
-   * 
+   *
    * ChatGPT usage: No
    */
   getTimeSetting() {
@@ -336,7 +336,7 @@ class GameRoom {
    * Purpose: Returns the total number of questions from settings
    * @param None
    * @returns {Number} The total number of questions
-   * 
+   *
    * ChatGPT usage: No
    */
   getTotalQuestionsSetting() {
@@ -347,7 +347,7 @@ class GameRoom {
    * Purpose: Returns the time the room was made
    * @param None
    * @returns {Number} The time the room was made
-   * 
+   *
    * ChatGPT usage: No
    */
   getRoomCreationTime() {
@@ -358,7 +358,7 @@ class GameRoom {
    * Purpose: Returns the entire settings object of the room
    * @param None
    * @returns {Settings} The settings of the room
-   * 
+   *
    * ChatGPT usage: No
    */
   getSettings() {

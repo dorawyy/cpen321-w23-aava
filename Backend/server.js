@@ -27,8 +27,8 @@ const httpsServer = https.createServer(credentials, app);
 
 /**
  * Middleware to validate session token
- * 
- * ChatGPT usage: ___
+ *
+ * ChatGPT usage: Partial
  */
 app.use(express.json());
 app.use((req, res, next) => {
@@ -82,8 +82,8 @@ const server = httpsServer.listen(8081, "0.0.0.0", async () => {
  * This endpoint should be called after the client successfully logs in
  * to their Google Account, in which case the server will add the user to
  * the database.
- * 
- * ChatGPT usage: ___
+ *
+ * ChatGPT usage: No
  */
 app.post("/create-account", (req, res) => {
   const token = req.body.token;
@@ -124,8 +124,8 @@ app.post("/create-account", (req, res) => {
 
 /**
  * Logs the user in, generating a new session token for use in future API calls.
- * 
- * ChatGPT usage: ___
+ *
+ * ChatGPT usage: Partial
  */
 app.post("/login", (req, res) => {
   const token = req.body.token;
@@ -157,8 +157,8 @@ app.post("/login", (req, res) => {
 
 /**
  * Logs the user out, destroying their session token.
- * 
- * ChatGPT usage: ___
+ *
+ * ChatGPT usage: No
  */
 app.post("/logout", (req, res) => {
   userDBManager.setUserSessionToken(loggedInUser.token, null).then(
@@ -176,8 +176,8 @@ app.post("/logout", (req, res) => {
 /**
  * Puts the user in a random active game room. The user will only
  * be put in a game room that is marked as public.
- * 
- * ChatGPT usage: ___
+ *
+ * ChatGPT usage: No
  */
 app.post("/join-random-room", (req, res) => {
   const user = req.user;
@@ -256,8 +256,8 @@ app.post("/join-random-room", (req, res) => {
 
 /**
  * Allows a user to join an active game room via code.
- * 
- * ChatGPT usage: ___
+ *
+ * ChatGPT usage: Partial
  */
 app.post("/join-room-by-code", (req, res) => {
   const user = req.user;
@@ -292,8 +292,8 @@ app.post("/join-room-by-code", (req, res) => {
 
 /**
  * Creates a new Game Room for the user, who will be the game master.
- * 
- * ChatGPT usage: ___
+ *
+ * ChatGPT usage: No
  */
 app.post("/create-room", (req, res) => {
   const user = req.user;
@@ -302,7 +302,7 @@ app.post("/create-room", (req, res) => {
 
   const room = gameManager.createGameRoom(gameMaster);
 
-  res.status(200).send({roomId: room.roomId});
+  res.status(200).send({ roomId: room.roomId });
 });
 
 // Delay between start of game and question
@@ -316,11 +316,11 @@ const io = require("socket.io")(server, {
 
 /**
  * Purpose: Sends the next question to the client
- * @param {Socket} socket : one of sokcets in the gameRoom 
- * @param {String} roomCode: the room code of the game room 
- * @param {String} roomId: the socket room id of the game room 
+ * @param {Socket} socket : one of sokcets in the gameRoom
+ * @param {String} roomCode: the room code of the game room
+ * @param {String} roomId: the socket room id of the game room
  * @return None
- * 
+ *
  * ChatGPT usage: No
  */
 const sendQuestion = (socket, roomCode, roomId) => {
@@ -424,7 +424,7 @@ io.on("connection", (socket) => {
       roomPlayers: playersJson,
       roomCode: room.roomCode,
       roomSettings: roomSettings,
-      possibleCategories: gameManager.possibleCategories
+      possibleCategories: gameManager.possibleCategories,
     });
 
     // Notify players in the room that a new player has joined
@@ -485,7 +485,7 @@ io.on("connection", (socket) => {
   });
 
   /**
-   * Purpose: Permanently Removes Client From the Room 
+   * Purpose: Permanently Removes Client From the Room
    * ChatGPT usage: No
    */
   socket.on("banPlayer", async (message) => {
@@ -674,7 +674,7 @@ io.on("connection", (socket) => {
    * Purpose: Receives the answer action from client and adds it to an actions array
    *          Once receieved all answers, calculates the score and sends it to the client
    *          Sends Next Question, or ends game if no more questions
-   * ChatGPT usage: No  
+   * ChatGPT usage: No
    */
   socket.on("submitAnswer", (message) => {
     console.log("Submitting answer...");
@@ -710,10 +710,14 @@ io.on("connection", (socket) => {
 
         // Format Points per round response and send
         let scores = [];
-        totalScores.forEach(score => {
+        totalScores.forEach((score) => {
           let pointsEarned = scoreGain.get(score.username);
-          scores.push({ username: score.username, pointsEarned, updatedTotalPoints: score.finalScore });
-        })
+          scores.push({
+            username: score.username,
+            pointsEarned,
+            updatedTotalPoints: score.finalScore,
+          });
+        });
 
         const scoresData = { scores };
 

@@ -231,7 +231,6 @@ class GameManager {
   calculateScore(roomCode) {
     // Max Score per difficulty
     const scorePerDifficulty = { easy: 100, medium: 200, hard: 300 };
-    console.log("Calculating Score")
     //  Fetch room, if room not found, return error code 1
     const room = this.fetchRoom(roomCode);
     if (room === undefined) return { returnCode: 1, scores: [] };
@@ -271,7 +270,6 @@ class GameManager {
         totalScores.set(action.getPlayer(), score);
       }
     });
-    console.log(totalScores);
 
     // Calculate Free Lunch powerup
     // Get List of all non zero player scores and find the lowest (if no scores, lowest is 0)
@@ -283,7 +281,6 @@ class GameManager {
         totalScores.set(action.getPlayer(), lowestScore);
       }
     });
-    console.log(totalScores);
 
     // Calculate Steal Points powerup
     actions.forEach((action) => {
@@ -293,7 +290,6 @@ class GameManager {
         victimToThieves.set(action.getVictim(), thieves);
       }
     });
-    console.log(victimToThieves);
 
     // Calculate the stolen scores
     victimToThieves.forEach((thieves, victim) => {
@@ -306,13 +302,11 @@ class GameManager {
         stolenScores.set(victim, stolenScores.get(victim) - stolenScore);
       }
     });
-    console.log(stolenScores);
 
     // Add the stolen scores to the total scores
     totalScores.forEach((score, username) => {
       totalScores.set(username, score + stolenScores.get(username));
     });
-    console.log(totalScores);
 
     return { returnCode: 0, scores: totalScores };
   }

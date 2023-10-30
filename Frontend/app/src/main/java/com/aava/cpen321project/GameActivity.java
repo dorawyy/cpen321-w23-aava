@@ -817,8 +817,8 @@ public class GameActivity extends AppCompatActivity {
     private void getSetActivityParameters() {
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            username = bundle.getString("username");
-            sessionToken = bundle.getString("sessionToken");
+            //username = bundle.getString("username");
+            //sessionToken = bundle.getString("sessionToken");
             roomCode = bundle.getString("roomCode");
             roomId = bundle.getString("roomId");
             isOwner = bundle.getBoolean("isOwner");

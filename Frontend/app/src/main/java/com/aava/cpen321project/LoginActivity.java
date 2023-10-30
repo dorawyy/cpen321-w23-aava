@@ -29,6 +29,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import okhttp3.OkHttpClient;
 import okhttp3.MediaType;
@@ -47,8 +54,12 @@ public class LoginActivity extends AppCompatActivity {
     private GoogleSignInClient mGoogleSignInClient;
 
     //private Socket socket;
-    String serverBaseUrl = "https://35.212.247.165:8081";
+    String serverBaseUrl = "https://35.212.247.165:8081/";
     private OkHttpClient httpClient = new OkHttpClient();
+
+    private String userToken;
+
+    private String userName;
 
 
     @Override
@@ -61,27 +72,33 @@ public class LoginActivity extends AppCompatActivity {
 
                 // Configure sign-in to request the user's ID, email address, and basic
                 // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
-                GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                        .requestEmail()
-                        .build();
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.server_client_id))
+                .requestEmail()
+                .build();
 
-                mGoogleSignInClient = GoogleSignIn.getClient(this,gso);
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this,gso);
 
                 findViewById(R.id.signin_button).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        createAccount("testToken","testUsername"); //TODO Test back-end here
+                        //login("token-3");
+                        //createAccount("token-3","name-3");
+                        //login("testtoken"); //TODO Test back-end here
+                        Log.d(TAG,"Reached click");
 
-                        final String userN = "testUsername"; ///use it test for test
-                        Intent serverIntent = new Intent(LoginActivity.this, MenuActivity.class);
-                        serverIntent.putExtra("username", userN);
-                        serverIntent.putExtra("sessionToken", "testToken");
-                        startActivity(serverIntent);
+//                        final String userN = "testUsername"; ///use it test for test
+//                        Intent serverIntent = new Intent(LoginActivity.this, MenuActivity.class);
+//                        serverIntent.putExtra("username", userN);
+//                        serverIntent.putExtra("sessionToken", "testToken");
+//                        startActivity(serverIntent);
 
-                        //signIn();
+                        signIn();
 
                     }
                 });
+
 
         }
 
@@ -117,7 +134,7 @@ public class LoginActivity extends AppCompatActivity {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
             Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
-            loggedIn(null);
+            //loggedIn(null);
         }
     }
 
@@ -141,12 +158,12 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d(TAG, "Display URL: " + account.getPhotoUrl());
                 Log.d(TAG, "Given Name: " + account.getGivenName());
 
-                String token = account.getIdToken();
+                userToken = account.getIdToken();
                 //sendTokenToBackend(token);
+                Log.d(TAG,"userToken from google" + userToken);
 
-                login(token);
-
-                final String userN = account.getGivenName() + account.getFamilyName();
+                userName = account.getGivenName() + account.getFamilyName();
+                login(userToken, userName);
                 //Take the logged in user to Menu
 
 //                Intent serverIntent = new Intent(LoginActivity.this, MenuActivity.class);
@@ -158,11 +175,6 @@ public class LoginActivity extends AppCompatActivity {
         }
 
 
-//    private void initializeSocket() {
-//        socket = SocketManager.getInstance();
-//        socket.on(Socket.EVENT_CONNECT, args -> Log.d(TAG, "Connected!"));
-//        socket.connect();
-//    }
 
     private void createAccount(String gtoken, String gusername) {
         try {
@@ -172,21 +184,26 @@ public class LoginActivity extends AppCompatActivity {
 
             RequestBody body = RequestBody.create(MediaType.parse("application/json"), data.toString());
             Request request = new Request.Builder()
-                    .url(serverBaseUrl + "/create-account") // update with your endpoint
+                    .url("https://35.212.247.165:8081/create-account")
                     .post(body)
                     .build();
 
-            httpClient.newCall(request).enqueue(new okhttp3.Callback() {
+            OkHttpClient insecureClient = getInsecureOkHttpClient();
+            insecureClient.newCall(request).enqueue(new okhttp3.Callback() {
                 @Override
                 public void onFailure(okhttp3.Call call, IOException e) {
                     e.printStackTrace();
                     // Handle failure
+                    Log.e(TAG, "httpClient onFailure", e);
                 }
 
                 @Override
                 public void onResponse(okhttp3.Call call, Response response) throws IOException {
                     if (!response.isSuccessful()) {
                         // Handle error
+                        Log.d(TAG, "HTTP Error: " + response.code());
+                        Log.d(TAG, "Error receiving response form back end");
+                        Log.e(TAG,""+ response.body().string());
                         return;
                     }
 
@@ -197,10 +214,12 @@ public class LoginActivity extends AppCompatActivity {
                             if (responseObject.has("token")) {
                                 String userToken = responseObject.getString("token");
                                 String username = responseObject.getString("username");
-                                int totalPoints = responseObject.getInt("totalPoints");
-                                // Handle success, update UI, etc.
-                                Log.d(TAG, "Created account backend: " + username);
-                                navigateToMenuActivity(username, userToken, totalPoints);
+
+                                // Handle success and update UI
+                                Log.d(TAG, "Created account backend: " + username + userToken);
+                                login(userToken,username);
+
+                                //TODO add message to user
                             } else if (responseObject.has("message")) {
                                 // Handle error
                                 String message = responseObject.getString("message");
@@ -220,28 +239,36 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void login(String token) {
+
+    private void login(String token, String userName) {
         try {
             JSONObject data = new JSONObject();
             data.put("token", token);
 
             RequestBody body = RequestBody.create(MediaType.parse("application/json"), data.toString());
             Request request = new Request.Builder()
-                    .url(serverBaseUrl + "/login") // update with your endpoint
+                    .url("https://35.212.247.165:8081/login") // update with your endpoint
                     .post(body)
                     .build();
 
-            httpClient.newCall(request).enqueue(new okhttp3.Callback() {
+            OkHttpClient insecureClient = getInsecureOkHttpClient();
+
+            insecureClient.newCall(request).enqueue(new okhttp3.Callback() {
                 @Override
                 public void onFailure(okhttp3.Call call, IOException e) {
                     e.printStackTrace();
                     // Handle failure
+                    Log.e(TAG, "httpClient onFailure", e);
+
                 }
 
                 @Override
                 public void onResponse(okhttp3.Call call, Response response) throws IOException {
                     if (!response.isSuccessful()) {
                         // Handle error
+                        Log.d(TAG, "HTTP Error: " + response.code());
+                        Log.d(TAG, "check parameters " + token + " username" + userName);
+                        //createAccount(token, userName);
                         return;
                     }
 
@@ -252,14 +279,27 @@ public class LoginActivity extends AppCompatActivity {
                             if (responseObject.has("token")) {
                                 String userToken = responseObject.getString("token");
                                 String username = responseObject.getString("username");
-                                int totalPoints = responseObject.getInt("totalPoints");
+//                                int totalPoints;
+//                                if (responseObject.has("totalPoints")) {
+//                                    totalPoints = responseObject.getInt("totalPoints");
+//                                    // Use totalPoints as needed
+//                                } else {
+//                                    // Handle the absence of totalPoints
+//                                    // For example, you can set a default value or log a message
+//                                    totalPoints = 0; // or some other default value
+//                                    Log.d(TAG, "totalPoints not present in response, using default value: " + totalPoints);
+//                                }
                                 String sessionToken = responseObject.getString("sessionToken");
+                                navigateToMenuActivity(username, userToken, sessionToken);
                                 // Handle success, update UI, store session token, etc.
                             } else if (responseObject.has("message")) {
                                 // Handle error
                                 String message = responseObject.getString("message");
-                                Log.e(TAG, "Error logging in: " + message);
+                                Log.d(TAG, "Error logging in: " + message);
                                 // Update UI to show error message, etc.
+                                if(message.equals("Unable to find the user for this account.")){
+                                    createAccount(token, userName);
+                                }
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -274,13 +314,54 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void navigateToMenuActivity(String username, String userToken, int totalPoints) {
+    private void navigateToMenuActivity(String userName, String userToken, String sessionToken) {
         Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
-        intent.putExtra("username", username);
-        intent.putExtra("sessionToken", userToken);
-        intent.putExtra("totalPoints", totalPoints);
+        intent.putExtra("userName", userName);
+        intent.putExtra("userToken", userToken);
+        intent.putExtra("sessionToken", sessionToken);
         startActivity(intent);
     }
+
+
+
+
+        public static OkHttpClient getInsecureOkHttpClient() {
+            try {
+                // Create a trust manager that does not validate certificate chains
+                final TrustManager[] trustAllCerts = new TrustManager[]{
+                        new X509TrustManager() {
+                            @Override
+                            public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                            }
+
+                            @Override
+                            public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                            }
+
+                            @Override
+                            public X509Certificate[] getAcceptedIssuers() {
+                                return new X509Certificate[]{};
+                            }
+                        }
+                };
+
+                // Install the all-trusting trust manager
+                final SSLContext sslContext = SSLContext.getInstance("SSL");
+                sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+
+                // Create an ssl socket factory with our all-trusting manager
+                final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+
+                OkHttpClient.Builder builder = new OkHttpClient.Builder();
+                builder.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0]);
+                builder.hostnameVerifier((hostname, session) -> true);
+
+                return builder.build();
+
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
 
 
 

@@ -302,18 +302,7 @@ app.post("/create-room", (req, res) => {
 
   const room = gameManager.createGameRoom(gameMaster);
 
-  res.status(200).send({
-    roomPlayers: [
-      {
-        username: user.username,
-        rank: user.rank,
-      },
-    ],
-    roomCode: room.roomCode,
-    roomId: room.roomId,
-    roomSettings: room.roomSettings,
-    gameQuestions: [],
-  });
+  res.status(200).send({roomId: room.roomId});
 });
 
 // Delay between start of game and question
@@ -435,6 +424,7 @@ io.on("connection", (socket) => {
       roomPlayers: playersJson,
       roomCode: room.roomCode,
       roomSettings: roomSettings,
+      possibleCategories: gameManager.possibleCategories
     });
 
     // Notify players in the room that a new player has joined

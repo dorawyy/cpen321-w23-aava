@@ -48,14 +48,14 @@ class UserDBManager {
   }
 
   /**
-   * Purpose: Updates the rank of a user in UserDB
+   * Purpose: Updates a user's session token in UserDB
+   * @param {String} token: The unique token for the user (UNIQUE)
+   * @param {String} sessionToken: The session token for the user (UNIQUE)
+   * @returns {User} The updated user as a User object if successful
+   *                 Undefined if user with 'token' is not found
+   * @throws {Error} if Any other error occurs
    * 
-   * 
-   * Updates a User's session token and returns the User after the update.
-   *
-   * If the User entry with token matching `token` cannot be found,
-   * returns undefined.
-   * Throws an error if any other errors occur.
+   * ChatGPT usage: ___
    */
   async setUserSessionToken(token, sessionToken) {
     try {
@@ -80,10 +80,12 @@ class UserDBManager {
   }
 
   /**
-   * Returns a User entry from UserDB that has a session token
-   * matching `sessionToken`.
-   *
-   * If the User entry cannot be found, returns undefined.
+   * Purpose: Finds a User using a given session token
+   * @param {String} sessionToken: The session token for the user (UNIQUE)
+   * @returns {User} The user as a User object if successful
+   *                Undefined if user with 'sessionToken' is not found
+   * 
+   * ChatGPT usage: ___
    */
   async getUserBySessionToken(sessionToken) {
     const user = await this.usersCollection.findOne({
@@ -97,6 +99,14 @@ class UserDBManager {
     }
   }
 
+  /**
+   * Purpose: Finds a User using username
+   * @param {String} username: The username for the user (NOT UNIQUE)
+   * @returns {User} The user as a User object if successful
+   *               Undefined if user with 'username' is not found
+   * 
+   * ChatGPT usage: ___
+   */
   async getUserByUsername(username) {
     const user = await this.usersCollection.findOne({ username: username });
 

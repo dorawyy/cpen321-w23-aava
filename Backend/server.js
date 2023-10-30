@@ -13,6 +13,7 @@ const UserDBManager = require("./assets/UserDBManager.js");
 const Player = require("./assets/Player.js");
 const User = require("./assets/User.js");
 const PlayerAction = require("./assets/PlayerAction.js");
+const { Socket } = require("socket.io");
 
 let gameManager = new GameManager();
 let userDBManager = new UserDBManager(db.getUsersCollection());
@@ -24,7 +25,11 @@ const certificate = fs.readFileSync("./cert.pem", "utf8");
 const credentials = { key: privateKey, cert: certificate };
 const httpsServer = https.createServer(credentials, app);
 
-// Middleware to validate session token
+/**
+ * Middleware to validate session token
+ * 
+ * ChatGPT usage: ___
+ */
 app.use(express.json());
 app.use((req, res, next) => {
   // Exclude the middleware for /login and /create-account
@@ -77,6 +82,8 @@ const server = httpsServer.listen(8081, "0.0.0.0", async () => {
  * This endpoint should be called after the client successfully logs in
  * to their Google Account, in which case the server will add the user to
  * the database.
+ * 
+ * ChatGPT usage: ___
  */
 app.post("/create-account", (req, res) => {
   const token = req.body.token;
@@ -117,6 +124,8 @@ app.post("/create-account", (req, res) => {
 
 /**
  * Logs the user in, generating a new session token for use in future API calls.
+ * 
+ * ChatGPT usage: ___
  */
 app.post("/login", (req, res) => {
   const token = req.body.token;
@@ -148,6 +157,8 @@ app.post("/login", (req, res) => {
 
 /**
  * Logs the user out, destroying their session token.
+ * 
+ * ChatGPT usage: ___
  */
 app.post("/logout", (req, res) => {
   userDBManager.setUserSessionToken(loggedInUser.token, null).then(
@@ -165,6 +176,8 @@ app.post("/logout", (req, res) => {
 /**
  * Puts the user in a random active game room. The user will only
  * be put in a game room that is marked as public.
+ * 
+ * ChatGPT usage: ___
  */
 app.post("/join-random-room", (req, res) => {
   const user = req.user;
@@ -243,6 +256,8 @@ app.post("/join-random-room", (req, res) => {
 
 /**
  * Allows a user to join an active game room via code.
+ * 
+ * ChatGPT usage: ___
  */
 app.post("/join-room-by-code", (req, res) => {
   const user = req.user;
@@ -277,6 +292,8 @@ app.post("/join-room-by-code", (req, res) => {
 
 /**
  * Creates a new Game Room for the user, who will be the game master.
+ * 
+ * ChatGPT usage: ___
  */
 app.post("/create-room", (req, res) => {
   const user = req.user;
@@ -308,6 +325,15 @@ const io = require("socket.io")(server, {
   },
 });
 
+/**
+ * Purpose: Sends the next question to the client
+ * @param {Socket} socket : one of sokcets in the gameRoom 
+ * @param {String} roomCode: the room code of the game room 
+ * @param {String} roomId: the socket room id of the game room 
+ * @return None
+ * 
+ * ChatGPT usage: No
+ */
 const sendQuestion = (socket, roomCode, roomId) => {
   gameManager.resetResponses(roomCode);
   const questionObject = gameManager.fetchNextQuestion(roomCode);
@@ -329,6 +355,10 @@ const sendQuestion = (socket, roomCode, roomId) => {
   console.log(JSON.stringify(questionData));
 };
 
+/**
+ * Purpose: Handles socket connections
+ * ChatGPT usage: No
+ */
 io.on("connection", (socket) => {
   console.log("A user connected");
 
@@ -350,6 +380,10 @@ io.on("connection", (socket) => {
     }
   });
 
+  /**
+   * Purpose: Attaches client's socket connection to a socket room
+   * ChatGPT usage: No
+   */
   socket.on("joinRoom", (message) => {
     console.log("Joining room...");
 
@@ -410,6 +444,10 @@ io.on("connection", (socket) => {
     });
   });
 
+  /**
+   * Purpose: Removes Client From the Room
+   * ChatGPT usage: No
+   */
   socket.on("leaveRoom", (message) => {
     console.log("Leaving room...");
 
@@ -456,6 +494,10 @@ io.on("connection", (socket) => {
     }
   });
 
+  /**
+   * Purpose: Permanently Removes Client From the Room 
+   * ChatGPT usage: No
+   */
   socket.on("banPlayer", async (message) => {
     console.log("Banning player...");
 
@@ -494,6 +536,10 @@ io.on("connection", (socket) => {
     });
   });
 
+  /**
+   * Purpose: Updates setting of the room
+   * ChatGPT usage: No
+   */
   socket.on("changeSetting", (message) => {
     console.log("Changing game settings...");
 
@@ -593,6 +639,10 @@ io.on("connection", (socket) => {
     }
   });
 
+  /**
+   * Purpose: Receievs signal that a player is ready
+   * ChatGPT usage: No
+   */
   socket.on("readyToStartGame", async (message) => {
     console.log("Player is ready to start game...");
 
@@ -604,6 +654,10 @@ io.on("connection", (socket) => {
       .emit("playerReadyToStartGame", { playerUsername: username });
   });
 
+  /**
+   * Purpose: Initiates the variables to start the game and sends the first question
+   * ChatGPT usage: No
+   */
   socket.on("startGame", (message) => {
     console.log("starting game...");
     const roomId = message.roomId;
@@ -626,6 +680,12 @@ io.on("connection", (socket) => {
       });
   });
 
+  /**
+   * Purpose: Receives the answer action from client and adds it to an actions array
+   *          Once receieved all answers, calculates the score and sends it to the client
+   *          Sends Next Question, or ends game if no more questions
+   * ChatGPT usage: No  
+   */
   socket.on("submitAnswer", (message) => {
     console.log("Submitting answer...");
 
@@ -685,6 +745,10 @@ io.on("connection", (socket) => {
     }
   });
 
+  /**
+   * Purpose: Sends Emotes Between Users
+   * ChatGPT usage: No
+   */
   socket.on("submitEmote", (message) => {
     console.log("Submitting emote...");
 

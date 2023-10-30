@@ -6,8 +6,11 @@ const client = new MongoClient(uri);
 const database = client.db(databaseName);
 
 /**
- * Attempts to connect to the database.
- * Returns true if successful, otherwise returns false.
+ * Purpose: Attempts to connect to the database.
+ * @param None
+ * @returns {boolean} True if successful, otherwise false.
+ * 
+ * ChatGPT usage: No
  */
 async function connect() {
   try {
@@ -22,7 +25,11 @@ async function connect() {
 }
 
 /**
- * Returns the users collection from the database.
+ * Purpose: Get User Collection from Database
+ * @param None
+ * @returns {Collection} The users collection from the database.
+ * 
+ * ChatGPT usage: No
  */
 function getUsersCollection() {
   return database.collection("users");

@@ -138,6 +138,7 @@ public class GameActivity extends AppCompatActivity {
     private ImageView scoreboardGreaterImage;
     private TextView scoreboardRankLabel;
     private TextView scoreboardBlurbLabel;
+    private ImageView scoreboardLeaveImage;
 
     private ImageView powerup1Image;
     private ImageView powerup2Image;
@@ -164,7 +165,7 @@ public class GameActivity extends AppCompatActivity {
     private List<String> possibleCategories = new ArrayList<String>();
 
     // Constant options for room settings.
-    private String[] questionCountOptions = new String[] {"10", "15", "20"};
+    private String[] questionCountOptions = new String[] {"2", "10", "15", "20"};
     private String[] maxPlayerOptions = new String[] {"2", "3", "4", "5", "6"};
     private String[] timeLimitOptions = new String[] {"10", "15", "20", "25", "30"};
     private String[] publicOptions = new String[] {"Public", "Private"};
@@ -570,7 +571,7 @@ public class GameActivity extends AppCompatActivity {
                         case "timeLimit":
                             roomQuestionTime = data.getInt("optionValue");
                             break;
-                        case "numQuestions":
+                        case "total":
                             roomQuestionCount = data.getInt("optionValue");
                             break;
                         default: // Will be a category set
@@ -716,6 +717,15 @@ public class GameActivity extends AppCompatActivity {
 
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
+                    }
+
+                    // If the game is over...
+                    if (questionNumber == roomQuestionCount) {
+                        mSocket.disconnect();
+                        runOnUiThread(() -> {
+                            scoreboardLeaveImage.setVisibility(View.VISIBLE);
+                            scoreboardLeaveImage.setClickable(true);
+                        });
                     }
                 });
 
@@ -902,6 +912,7 @@ public class GameActivity extends AppCompatActivity {
         scoreboardGreaterImage = findViewById(R.id.game_scoreboard_greater_image);
         scoreboardRankLabel = findViewById(R.id.game_scoreboard_rank_label);
         scoreboardBlurbLabel = findViewById(R.id.game_scoreboard_blurb_label);
+        scoreboardLeaveImage = findViewById(R.id.game_scoreboard_leave_image);
 
         clickableViews = new HashMap<RelativeLayout, List<View>>() {{
             put(lobbyUniversalLayout, Arrays.asList());
@@ -1056,24 +1067,25 @@ public class GameActivity extends AppCompatActivity {
                                     }});
                                 }
                                 SparseBooleanArray indicesChosen = ((AlertDialog) dialogInterface).getListView().getCheckedItemPositions();
-                                for (int key = 0; key < indicesChosen.size(); key++) {
-                                    int index = indicesChosen.keyAt(key);
-                                    Log.d(TAG, "Chose category " + index);
-                                    String category = possibleCategories.get(index);
-                                    sendSocketJSON("changeSetting", new HashMap<String, Object>() {{
-                                        put("roomId", roomId);
-                                        put("settingOption", "category-" + category);
-                                        put("optionValue", true);
-                                    }});
-                                    categoryCount++;
-                                    if (categoryCount == 5) break;
-                                }
                                 if (indicesChosen.size() == 0) {
                                     sendSocketJSON("changeSetting", new HashMap<String, Object>() {{
                                         put("roomId", roomId);
                                         put("settingOption", "category-" + possibleCategories.get(0));
                                         put("optionValue", true);
                                     }});
+                                } else {
+                                    for (int key = 0; key < indicesChosen.size(); key++) {
+                                        int index = indicesChosen.keyAt(key);
+                                        Log.d(TAG, "Chose category " + index);
+                                        String category = possibleCategories.get(index);
+                                        sendSocketJSON("changeSetting", new HashMap<String, Object>() {{
+                                            put("roomId", roomId);
+                                            put("settingOption", "category-" + category);
+                                            put("optionValue", true);
+                                        }});
+                                        categoryCount++;
+                                        if (categoryCount == 5) break;
+                                    }
                                 }
                             }
                         })
@@ -1129,6 +1141,9 @@ public class GameActivity extends AppCompatActivity {
                 } else {
                     powerupCode = 5;
                 }
+            } else if (v == scoreboardLeaveImage) {
+                Intent intent = new Intent(GameActivity.this, MenuActivity.class);
+                startActivity(intent);
             }
         });
     }

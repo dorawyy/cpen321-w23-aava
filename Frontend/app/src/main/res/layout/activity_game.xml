@@ -1110,28 +1110,48 @@
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
                 android:src="@drawable/scoreboard_rect" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="40dp">
+
+                <ImageView
+                    android:id="@+id/game_scoreboard_leave_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:adjustViewBounds="true"
+                    android:src="@drawable/scoreboard_leave"
+                    android:focusable="true"
+                    android:clickable="false"
+                    android:visibility="invisible"
+                    android:onClick="onClick" />
+            </RelativeLayout>
         </RelativeLayout>
 
         <!-- PowerUp -->
         <RelativeLayout
             android:id="@+id/game_powerup_layout"
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginBottom="30dp"
             android:visibility="visible">
 
             <RelativeLayout
                 android:id="@+id/game_powerup_frame3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="86dp">
 
                 <ImageView
                     android:id="@+id/game_powerup_image3"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:scaleType="fitXY"
                     android:src="@drawable/powerup_on"
                     android:focusable="true"
@@ -1139,19 +1159,23 @@
                     android:onClick="onClick" />
             </RelativeLayout>
 
-            <ImageView
-                android:id="@+id/game_powerup_image2"
+            <RelativeLayout
+                android:id="@+id/game_powerup_frame2"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                android:layout_alignTop="@+id/game_powerup_frame3"
-                android:layout_marginTop="-42dp"
-                android:layout_marginEnd="10dp"
                 android:layout_toStartOf="@+id/game_powerup_frame3"
-                android:scaleType="fitXY"
-                android:src="@drawable/powerup_on"
-                android:focusable="true"
-                android:clickable="true"
-                android:onClick="onClick" />
+                android:layout_above="@+id/game_powerup_frame3">
+
+                <ImageView
+                    android:id="@+id/game_powerup_image2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/powerup_on"
+                    android:focusable="true"
+                    android:clickable="true"
+                    android:onClick="onClick" />
+            </RelativeLayout>
 
             <ImageView
                 android:id="@+id/game_powerup_image1"

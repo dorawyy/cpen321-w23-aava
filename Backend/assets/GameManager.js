@@ -7,6 +7,9 @@ const { v4: uuidv4 } = require("uuid");
 const Player = require("./Player.js");
 const User = require("./User.js");
 
+/**
+ * Purpose: This class provides functionality of the Game
+ */
 class GameManager {
   constructor() {
     this.roomCodeToGameRoom = new Map();
@@ -22,15 +25,19 @@ class GameManager {
    * Purpose: Gets a list of the current categories available
    * @param None
    * @return None
+   * 
+   * ChatGPT usage: No
    */
-  updateCategories() {
-    this.possibleCategories = this.questionGenerator.getCategories();
+  updateCategories = async () => {
+    this.possibleCategories = await this.questionGenerator.getCategories();
   }
 
   /**
    * Purpose: Creates a new game room with a unique identifer (6 character HEX)
    * @param {Player} [gameMaster]: Player object of the user who created a room
    * @return {GameRoom} The game room that was created
+   * 
+   * ChatGPT usage: Partial
    */
   createGameRoom(gameMaster) {
     // Generate a unique code
@@ -91,6 +98,8 @@ class GameManager {
    * Purpose: Fetches the game room with the given room code
    * @param {String} [roomCode]: the room code of the game room
    * @return {GameRoom} The game room that was fetched
+   * 
+   * ChatGPT usage: No
    */
   fetchRoom(roomCode) {
     return this.roomCodeToGameRoom.get(roomCode);
@@ -101,6 +110,8 @@ class GameManager {
    * matches roomId, returns undefined.
    * @param {String} [roomId]: The unique id of the game room to get
    * @return {GameRoom} The game room with id matching roomId
+   * 
+   * ChatGPT usage: ___
    */
   fetchRoomById(roomId) {
     return [...this.roomCodeToGameRoom.values()].find(
@@ -113,6 +124,8 @@ class GameManager {
    * must not be any players in the room before calling this function.
    * @param {String} [roomId]: The unique id of the game room to remove.
    * @return {Boolean} True if room was removed successfully, false otherwise.
+   * 
+   * ChatGPT usage: ___
    */
   removeRoomById(roomId) {
     const roomToRemove = this.fetchRoomById(roomId);
@@ -123,9 +136,11 @@ class GameManager {
   /**
    * Purpose: Returns all the public game rooms that still have
    * space for new users to join.
-   *
+   * @param None
    * @return {Array[GameRoom]} All the public game rooms with space
    * for additional players.
+   * 
+   * ChatGPT usage: ___
    */
   getAvailableRooms() {
     return [...this.roomCodeToGameRoom.values()].filter(
@@ -140,6 +155,8 @@ class GameManager {
    * Purpose: Gets a list of questions for the game room based on its settings
    * @param {String} [roomCode]: the room code of the game room
    * @return {Number} 0 for success, 1 for room not found, 2 for no categories selected
+   * 
+   * ChatGPT usage: Partial
    */
   generateQuestions(roomCode) {
     return new Promise((resolve, reject) => {
@@ -208,6 +225,8 @@ class GameManager {
    * @return {Object} Object containing return code and map of player username to scores:
    *                 returnCode: 0 for success, 1 for room not found
    *                 scores: Map of player users to scores
+   * 
+   * ChatGPT usage: No
    */
   calculateScore(roomCode) {
     // Max Score per difficulty
@@ -295,6 +314,13 @@ class GameManager {
 
   /* Room Interaction Stuff */
 
+  /**
+   * Purpose: Changes room between WAITING and IN_PROGRESS
+   * @param {String} roomCode 
+   * @returns the new State of the room
+   * 
+   * ChatGPT usage: No
+   */
   updateRoomState(roomCode) {
     let room = this.fetchRoom(roomCode);
     const newState = room.updateState();
@@ -302,6 +328,13 @@ class GameManager {
     return newState;
   }
 
+  /**
+   * Purpose: Gets the next question of the room
+   * @param {String} roomCode
+   * @returns {Question} the next question of the room
+   * 
+   * ChatGPT usage: No
+   */
   fetchNextQuestion(roomCode) {
     let room = this.fetchRoom(roomCode);
     let question = room.getNextQuestion();
@@ -309,6 +342,13 @@ class GameManager {
     return question;
   }
 
+  /**
+   * Purpose: Gets the number of questions in the room
+   * @param {String} roomCode
+   * @returns {Number} the number of questions in the room
+   * 
+   * ChatGPT usage: No
+   */
   fetchQuestionsQuantity(roomCode) {
     let room = this.fetchRoom(roomCode);
     return room.gameQuestions.length;
@@ -316,9 +356,11 @@ class GameManager {
 
   /**
    * Purpose: Adds action to room
-   * @param {*} roomCode
-   * @param {*} response
+   * @param {String} roomCode
+   * @param {PlayerAction} response
    * @returns if all players in player list sent an action
+   * 
+   * ChatGPT usage: No
    */
   addResponseToRoom(roomCode, response) {
     let room = this.fetchRoom(roomCode);
@@ -327,6 +369,13 @@ class GameManager {
     return room.actionsArray.length == room.getPlayers().length;
   }
 
+  /**
+   * Purpose: Resets the actions array of the room
+   * @param {String} roomCode
+   * @returns None
+   * 
+   * ChatGPT usage: No
+   */
   resetResponses(roomCode) {
     let room = this.fetchRoom(roomCode);
     room.resetActions();
@@ -337,7 +386,9 @@ class GameManager {
    * Purpose: updates player scores and returns new totals
    * @param {*} roomCode
    * @param {*} scores Map of username --> points gained
-   * @returns
+   * @returns The new scores of all players 
+   * 
+   * ChatGPT usage: No
    */
   addToPlayerScore = (roomCode, scores) => {
     let room = this.fetchRoom(roomCode);

@@ -16,15 +16,14 @@ class UserDBManager {
   }
 
   /**
-   * A new User entry is created in UserDB with the username
-   * specified by `username`.
+   * Purpose: Creates a new entry in UserDB with username and a unique token
+   * @param {String} token: The unique token for the user (UNIQUE)
+   * @param {String} username: The username for the user (NOT UNIQUE - can be same as for multiple users)
+   * @returns {User} The newly created user as a User object if successful
+   *                 Undefined if unsuccessful
+   * @throws {Error} If a user already exists with the same token
    *
-   * A unique token is generated for this new user, so `username`
-   * does not need to be unique (i.e. more than one user can have
-   * the same `username`).
-   *
-   * Returns the newly-created User object, or undefined if unsuccessful.
-   * Throws an error if a user already exists with the same token.
+   * ChatGPT usage: ___
    */
   async createNewUser(token, username) {
     // Check if a user already exists with the same token or username
@@ -49,11 +48,14 @@ class UserDBManager {
   }
 
   /**
-   * Updates a User's session token and returns the User after the update.
+   * Purpose: Updates a user's session token in UserDB
+   * @param {String} token: The unique token for the user (UNIQUE)
+   * @param {String} sessionToken: The session token for the user (UNIQUE)
+   * @returns {User} The updated user as a User object if successful
+   *                 Undefined if user with 'token' is not found
+   * @throws {Error} if Any other error occurs
    *
-   * If the User entry with token matching `token` cannot be found,
-   * returns undefined.
-   * Throws an error if any other errors occur.
+   * ChatGPT usage: ___
    */
   async setUserSessionToken(token, sessionToken) {
     try {
@@ -78,10 +80,12 @@ class UserDBManager {
   }
 
   /**
-   * Returns a User entry from UserDB that has a session token
-   * matching `sessionToken`.
+   * Purpose: Finds a User using a given session token
+   * @param {String} sessionToken: The session token for the user (UNIQUE)
+   * @returns {User} The user as a User object if successful
+   *                Undefined if user with 'sessionToken' is not found
    *
-   * If the User entry cannot be found, returns undefined.
+   * ChatGPT usage: ___
    */
   async getUserBySessionToken(sessionToken) {
     const user = await this.usersCollection.findOne({
@@ -96,7 +100,12 @@ class UserDBManager {
   }
 
   /**
-   * TODO
+   * Purpose: Finds a User using username
+   * @param {String} username: The username for the user (NOT UNIQUE)
+   * @returns {User} The user as a User object if successful
+   *               Undefined if user with 'username' is not found
+   *
+   * ChatGPT usage: ___
    */
   async getUserByUsername(username) {
     const user = await this.usersCollection.findOne({ username: username });

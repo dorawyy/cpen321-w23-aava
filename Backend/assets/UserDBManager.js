@@ -131,11 +131,7 @@ class UserDBManager {
 
     return this.usersCollection
       .updateOne({ username: username }, { $inc: { rank: value } })
-      .then((incrementResult) => {
-        if (incrementResult.modifiedCount === 0) {
-          throw new Error("User not found.");
-        }
-
+      .then((_) => {
         if (value < 0) {
           return this.usersCollection.updateOne(
             { username: username, rank: { $lt: 0 } },

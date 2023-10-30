@@ -397,6 +397,7 @@ io.on("connection", (socket) => {
       playersJson.push({
         username: player.user.username,
         rank: player.user.rank,
+        isReady: player.isReady,
       });
 
       if (player.user.username === message.username) {
@@ -410,7 +411,6 @@ io.on("connection", (socket) => {
         );
 
         player.setSocketId(socket.id);
-        console.log("set player's socket id to " + player.getSocketId());
       }
     }
 
@@ -422,7 +422,6 @@ io.on("connection", (socket) => {
     // Send Room Data to Player
     socket.emit("welcomeNewPlayer", {
       roomPlayers: playersJson,
-      roomCode: room.roomCode,
       roomSettings: roomSettings,
       possibleCategories: gameManager.possibleCategories,
     });
@@ -638,6 +637,18 @@ io.on("connection", (socket) => {
 
     const roomId = message.roomId;
     const username = message.username;
+
+    const room = gameManager.fetchRoomById(message.roomId);
+    const players = room.getPlayers();
+
+    for (let i = 0; i < players.length; i++) {
+      const player = players[i];
+
+      if (player.user.username === username) {
+        player.isReady = true;
+        break;
+      }
+    }
 
     socket
       .to(roomId)

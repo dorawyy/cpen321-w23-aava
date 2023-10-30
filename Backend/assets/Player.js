@@ -37,6 +37,11 @@ class Player {
      * When the player disconnects, this field is set back to null.
      */
     this.socketId = null;
+
+    /**
+     * Whether this player is ready to start the game.
+     */
+    this.isReady = false;
   }
 
   /**

@@ -562,12 +562,10 @@ io.on("connection", (socket) => {
         break;
 
       case settingOption.startsWith("category-"):
-        console.log("XXX: ");
         if (optionValue !== true && optionValue !== false) {
           console.log(optionValue)
           error = true;
         } else {
-          console.log("YYY: ");
           const categoryName = settingOption.split("-")[1];
           if (!gameManager.possibleCategories.includes(categoryName)) {
             error = true;

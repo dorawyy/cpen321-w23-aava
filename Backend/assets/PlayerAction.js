@@ -3,13 +3,7 @@
  * submits their answer to a question round.
  */
 class PlayerAction {
-  constructor(
-    mainPlayer,
-    timeDelay,
-    isCorrect,
-    powerupUsed,
-    powerupVictim
-  ) {
+  constructor(mainPlayer, timeDelay, isCorrect, powerupUsed, powerupVictim) {
     /**
      * The unique user token of the player who performed this
      * PlayerAction.
@@ -46,10 +40,10 @@ class PlayerAction {
   }
 
   /**
-   * Purpose: Gets list of players in the room
+   * Purpose: Gets the player that performed this PlayerAction
    * @param None
-   * @returns {String} The list of players in the room
-   * 
+   * @returns {String} The user token of the player
+   *
    * ChatGPT usage: No
    */
   getPlayer() {
@@ -60,7 +54,7 @@ class PlayerAction {
    * Purpose: Gets the time it took to answer the question
    * @param None
    * @returns {Number} The time it took to answer question
-   * 
+   *
    * ChatGPT usage: No
    */
   getDelay() {
@@ -71,7 +65,7 @@ class PlayerAction {
    * Purpose: Gets whether the answer was correct or not
    * @param None
    * @returns {Boolean} True if correct, false otherwise
-   * 
+   *
    * ChatGPT usage: No
    */
   getCorrect() {
@@ -82,7 +76,7 @@ class PlayerAction {
    * Purpose: Gets the powerup used
    * @param None
    * @returns {Number} The powerup used
-   * 
+   *
    * ChatGPT usage: No
    */
   getPowerup() {
@@ -92,14 +86,13 @@ class PlayerAction {
   /**
    * Purpose: Gets the victim of the powerup
    * @param None
-   * @returns {String} The victim of the powerup
-   * 
+   * @returns {String} The user token of the victim of the powerup
+   *
    * ChatGPT usage: No
    */
   getVictim() {
     return this.powerupVictim;
   }
-
 }
 
 module.exports = PlayerAction;

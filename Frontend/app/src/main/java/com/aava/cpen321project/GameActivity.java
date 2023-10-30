@@ -11,6 +11,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.text.Html;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.View;
@@ -258,7 +259,7 @@ public class GameActivity extends AppCompatActivity {
                 // Display the question and powerups but not the answers yet.
                 public void onFinish() {
                     // Set the descriptions for the header, question, and answers.
-                    questionLabel.setText(questionDescription);
+                    questionLabel.setText(Html.fromHtml(questionDescription).toString());
                     questionAnswer1Label.setText(answerDescriptions[0]);
                     questionAnswer2Label.setText(answerDescriptions[1]);
                     questionAnswer3Label.setText(answerDescriptions[2]);

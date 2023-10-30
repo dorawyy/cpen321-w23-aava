@@ -601,7 +601,7 @@ io.on("connection", (socket) => {
         }
         break;
 
-      case settingOption === "numQuestions":
+      case settingOption === "total":
         if (!gameManager.possibleNumberOfQuestions.includes(optionValue)) {
           error = true;
         } else {

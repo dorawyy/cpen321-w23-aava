@@ -1209,6 +1209,7 @@ public class GameActivity extends AppCompatActivity {
 
                 // Permanently disable the current powerup
                 v.setClickable(false);
+                ((ImageView) v).setImageResource(R.drawable.powerup_select);
                 remainingPowerups.remove((Integer) powerupCode);
 
                 // Disable the other powerups for the current round
@@ -1242,19 +1243,21 @@ public class GameActivity extends AppCompatActivity {
                     if (otherPlayerUsernames.size() == 0) {
                         Toast.makeText(this, "No other players!", Toast.LENGTH_SHORT).show();
                         powerupCode = -1;
+                    } else {
+                        otherPlayerUsernames.toArray(otherPlayerUsernamesArray);
+                        new AlertDialog.Builder(this)
+                                .setCancelable(false)
+                                .setTitle("Select Victim")
+                                .setSingleChoiceItems(otherPlayerUsernamesArray, 0, null)
+                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        dialogInterface.dismiss();
+                                        powerupVictimUsername = otherPlayerUsernames.get(((AlertDialog) dialogInterface).getListView().getCheckedItemPosition());
+                                    }
+                                })
+                                .show();
                     }
-                    otherPlayerUsernames.toArray(otherPlayerUsernamesArray);
-                    new AlertDialog.Builder(this)
-                            .setTitle("Select Victim")
-                            .setSingleChoiceItems(otherPlayerUsernamesArray, 0, null)
-                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    dialogInterface.dismiss();
-                                    powerupVictimUsername = otherPlayerUsernames.get(((AlertDialog) dialogInterface).getListView().getCheckedItemPosition());
-                                }
-                            })
-                            .show();
                 } else if (powerupCode == 3) {
                     if (questionPhase.equals("question")) {
                         questionCountdownTimer.cancel();

@@ -11,6 +11,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.text.Html;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.View;
@@ -70,6 +71,17 @@ public class GameActivity extends AppCompatActivity {
     private RelativeLayout powerupLayout;
 
     private TextView lobbyCodeLabel;
+    private TextView lobbyUniversalQuestionsLabel;
+    private TextView lobbyUniversalPlayersLabel;
+    private TextView lobbyUniversalTimeLabel;
+    private TextView lobbyUniversalPublicLabel;
+    private TextView lobbyUniversalDifficultyLabel;
+    private TextView lobbyUniversalCategory1Label;
+    private TextView lobbyUniversalCategory2Label;
+    private TextView lobbyUniversalCategory3Label;
+    private TextView lobbyUniversalCategory4Label;
+    private TextView lobbyUniversalCategory5Label;
+    private TextView[] lobbyUniversalCategoryLabels = new TextView[5];
 
     private ImageView lobbyJoinerReadyImage;
 
@@ -127,6 +139,7 @@ public class GameActivity extends AppCompatActivity {
     private ImageView scoreboardGreaterImage;
     private TextView scoreboardRankLabel;
     private TextView scoreboardBlurbLabel;
+    private ImageView scoreboardLeaveImage;
 
     private ImageView powerup1Image;
     private ImageView powerup2Image;
@@ -150,12 +163,12 @@ public class GameActivity extends AppCompatActivity {
     private String roomId = "roomId-2";
     private String roomCode = "XYZ123";
     private boolean isOwner = true;
-    private String[] availableCategories;
+    private List<String> possibleCategories = new ArrayList<String>();
 
     // Constant options for room settings.
-    private String[] questionCountOptions = new String[] {"5", "10", "15", "20"};
-    private String[] maxPlayerOptions = new String[] {"3", "4", "5", "6"};
-    private String[] timeLimitOptions = new String[] {"5", "10", "15", "20"};
+    private String[] questionCountOptions = new String[] {"2", "10", "15", "20"};
+    private String[] maxPlayerOptions = new String[] {"2", "3", "4", "5", "6"};
+    private String[] timeLimitOptions = new String[] {"10", "15", "20", "25", "30"};
     private String[] publicOptions = new String[] {"Public", "Private"};
     private String[] difficultyOptions = new String[] {"Easy", "Medium", "Hard"};
 
@@ -166,7 +179,7 @@ public class GameActivity extends AppCompatActivity {
 
     // State concerning the settings of the game room.
     private boolean roomIsPublic;
-    private JSONArray roomQuestionCategories;
+    private List<String> roomChosenCategories = new ArrayList<String>();
     private String roomQuestionDifficulty;
     private int roomMaxPlayers;
     private int roomQuestionTime;
@@ -246,8 +259,7 @@ public class GameActivity extends AppCompatActivity {
                 // Display the question and powerups but not the answers yet.
                 public void onFinish() {
                     // Set the descriptions for the header, question, and answers.
-                    headerLabel.setText("Q" + questionNumber);
-                    questionLabel.setText(questionDescription);
+                    questionLabel.setText(Html.fromHtml(questionDescription).toString());
                     questionAnswer1Label.setText(answerDescriptions[0]);
                     questionAnswer2Label.setText(answerDescriptions[1]);
                     questionAnswer3Label.setText(answerDescriptions[2]);
@@ -391,6 +403,7 @@ public class GameActivity extends AppCompatActivity {
                 lobbyCodeLabel.setText(roomCode);
                 enableLayout(lobbyUniversalLayout, false, true);
                 enableLayout(isOwner ? lobbyOwnerLayout : lobbyJoinerLayout, false, true);
+                headerLabel.setText("Lobby");
             });
 
             // On disconnecting
@@ -405,16 +418,29 @@ public class GameActivity extends AppCompatActivity {
 
             // On receiving a one-time welcome message
             mSocket.on("welcomeNewPlayer", args -> {
+                Log.d(TAG, "Welcome!");
                 JSONObject data = (JSONObject) args[0];
                 try {
                     roomPlayers = data.getJSONArray("roomPlayers");
                     JSONObject roomSettings = data.getJSONObject("roomSettings");
                     roomIsPublic = roomSettings.getBoolean("roomIsPublic");
-                    roomQuestionCategories = roomSettings.getJSONArray("questionCategories");
                     roomQuestionDifficulty = roomSettings.getString("questionDifficulty");
+                    roomQuestionDifficulty = roomQuestionDifficulty.substring(0, 1).toUpperCase() + roomQuestionDifficulty.substring(1);
                     roomMaxPlayers = roomSettings.getInt("maxPlayers");
                     roomQuestionTime = roomSettings.getInt("questionTime");
                     roomQuestionCount = roomSettings.getInt("totalQuestions");
+
+                    JSONArray possibleCategoriesJSONArray = data.getJSONArray("possibleCategories");
+                    for (int i = 0; i < possibleCategoriesJSONArray.length(); i++) {
+                        possibleCategories.add(possibleCategoriesJSONArray.getString(i));
+                    }
+                    JSONArray chosenCategoriesJSONARray = roomSettings.getJSONArray("questionCategories");
+                    for (int i = 0; i < chosenCategoriesJSONARray.length(); i++) {
+                        roomChosenCategories.add(chosenCategoriesJSONARray.getString(i));
+                    }
+
+                    headerLabel.setText("Lobby");
+                    updateRoomSettingLabels();
 
                     // Initialize the lobby layout.
                     enableLayout(lobbyUniversalLayout, false, true);
@@ -546,12 +572,20 @@ public class GameActivity extends AppCompatActivity {
                         case "timeLimit":
                             roomQuestionTime = data.getInt("optionValue");
                             break;
-                        case "numQuestions":
+                        case "total":
                             roomQuestionCount = data.getInt("optionValue");
                             break;
                         default: // Will be a category set
-                            // TODO: Shouldn't the category be a string, not a number?
+                            String category = option.substring(9);
+                            if (data.getBoolean("optionValue")) {
+                                roomChosenCategories.add(category);
+                                Log.d(TAG, "Adding " + category);
+                            } else {
+                                roomChosenCategories.remove(category);
+                                Log.d(TAG, "Removing " + category);
+                            }
                     }
+                    updateRoomSettingLabels();
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
@@ -598,9 +632,11 @@ public class GameActivity extends AppCompatActivity {
                     } else {
                         disableLayout(lobbyJoinerLayout);
                     }
+                    headerLabel.setText("Q" + questionNumber);
                 } else {
                     questionNumber++;
                     disableLayout(scoreboardLayout);
+                    headerLabel.setText("Q" + questionNumber);
                 }
 
                 // Start the question sequence.
@@ -683,6 +719,15 @@ public class GameActivity extends AppCompatActivity {
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
+
+                    // If the game is over...
+                    if (questionNumber == roomQuestionCount) {
+                        mSocket.disconnect();
+                        runOnUiThread(() -> {
+                            scoreboardLeaveImage.setVisibility(View.VISIBLE);
+                            scoreboardLeaveImage.setClickable(true);
+                        });
+                    }
                 });
 
                 // Display the scoreboard screen.
@@ -733,9 +778,9 @@ public class GameActivity extends AppCompatActivity {
             roomCode = bundle.getString("roomCode");
             roomId = bundle.getString("roomId");
             isOwner = bundle.getBoolean("isOwner");
-            if (isOwner) {
-                availableCategories = bundle.getStringArray("questionCategories");
-            }
+//            if (isOwner) {
+//                availableCategories = bundle.getStringArray("questionCategories");
+//            }
             Log.d(TAG, "Username: " + username);
             Log.d(TAG, "Session Token: " + sessionToken);
             Log.d(TAG, "Room Code: " + roomCode);
@@ -743,6 +788,39 @@ public class GameActivity extends AppCompatActivity {
             Log.d(TAG, "Owner? : " + String.valueOf(isOwner));
         }
         else Log.e(TAG, "No parameters passed!");
+    }
+
+    // Update all of the room setting labels on the lobby screen.
+    private void updateRoomSettingLabels() {
+        String questionLabel = "Questions: " + roomQuestionCount;
+        String playersLabel = "Max Players: " + roomMaxPlayers;
+        String timeLabel = "Time Limit: " + roomQuestionTime + "s";
+        String publicLabel ="Is Public: " + (roomIsPublic ? "Yes" : "No");
+        String difficultyLabel = "Difficulty: " + roomQuestionDifficulty;
+
+        runOnUiThread(() -> {
+            lobbyUniversalQuestionsLabel.setText(questionLabel);
+            lobbyUniversalPlayersLabel.setText(playersLabel);
+            lobbyUniversalTimeLabel.setText(timeLabel);
+            lobbyUniversalPublicLabel.setText(publicLabel);
+            lobbyUniversalDifficultyLabel.setText(difficultyLabel);
+
+            lobbyEditQuestionsLabel.setText(questionLabel);
+            lobbyEditPlayersLabel.setText(playersLabel);
+            lobbyEditTimeLabel.setText(timeLabel);
+            lobbyEditPublicLabel.setText(publicLabel);
+            lobbyEditDifficultyLabel.setText(difficultyLabel);
+
+            for (int i = 0; i < 5; i++) {
+                if (i < roomChosenCategories.size()) {
+                    lobbyUniversalCategoryLabels[i].setText(roomChosenCategories.get(i));
+                    lobbyEditCategoryLabels[i].setText(roomChosenCategories.get(i));
+                } else {
+                    lobbyUniversalCategoryLabels[i].setText("");
+                    lobbyEditCategoryLabels[i].setText("");
+                }
+            }
+        });
     }
 
     // Get and set all View objects.
@@ -760,6 +838,20 @@ public class GameActivity extends AppCompatActivity {
         powerupLayout = findViewById(R.id.game_powerup_layout);
 
         lobbyCodeLabel = findViewById(R.id.game_lobby_code_label);
+        lobbyUniversalQuestionsLabel = findViewById(R.id.game_lobby_question_count_label);
+        lobbyUniversalPlayersLabel = findViewById(R.id.game_lobby_max_players_label);
+        lobbyUniversalTimeLabel = findViewById(R.id.game_lobby_time_limit_label);
+        lobbyUniversalPublicLabel = findViewById(R.id.game_lobby_is_public_label);
+        lobbyUniversalDifficultyLabel = findViewById(R.id.game_lobby_question_difficulty_label);
+        lobbyUniversalCategory1Label = findViewById(R.id.game_lobby_category1_label);
+        lobbyUniversalCategory2Label = findViewById(R.id.game_lobby_category2_label);
+        lobbyUniversalCategory3Label = findViewById(R.id.game_lobby_category3_label);
+        lobbyUniversalCategory4Label = findViewById(R.id.game_lobby_category4_label);
+        lobbyUniversalCategory5Label = findViewById(R.id.game_lobby_category5_label);
+        lobbyUniversalCategoryLabels = new TextView[] {
+                lobbyUniversalCategory1Label, lobbyUniversalCategory2Label, lobbyUniversalCategory3Label,
+                lobbyUniversalCategory4Label, lobbyUniversalCategory5Label
+        };
 
         lobbyJoinerReadyImage = findViewById(R.id.game_lobby_joiner_ready_image);
 
@@ -821,6 +913,7 @@ public class GameActivity extends AppCompatActivity {
         scoreboardGreaterImage = findViewById(R.id.game_scoreboard_greater_image);
         scoreboardRankLabel = findViewById(R.id.game_scoreboard_rank_label);
         scoreboardBlurbLabel = findViewById(R.id.game_scoreboard_blurb_label);
+        scoreboardLeaveImage = findViewById(R.id.game_scoreboard_leave_image);
 
         clickableViews = new HashMap<RelativeLayout, List<View>>() {{
             put(lobbyUniversalLayout, Arrays.asList());
@@ -864,6 +957,9 @@ public class GameActivity extends AppCompatActivity {
                 v.setAnimation(AnimationUtils.loadAnimation(GameActivity.this, R.anim.fade_out));
             } else if (v == lobbyOwnerEditImage) {
                 // Switch to edit layout
+                headerLabel.setText("Edit Room");
+                updateRoomSettingLabels();
+
                 disableLayout(lobbyUniversalLayout);
                 disableLayout(lobbyOwnerLayout);
                 enableLayout(lobbyEditLayout, true, true);
@@ -876,12 +972,10 @@ public class GameActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 dialogInterface.dismiss();
-                                roomQuestionCount = Integer.parseInt(questionCountOptions[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()]);
-                                lobbyEditQuestionsLabel.setText(String.format("Questions: %d", roomQuestionCount));
                                 sendSocketJSON("changeSetting", new HashMap<String, Object>() {{
                                     put("roomId", roomId);
                                     put("settingOption", "total");
-                                    put("optionValue", roomQuestionCategories);
+                                    put("optionValue", Integer.parseInt(questionCountOptions[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()]));
                                 }});
                             }
                         })
@@ -895,12 +989,10 @@ public class GameActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 dialogInterface.dismiss();
-                                roomMaxPlayers = Integer.parseInt(maxPlayerOptions[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()]);
-                                lobbyEditPlayersLabel.setText(String.format("Max Players: %d", roomMaxPlayers));
                                 sendSocketJSON("changeSetting", new HashMap<String, Object>() {{
                                     put("roomId", roomId);
                                     put("settingOption", "maxPlayers");
-                                    put("optionValue", roomMaxPlayers);
+                                    put("optionValue", Integer.parseInt(maxPlayerOptions[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()]));
                                 }});
                             }
                         })
@@ -914,12 +1006,10 @@ public class GameActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 dialogInterface.dismiss();
-                                roomQuestionTime = Integer.parseInt(timeLimitOptions[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()]);
-                                lobbyEditTimeLabel.setText(String.format("Time Limit: %d", roomQuestionTime));
                                 sendSocketJSON("changeSetting", new HashMap<String, Object>() {{
                                     put("roomId", roomId);
                                     put("settingOption", "timeLimit");
-                                    put("optionValue", roomQuestionTime);
+                                    put("optionValue", Integer.parseInt(timeLimitOptions[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()]));
                                 }});
                             }
                         })
@@ -934,12 +1024,10 @@ public class GameActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 dialogInterface.dismiss();
-                                roomIsPublic = Objects.equals(publicOptions[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()], "Public");
-                                lobbyEditPublicLabel.setText("Is Public: " + (roomIsPublic ? "Yes" : "No"));
                                 sendSocketJSON("changeSetting", new HashMap<String, Object>() {{
                                     put("roomId", roomId);
                                     put("settingOption", "isPublic");
-                                    put("optionValue", roomIsPublic);
+                                    put("optionValue", Objects.equals(publicOptions[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()], "Public"));
                                 }});
                             }
                         })
@@ -953,12 +1041,10 @@ public class GameActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 dialogInterface.dismiss();
-                                roomQuestionDifficulty = difficultyOptions[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()];
-                                lobbyEditDifficultyLabel.setText("Difficulty: " + roomQuestionDifficulty);
                                 sendSocketJSON("changeSetting", new HashMap<String, Object>() {{
                                     put("roomId", roomId);
                                     put("settingOption", "difficulty");
-                                    put("optionValue", roomQuestionDifficulty.toLowerCase());
+                                    put("optionValue", difficultyOptions[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()].toLowerCase());
                                 }});
                             }
                         })
@@ -967,47 +1053,49 @@ public class GameActivity extends AppCompatActivity {
                 // Change question count and emit changeSetting event
                 new AlertDialog.Builder(this)
                         .setTitle("Select Question Categories (Max 5)")
-                        .setMultiChoiceItems(availableCategories, null, null)
+                        .setMultiChoiceItems(possibleCategories.toArray(new String[possibleCategories.size()]), null, null)
                         .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 dialogInterface.dismiss();
                                 int categoryCount = 0;
-                                roomQuestionCategories = new JSONArray();
-                                SparseBooleanArray indicesChosen = ((AlertDialog) dialogInterface).getListView().getCheckedItemPositions();
-                                for (int index = 0; index < indicesChosen.size(); index++) {
-                                    if (indicesChosen.get(index)) {
-                                        String category = availableCategories[index];
-                                        roomQuestionCategories.put(category);
-                                        lobbyEditCategoryLabels[index].setText(category);
-                                        categoryCount++;
-                                        if (categoryCount == 5) break;
-                                    }
-                                }
-                                for (String category : availableCategories) {
-                                    boolean active = false;
-                                    for (int index = 0; index < roomQuestionCategories.length(); index++) {
-                                        try {
-                                            if (category.equals(roomQuestionCategories.get(index))) {
-                                                active = true;
-                                                break;
-                                            }
-                                        } catch (JSONException e) {
-                                            throw new RuntimeException(e);
-                                        }
-                                    }
-                                    boolean finalActive = active;
+
+                                for (String category : roomChosenCategories) {
                                     sendSocketJSON("changeSetting", new HashMap<String, Object>() {{
                                         put("roomId", roomId);
                                         put("settingOption", "category-" + category);
-                                        put("optionValue", finalActive);
+                                        put("optionValue", false);
                                     }});
+                                }
+                                SparseBooleanArray indicesChosen = ((AlertDialog) dialogInterface).getListView().getCheckedItemPositions();
+                                if (indicesChosen.size() == 0) {
+                                    sendSocketJSON("changeSetting", new HashMap<String, Object>() {{
+                                        put("roomId", roomId);
+                                        put("settingOption", "category-" + possibleCategories.get(0));
+                                        put("optionValue", true);
+                                    }});
+                                } else {
+                                    for (int key = 0; key < indicesChosen.size(); key++) {
+                                        int index = indicesChosen.keyAt(key);
+                                        Log.d(TAG, "Chose category " + index);
+                                        String category = possibleCategories.get(index);
+                                        sendSocketJSON("changeSetting", new HashMap<String, Object>() {{
+                                            put("roomId", roomId);
+                                            put("settingOption", "category-" + category);
+                                            put("optionValue", true);
+                                        }});
+                                        categoryCount++;
+                                        if (categoryCount == 5) break;
+                                    }
                                 }
                             }
                         })
                         .show();
             } else if (v == lobbyEditBackImage) {
                 // Switch to lobby layout
+                updateRoomSettingLabels();
+                headerLabel.setText("Lobby");
+
                 disableLayout(lobbyEditLayout);
                 enableLayout(lobbyUniversalLayout, true, true);
                 enableLayout(lobbyOwnerLayout, true, true);
@@ -1054,6 +1142,9 @@ public class GameActivity extends AppCompatActivity {
                 } else {
                     powerupCode = 5;
                 }
+            } else if (v == scoreboardLeaveImage) {
+                Intent intent = new Intent(GameActivity.this, MenuActivity.class);
+                startActivity(intent);
             }
         });
     }

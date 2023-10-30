@@ -30,6 +30,7 @@ class GameManager {
    */
   updateCategories() {
     this.possibleCategories = this.questionGenerator.getCategories();
+    console.log(this.possibleCategories);
   }
 
   /**

@@ -28,7 +28,6 @@ class QuestionGenerator {
       });
 
       return_arr = Object.keys(this.possibleCategories);
-      console.log(return_arr);
     } catch (err) {
       console.log(err);
     }

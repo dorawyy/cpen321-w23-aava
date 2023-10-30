@@ -444,7 +444,7 @@ io.on("connection", (socket) => {
         const playerUsername = player.user.username;
         room.removePlayer(playerUsername);
 
-        // Be sure to also close remove them from this socket room
+        // Be sure to also remove them from this socket room
         let playerSocket = io.sockets.sockets.get(player.getSocketId());
         if (playerSocket) {
           playerSocket.leave(roomId);
@@ -463,6 +463,16 @@ io.on("connection", (socket) => {
 
       console.log("Room was removed successfully");
     } else {
+      const player = room.getPlayer(username);
+      room.removePlayer(username);
+
+      // Be sure to also remove them from this socket room
+      let playerSocket = io.sockets.sockets.get(player.getSocketId());
+      if (playerSocket) {
+        playerSocket.leave(roomId);
+        playerSocket.emit("roomClosed");
+      }
+
       // Notify other players still in the room that a player
       // has left
       socket

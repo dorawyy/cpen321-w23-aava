@@ -152,6 +152,16 @@
                             android:text="Mathematics"
                             android:textColor="@color/white"
                             android:textSize="17dp" />
+
+                        <TextView
+                            android:id="@+id/game_lobby_category5_label"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/quantico_regular"
+                            android:gravity="end"
+                            android:text="Mathematics"
+                            android:textColor="@color/white"
+                            android:textSize="17dp" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -174,7 +184,7 @@
                             android:textSize="15dp" />
 
                         <TextView
-                            android:id="@+id/game_lobby_setting1_label"
+                            android:id="@+id/game_lobby_question_count_label"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/quantico_regular"
@@ -184,7 +194,7 @@
                             android:textSize="17dp" />
 
                         <TextView
-                            android:id="@+id/game_lobby_setting2_label"
+                            android:id="@+id/game_lobby_max_players_label"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/quantico_regular"
@@ -194,7 +204,7 @@
                             android:textSize="17dp" />
 
                         <TextView
-                            android:id="@+id/game_lobby_setting3_label"
+                            android:id="@+id/game_lobby_time_limit_label"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/quantico_regular"
@@ -204,12 +214,22 @@
                             android:textSize="17dp" />
 
                         <TextView
-                            android:id="@+id/game_lobby_setting4_label"
+                            android:id="@+id/game_lobby_is_public_label"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/quantico_regular"
                             android:gravity="start"
                             android:text="Is Public: Yes"
+                            android:textColor="@color/white"
+                            android:textSize="17dp" />
+
+                        <TextView
+                            android:id="@+id/game_lobby_question_difficulty_label"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/quantico_regular"
+                            android:gravity="start"
+                            android:text="Difficulty: Hard"
                             android:textColor="@color/white"
                             android:textSize="17dp" />
                     </LinearLayout>
@@ -365,13 +385,15 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="5dp">
 
                         <ImageView
                             android:id="@+id/game_lobby_edit_image_question_count"
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="40dp"
+                            android:layout_marginEnd="10dp"
                             android:adjustViewBounds="true"
                             android:src="@drawable/edit_icon"
                             android:focusable="true"
@@ -393,13 +415,15 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="5dp">
 
                         <ImageView
                             android:id="@+id/game_lobby_edit_image_max_players"
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="40dp"
+                            android:layout_marginEnd="10dp"
                             android:adjustViewBounds="true"
                             android:src="@drawable/edit_icon"
                             android:focusable="true"
@@ -421,13 +445,15 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="5dp">
 
                         <ImageView
                             android:id="@+id/game_lobby_edit_image_time_limit"
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="40dp"
+                            android:layout_marginEnd="10dp"
                             android:adjustViewBounds="true"
                             android:src="@drawable/edit_icon"
                             android:focusable="true"
@@ -449,13 +475,15 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="5dp">
 
                         <ImageView
                             android:id="@+id/game_lobby_edit_image_is_public"
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="40dp"
+                            android:layout_marginEnd="10dp"
                             android:adjustViewBounds="true"
                             android:src="@drawable/edit_icon"
                             android:focusable="true"
@@ -477,13 +505,15 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="5dp">
 
                         <ImageView
                             android:id="@+id/game_lobby_edit_image_question_difficulty"
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="40dp"
+                            android:layout_marginEnd="10dp"
                             android:adjustViewBounds="true"
                             android:src="@drawable/edit_icon"
                             android:focusable="true"
@@ -505,13 +535,15 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="5dp">
 
                         <ImageView
                             android:id="@+id/game_lobby_edit_image_categories"
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="40dp"
+                            android:layout_marginEnd="10dp"
                             android:adjustViewBounds="true"
                             android:src="@drawable/edit_icon"
                             android:focusable="true"
@@ -544,7 +576,7 @@
                         android:fontFamily="@font/quantico_regular"
                         android:text="Math"
                         android:textColor="@color/white"
-                        android:textSize="20dp" />
+                        android:textSize="17dp" />
 
                     <TextView
                         android:id="@+id/game_lobby_edit_category2"
@@ -554,7 +586,7 @@
                         android:fontFamily="@font/quantico_regular"
                         android:text="Science"
                         android:textColor="@color/white"
-                        android:textSize="20dp" />
+                        android:textSize="17dp" />
 
                     <TextView
                         android:id="@+id/game_lobby_edit_category3"
@@ -564,7 +596,7 @@
                         android:fontFamily="@font/quantico_regular"
                         android:text="Music"
                         android:textColor="@color/white"
-                        android:textSize="20dp" />
+                        android:textSize="17dp" />
 
                     <TextView
                         android:id="@+id/game_lobby_edit_category4"
@@ -574,7 +606,7 @@
                         android:fontFamily="@font/quantico_regular"
                         android:text="Pop Culture"
                         android:textColor="@color/white"
-                        android:textSize="20dp" />
+                        android:textSize="17dp" />
 
                     <TextView
                         android:id="@+id/game_lobby_edit_category5"
@@ -584,7 +616,7 @@
                         android:fontFamily="@font/quantico_regular"
                         android:text="History"
                         android:textColor="@color/white"
-                        android:textSize="20dp" />
+                        android:textSize="17dp" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -1085,30 +1117,36 @@
             android:id="@+id/game_powerup_layout"
             android:layout_width="match_parent"
             android:layout_height="150dp"
-            android:layout_below="@id/game_question_layout"
-            android:layout_marginTop="-25dp"
-            android:visibility="invisible">
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="20dp"
+            android:visibility="visible">
 
-            <ImageView
-                android:id="@+id/game_powerup_image3"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
+            <RelativeLayout
+                android:id="@+id/game_powerup_frame3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="86dp"
-                android:scaleType="fitXY"
-                android:src="@drawable/powerup_on"
-                android:focusable="true"
-                android:clickable="true"
-                android:onClick="onClick" />
+                android:layout_marginTop="86dp">
+
+                <ImageView
+                    android:id="@+id/game_powerup_image3"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/powerup_on"
+                    android:focusable="true"
+                    android:clickable="true"
+                    android:onClick="onClick" />
+            </RelativeLayout>
 
             <ImageView
                 android:id="@+id/game_powerup_image2"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                android:layout_alignTop="@+id/game_powerup_image3"
+                android:layout_alignTop="@+id/game_powerup_frame3"
                 android:layout_marginTop="-42dp"
                 android:layout_marginEnd="10dp"
-                android:layout_toStartOf="@+id/game_powerup_image3"
+                android:layout_toStartOf="@+id/game_powerup_frame3"
                 android:scaleType="fitXY"
                 android:src="@drawable/powerup_on"
                 android:focusable="true"
@@ -1133,10 +1171,10 @@
                 android:id="@+id/game_powerup_image4"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                android:layout_alignTop="@+id/game_powerup_image3"
+                android:layout_alignTop="@+id/game_powerup_frame3"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="-42dp"
-                android:layout_toEndOf="@+id/game_powerup_image3"
+                android:layout_toEndOf="@+id/game_powerup_frame3"
                 android:scaleType="fitXY"
                 android:src="@drawable/powerup_on"
                 android:focusable="true"

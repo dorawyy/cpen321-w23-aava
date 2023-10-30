@@ -767,6 +767,13 @@ io.on("connection", (socket) => {
             case 6:
               rankValues = [3, 2, 1, -1, -2, -3];
               break;
+
+            default:
+              for (let i = 0; i < numPlayer; i++) {
+                rankValues.push(0);
+              }
+
+              break;
           }
 
           for (let i = 0; i < numPlayers; i++) {

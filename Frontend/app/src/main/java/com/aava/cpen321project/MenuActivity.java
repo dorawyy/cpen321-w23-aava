@@ -232,6 +232,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
         intent.putExtra("username", userName);
         intent.putExtra("roomId", roomId);
         intent.putExtra("sessionToken", sessionToken);
+        intent.putExtra("isOwner", true);
         startActivity(intent);
     }
 

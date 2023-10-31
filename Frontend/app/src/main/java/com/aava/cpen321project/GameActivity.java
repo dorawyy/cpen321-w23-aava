@@ -460,7 +460,6 @@ public class GameActivity extends AppCompatActivity {
                     put("username", username);
                 }});
 
-                lobbyCodeLabel.setText(roomCode);
                 enableLayout(lobbyUniversalLayout, false, true);
                 enableLayout(isOwner ? lobbyOwnerLayout : lobbyJoinerLayout, false, true);
                 headerLabel.setText("Lobby");
@@ -490,6 +489,9 @@ public class GameActivity extends AppCompatActivity {
                             otherPlayerUsernames.add(roomPlayers.getJSONObject(i).getString("username"));
                         }
                     }
+
+                    roomCode = data.getString("roomCode");
+                    lobbyCodeLabel.setText(roomCode);
 
                     JSONObject roomSettings = data.getJSONObject("roomSettings");
                     roomIsPublic = roomSettings.getBoolean("roomIsPublic");
@@ -862,7 +864,6 @@ public class GameActivity extends AppCompatActivity {
         if (bundle != null) {
             username = bundle.getString("username");
             sessionToken = bundle.getString("sessionToken");
-            roomCode = bundle.getString("roomCode");
             roomId = bundle.getString("roomId");
             isOwner = bundle.getBoolean("isOwner");
 

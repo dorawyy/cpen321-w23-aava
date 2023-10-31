@@ -463,6 +463,10 @@ io.on("connection", (socket) => {
         const playerUsername = player.user.username;
         room.removePlayer(playerUsername);
 
+        if (player === undefined) {
+          continue;
+        }
+
         // Be sure to also remove them from this socket room
         let socketId = player.getSocketId();
         if (socketId != undefined) {
@@ -492,7 +496,7 @@ io.on("connection", (socket) => {
       if (player === undefined) {
         return;
       }
-      
+
       let socketId = player.getSocketId();
       if (socketId != undefined) {
         let playerSocket = io.sockets.sockets.get(socketId);
@@ -829,6 +833,10 @@ io.on("connection", (socket) => {
           for (let player of room.getPlayers()) {
             const playerUsername = player.user.username;
             room.removePlayer(playerUsername);
+
+            if (player === undefined) {
+              continue;
+            }
 
             let socketId = player.getSocketId();
             if (socketId != undefined) {

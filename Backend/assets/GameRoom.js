@@ -159,17 +159,17 @@ class GameRoom {
    * ChatGPT usage: No
    */
   isIdle() {
-    return this.roomState == roomState.WAITING;
+    return this.roomState == roomStateEnum.WAITING;
   }
 
   /* Player Interaction */
 
   /**
    * Purpose: Returns whether the username matches that of the game room master.
-   * @param {String} username The username to check 
+   * @param {String} username The username to check
    * @returns {Boolean} True if `username` is the username of the game room master,
    * false otherwise.
-   * 
+   *
    * ChatGPT usage: No
    */
   isGameMaster(username) {

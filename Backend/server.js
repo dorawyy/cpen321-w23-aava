@@ -185,6 +185,8 @@ app.post("/join-random-room", (req, res) => {
   // Fetch all the public game rooms with space remaining for new players
   const availableRooms = gameManager.getAvailableRooms();
 
+  console.log(availableRooms);
+
   try {
     if (availableRooms.length == 0) {
       res.status(404).send({
@@ -248,8 +250,6 @@ app.post("/join-random-room", (req, res) => {
     console.log(err);
     res.status(500).send({message: err});
   }
-
-  
 });
 
 /**

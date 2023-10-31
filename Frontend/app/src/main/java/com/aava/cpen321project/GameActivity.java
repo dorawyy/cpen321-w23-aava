@@ -193,7 +193,7 @@ public class GameActivity extends AppCompatActivity {
     private List<String> possibleCategories = new ArrayList<String>();
 
     // Constant options for room settings.
-    private String[] questionCountOptions = new String[] {"2", "10", "15", "20"};
+    private String[] questionCountOptions = new String[] {"5", "10", "15", "20"};
     private String[] maxPlayerOptions = new String[] {"2", "3", "4", "5", "6"};
     private String[] timeLimitOptions = new String[] {"10", "15", "20", "25", "30"};
     private String[] publicOptions = new String[] {"Public", "Private"};

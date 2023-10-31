@@ -277,7 +277,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
         try {
             if(byCode){
                 data.put("sessionToken", sessionToken);
-                data.put("roomCode", roomCode);
+                data.put("roomCode", roomCode.toUpperCase());
             }else{
                 data.put("sessionToken", sessionToken);
             }

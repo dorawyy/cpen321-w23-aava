@@ -16,15 +16,14 @@ class UserDBManager {
   }
 
   /**
-   * A new User entry is created in UserDB with the username
-   * specified by `username`.
+   * Purpose: Creates a new entry in UserDB with username and a unique token
+   * @param {String} token: The unique token for the user
+   * @param {String} username: The username for the user (NOT UNIQUE - can be same as for multiple users)
+   * @returns {User} The newly created user as a User object if successful
+   *                 Undefined if unsuccessful
+   * @throws {Error} If a user already exists with the same token
    *
-   * A unique token is generated for this new user, so `username`
-   * does not need to be unique (i.e. more than one user can have
-   * the same `username`).
-   *
-   * Returns the newly-created User object, or undefined if unsuccessful.
-   * Throws an error if a user already exists with the same token.
+   * ChatGPT usage: No
    */
   async createNewUser(token, username) {
     // Check if a user already exists with the same token or username
@@ -49,11 +48,14 @@ class UserDBManager {
   }
 
   /**
-   * Updates a User's session token and returns the User after the update.
+   * Purpose: Updates a user's session token in UserDB
+   * @param {String} token: The unique token for the user
+   * @param {String} sessionToken: The session token for the user
+   * @returns {User} The updated user as a User object if successful
+   *                 Undefined if user with 'token' is not found
+   * @throws {Error} if Any other error occurs
    *
-   * If the User entry with token matching `token` cannot be found,
-   * returns undefined.
-   * Throws an error if any other errors occur.
+   * ChatGPT usage: Yes
    */
   async setUserSessionToken(token, sessionToken) {
     try {
@@ -78,10 +80,12 @@ class UserDBManager {
   }
 
   /**
-   * Returns a User entry from UserDB that has a session token
-   * matching `sessionToken`.
+   * Purpose: Finds a User using a given session token
+   * @param {String} sessionToken: The session token for the user
+   * @returns {User} The user as a User object if successful
+   *                Undefined if user with 'sessionToken' is not found
    *
-   * If the User entry cannot be found, returns undefined.
+   * ChatGPT usage: Yes
    */
   async getUserBySessionToken(sessionToken) {
     const user = await this.usersCollection.findOne({
@@ -95,6 +99,14 @@ class UserDBManager {
     }
   }
 
+  /**
+   * Purpose: Finds a User using username
+   * @param {String} username: The username for the user
+   * @returns {User} The user as a User object if successful
+   *               Undefined if user with 'username' is not found
+   *
+   * ChatGPT usage: Partial
+   */
   async getUserByUsername(username) {
     const user = await this.usersCollection.findOne({ username: username });
 
@@ -103,6 +115,30 @@ class UserDBManager {
     } else {
       return undefined;
     }
+  }
+
+  /**
+   * Purpose: Adds `value` to the `rank` of the user that matches `username`.
+   * If the sum is negative, the user's `rank` becomes zero, which is the lowest
+   * value possible.
+   * @param {String} username: The username for the user (NOT UNIQUE)
+   * @param {number} value: The integer value to add to the user's rank.
+   */
+  updateUserRank(username, value) {
+    if (typeof value !== "number" || !Number.isInteger(value)) {
+      return Promise.reject(new Error("Value must be an integer."));
+    }
+
+    return this.usersCollection
+      .updateOne({ username: username }, { $inc: { rank: value } })
+      .then((_) => {
+        if (value < 0) {
+          return this.usersCollection.updateOne(
+            { username: username, rank: { $lt: 0 } },
+            { $set: { rank: 0 } }
+          );
+        }
+      });
   }
 }
 

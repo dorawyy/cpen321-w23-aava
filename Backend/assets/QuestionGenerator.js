@@ -12,6 +12,8 @@ class QuestionGenerator {
    * @param   None
    * @returns {[String]} A list of all the possible categories
    *                     Empty list if the API call fails
+   * 
+   * ChatGPT usage: No
    */
   getCategories = async () => {
     let return_arr = [];
@@ -39,6 +41,8 @@ class QuestionGenerator {
    * @param   {String} [difficulty]: The question difficulty we are querying 
    * @returns {Number} The number of questions in the category for the given difficulty
    *                   -1 if the API call fails 
+   * 
+   * ChatGPT usage: No
    */
   getQuestionQuantity = async (category, difficulty) => {
     let count = -1;
@@ -71,6 +75,8 @@ class QuestionGenerator {
    * @returns {Object} An object with
    *                   Response code: (0 for success, 1 refresh Token)
    *                   Question Array: an array of Question objects
+   * 
+   * ChatGPT usage: No
    */
   getQuestions = async (doSpecificCategory, doLimitMCQ, category, difficulty, quantity) => {
     
@@ -88,7 +94,7 @@ class QuestionGenerator {
 
     // Adds parameters limited by boolean arguments
     if (doSpecificCategory) parameters.params.category = this.possibleCategories[category];
-    if (doLimitMCQ) parameters.params.type = ApiCode.QUESTION_TYPE_MULTIPLE;
+    if (doLimitMCQ) parameters.params.type = ApiParameter.QUESTION_TYPE_MULTIPLE;
 
     // API Call attempt
     try {
@@ -101,7 +107,7 @@ class QuestionGenerator {
       // If successfull, add each question to the array of questions
       if (response_code == ApiCode.SUCCESS) {
         result.forEach(elem => {
-          if (elem.type == QUESTION_TYPE_MULTIPLE){
+          if (elem.type == ApiParameter.QUESTION_TYPE_MULTIPLE){
             const questionObj = new Question( 
               elem.question, 
               elem.correct_answer, 
@@ -144,6 +150,8 @@ class QuestionGenerator {
    * @param   {Number} [totalQuestions]: The total number of questions to be generated
    * @param   {Number} [numberCategories]: The number of categories to be used
    * @returns {[Number]} An array of the number of questions per category
+   * 
+   * ChatGPT usage: No
   */
   getNumArr = (toalQuestions, numberCategories) => {
     // Calculates the mimimum number of questions per category
@@ -164,8 +172,7 @@ class QuestionGenerator {
 }
 
 /**
- *  Class for tracking the different consatnts used by the trivia question  API 
- *  This includes response codes returned by the API and parameters use the make queries.
+ *  Class for tracking the different response codes returned by the API.
  *  For more details, see the API documentation here: https://opentdb.com/api_config.php
  */
 class ApiCode {
@@ -189,7 +196,13 @@ class ApiCode {
    * for the query.
    */
   static TOKEN_EMPTY = 4;
+}
 
+/**
+ * Class for tracking the various parameter constants that can be used in the 
+ * trivia question API.
+ */
+class ApiParameter {
   static QUESTION_TYPE_MULTIPLE = "multiple";
 }
 

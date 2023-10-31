@@ -1,33 +1,43 @@
 const GameRoom = require("./GameRoom.js");
 const QuestionGenerator = require("./QuestionGenerator.js");
-const PowerupEnum = require("./PowerupEnum.js");
+const PowerupEnum = require("./PowerUpEnum.js");
 const PlayerAction = require("./PlayerAction.js");
 const Settings = require("./Settings");
 const { v4: uuidv4 } = require("uuid");
 const Player = require("./Player.js");
 const User = require("./User.js");
 
+/**
+ * Purpose: This class provides functionality of the Game
+ */
 class GameManager {
   constructor() {
     this.roomCodeToGameRoom = new Map();
+    this.questionGenerator = new QuestionGenerator();
     this.possibleCategories = [];
     this.possibleDifficulties = ["easy", "medium", "hard"];
-    this.questionGenerator = new QuestionGenerator();
+    this.possibleAnswerTimeSeconds = [10, 15, 20, 25, 30];
+    this.possibleNumberOfQuestions = [5, 10, 15, 20];
+    this.possibleMaxPlayers = [2, 3, 4, 5, 6];
   }
 
   /**
    * Purpose: Gets a list of the current categories available
    * @param None
    * @return None
+   *
+   * ChatGPT usage: No
    */
-  updateCategories() {
-    this.possibleCategories = this.questionGenerator.getCategories();
-  }
+  updateCategories = async () => {
+    this.possibleCategories = await this.questionGenerator.getCategories();
+  };
 
   /**
    * Purpose: Creates a new game room with a unique identifer (6 character HEX)
    * @param {Player} [gameMaster]: Player object of the user who created a room
    * @return {GameRoom} The game room that was created
+   *
+   * ChatGPT usage: Partial
    */
   createGameRoom(gameMaster) {
     // Generate a unique code
@@ -50,22 +60,38 @@ class GameManager {
   // TODO: DELETE THIS FUNCTION AFTER TESTING IS DONE
   testing() {
     const gameMaster = new Player(
-      new User("random", "roomCreator-1", 3, "randomSessionToken")
+      new User(
+        "token-1",
+        "username-1",
+        3,
+        "0aae56ce-3788-4c3d-81fc-c1fe397c0cd9"
+      )
     );
     const roomCode = "ABC123";
     const room = new GameRoom("roomId-1", gameMaster, roomCode, new Settings());
+    // room.roomSettings.roomIsPublic = true;
+
     this.roomCodeToGameRoom.set(roomCode, room);
 
     const gameMaster_2 = new Player(
-      new User("random", "roomCreator-2", 1, "randomSessionToken")
+      new User(
+        "token-1",
+        "username-1",
+        1,
+        "0aae56ce-3788-4c3d-81fc-c1fe397c0cd9"
+      )
     );
     const roomCode_2 = "XYZ123";
+
     const room_2 = new GameRoom(
       "roomId-2",
       gameMaster_2,
       roomCode_2,
       new Settings()
     );
+
+    // room_2.roomSettings.roomIsPublic = true;k
+
     this.roomCodeToGameRoom.set(roomCode_2, room_2);
 
     return room;
@@ -75,6 +101,8 @@ class GameManager {
    * Purpose: Fetches the game room with the given room code
    * @param {String} [roomCode]: the room code of the game room
    * @return {GameRoom} The game room that was fetched
+   *
+   * ChatGPT usage: No
    */
   fetchRoom(roomCode) {
     return this.roomCodeToGameRoom.get(roomCode);
@@ -85,9 +113,11 @@ class GameManager {
    * matches roomId, returns undefined.
    * @param {String} [roomId]: The unique id of the game room to get
    * @return {GameRoom} The game room with id matching roomId
+   *
+   * ChatGPT usage: No
    */
   fetchRoomById(roomId) {
-    [...this.roomCodeToGameRoom.values()].find(
+    return [...this.roomCodeToGameRoom.values()].find(
       (gameRoom) => gameRoom.roomId === roomId
     );
   }
@@ -97,6 +127,8 @@ class GameManager {
    * must not be any players in the room before calling this function.
    * @param {String} [roomId]: The unique id of the game room to remove.
    * @return {Boolean} True if room was removed successfully, false otherwise.
+   *
+   * ChatGPT usage: No
    */
   removeRoomById(roomId) {
     const roomToRemove = this.fetchRoomById(roomId);
@@ -107,14 +139,16 @@ class GameManager {
   /**
    * Purpose: Returns all the public game rooms that still have
    * space for new users to join.
-   *
+   * @param None
    * @return {Array[GameRoom]} All the public game rooms with space
    * for additional players.
+   *
+   * ChatGPT usage: Partial
    */
   getAvailableRooms() {
     return [...this.roomCodeToGameRoom.values()].filter(
       (gameRoom) =>
-        gameRoom.isPublic === true &&
+        gameRoom.roomSettings.roomIsPublic === true &&
         gameRoom.roomPlayers.length < gameRoom.roomSettings.maxPlayers &&
         gameRoom.isIdle()
     );
@@ -124,88 +158,87 @@ class GameManager {
    * Purpose: Gets a list of questions for the game room based on its settings
    * @param {String} [roomCode]: the room code of the game room
    * @return {Number} 0 for success, 1 for room not found, 2 for no categories selected
+   *
+   * ChatGPT usage: Partial
    */
   generateQuestions(roomCode) {
-    //  Array of questions to be saved in the room
-    let questions = [];
+    return new Promise((resolve, reject) => {
+      let questions = [];
 
-    //  Gets the rooom using code, if code invalid return error code 1
-    const room = this.fetchRoom(roomCode);
-    if (room === undefined) return 1;
+      //  Gets the rooom using code, if code invalid return error code 1
+      const room = this.fetchRoom(roomCode);
+      if (room === undefined) reject(1);
 
-    //  Gets the relevant settings from the room for question generation:
-    //      list of categories, difficulty, and number of questions
-    // If no categories selected, return error code 2
-    const categories = room.getCategorySetting();
-    const difficulty = room.getDifficultySetting();
-    const toalQuestions = room.getTotalQuestionsSetting();
-    if (categories.length === 0) return 2;
+      //  Gets settings from room, If no categories selected, return error code 2
+      const categories = room.getCategorySetting();
+      const difficulty = room.getDifficultySetting();
+      const toalQuestions = room.getTotalQuestionsSetting();
+      if (categories.length === 0) reject(2);
 
-    // Gets the number of questions per category
-    let numPerCat = this.questionGenerator.getNumArr(
-      toalQuestions,
-      categories.length
-    );
-
-    // Creates a query array of requests to the question generator for each category
-    const apiQueries = categories.map(async (category, i) => {
-      const response = await this.questionGenerator.getQuestions(
-        true,
-        true,
-        category,
-        difficulty,
-        numPerCat[i]
+      // Gets the number of questions per category
+      let numPerCat = this.questionGenerator.getNumArr(
+        toalQuestions,
+        categories.length
       );
-      return response;
-    });
 
-    // Make the queries and save the responses
-    Promise.all(apiQueries).then(async (responses) => {
-      // Add questions from each response to the questions array
-      responses.forEach(
-        (elem) => (questions = questions.concat(elem.questions))
-      );
-      console.log(questions.length);
-
-      // If missing any questions, get random categories of same difficulty
-      const neededQuestions = toalQuestions - questions.length;
-      if (neededQuestions > 0) {
+      // Creates a query array of requests to the question generator for each category
+      const apiQueries = categories.map(async (category, i) => {
         const response = await this.questionGenerator.getQuestions(
-          false,
           true,
-          "",
+          true,
+          category,
           difficulty,
-          neededQuestions
+          numPerCat[i]
         );
-        questions = questions.concat(response.questions);
-        console.log(questions.length);
-      }
+        return response;
+      });
 
-      // Randomize the order of the questions and add to the room
-      questions.sort(() => Math.random() - 0.5);
-      room.updateGameQuestions(questions);
+      // Make the queries and save the responses
+      Promise.all(apiQueries).then(async (responses) => {
+        // Add questions from each response to the questions array
+        responses.forEach(
+          (elem) => (questions = questions.concat(elem.questions))
+        );
+
+        // If missing any questions, get random categories of same difficulty
+        const neededQuestions = toalQuestions - questions.length;
+        if (neededQuestions > 0) {
+          const response = await this.questionGenerator.getQuestions(
+            false,
+            true,
+            "",
+            difficulty,
+            neededQuestions
+          );
+          questions = questions.concat(response.questions);
+        }
+
+        // Randomize the order of the questions and add to the room
+        questions.sort(() => Math.random() - 0.5);
+        room.updateGameQuestions(questions);
+
+        resolve(0);
+      });
     });
-
-    return 0;
   }
 
   /**
    * Purpose: Calculates the score of each player in the room for the round
    * @param {String} [roomCode]: the room code of the game room
-   * @return {Object} Object containing return code and map of player tokens to scores:
+   * @return {Object} Object containing return code and map of player username to scores:
    *                 returnCode: 0 for success, 1 for room not found
    *                 scores: Map of player users to scores
+   *
+   * ChatGPT usage: No
    */
   calculateScore(roomCode) {
     // Max Score per difficulty
     const scorePerDifficulty = { easy: 100, medium: 200, hard: 300 };
-
     //  Fetch room, if room not found, return error code 1
     const room = this.fetchRoom(roomCode);
     if (room === undefined) return { returnCode: 1, scores: [] };
 
     const actions = room.actionsArray;
-
     //  Initialize the scores for each player in actions
     let totalScores = new Map();
     let stolenScores = new Map();
@@ -221,7 +254,10 @@ class GameManager {
     const maxScore = scorePerDifficulty[room.getDifficultySetting()];
     const maxTime = room.getTimeSetting() * 1000;
     actions.forEach((action) => {
-      if (action.getCorrect()) {
+      if (
+        action.getCorrect() &&
+        action.getPowerup() !== PowerupEnum.FREE_LUNCH
+      ) {
         // If took too long, no points; else give mark based on how quickly answer pressed
         let correctnessMark =
           action.getDelay() > maxTime
@@ -260,17 +296,19 @@ class GameManager {
 
     // Calculate the stolen scores
     victimToThieves.forEach((thieves, victim) => {
-      let stolenScore = totalScores.get(victim);
-      let scoreGain = Math.floor(stolenScore / thieves.length);
-      thieves.forEach((thief) => {
-        stolenScores.set(thief, stolenScores.get(thief) + scoreGain);
-      });
-      stolenScores.set(victim, stolenScores.get(victim) - stolenScore);
+      if (thieves.length > 0) {
+        let stolenScore = totalScores.get(victim);
+        let scoreGain = Math.floor(stolenScore / thieves.length);
+        thieves.forEach((thief) => {
+          stolenScores.set(thief, stolenScores.get(thief) + scoreGain);
+        });
+        stolenScores.set(victim, stolenScores.get(victim) - stolenScore);
+      }
     });
 
     // Add the stolen scores to the total scores
-    totalScores.forEach((score, token) => {
-      totalScores.set(token, score + stolenScores.get(token));
+    totalScores.forEach((score, username) => {
+      totalScores.set(username, score + stolenScores.get(username));
     });
 
     return { returnCode: 0, scores: totalScores };
@@ -278,20 +316,41 @@ class GameManager {
 
   /* Room Interaction Stuff */
 
-  updateRoomState(rooCode) {
+  /**
+   * Purpose: Changes room between WAITING and IN_PROGRESS
+   * @param {String} roomCode
+   * @returns the new State of the room
+   *
+   * ChatGPT usage: No
+   */
+  updateRoomState(roomCode) {
     let room = this.fetchRoom(roomCode);
     const newState = room.updateState();
-    roomCodeToGameRoom.set(roomCode, room);
+    this.roomCodeToGameRoom.set(roomCode, room);
     return newState;
   }
 
+  /**
+   * Purpose: Gets the next question of the room
+   * @param {String} roomCode
+   * @returns {Question} the next question of the room
+   *
+   * ChatGPT usage: No
+   */
   fetchNextQuestion(roomCode) {
     let room = this.fetchRoom(roomCode);
     let question = room.getNextQuestion();
-    roomCodeToGameRoom.set(roomCode, room);
+    this.roomCodeToGameRoom.set(roomCode, room);
     return question;
   }
 
+  /**
+   * Purpose: Gets the number of questions in the room
+   * @param {String} roomCode
+   * @returns {Number} the number of questions in the room
+   *
+   * ChatGPT usage: No
+   */
   fetchQuestionsQuantity(roomCode) {
     let room = this.fetchRoom(roomCode);
     return room.gameQuestions.length;
@@ -299,33 +358,44 @@ class GameManager {
 
   /**
    * Purpose: Adds action to room
-   * @param {*} roomCode
-   * @param {*} response
-   * @returns if all players in player list sent an action
+   * @param {String} roomCode
+   * @param {PlayerAction} response
+   * @returns {Boolean} if all players in player list sent an action
+   *
+   * ChatGPT usage: No
    */
   addResponseToRoom(roomCode, response) {
     let room = this.fetchRoom(roomCode);
     room.addAction(response);
-    roomCodeToGameRoom.set(roomCode, room);
+    this.roomCodeToGameRoom.set(roomCode, room);
     return room.actionsArray.length == room.getPlayers().length;
   }
 
+  /**
+   * Purpose: Resets the actions array of the room
+   * @param {String} roomCode
+   * @returns None
+   *
+   * ChatGPT usage: No
+   */
   resetResponses(roomCode) {
     let room = this.fetchRoom(roomCode);
     room.resetActions();
-    roomCodeToGameRoom.set(roomCode, room);
+    this.roomCodeToGameRoom.set(roomCode, room);
   }
 
   /**
    * Purpose: updates player scores and returns new totals
-   * @param {*} roomCode
-   * @param {*} scores Map of username --> points gained
-   * @returns
+   * @param {String} roomCode
+   * @param {Map} scores Map of username --> points gained
+   * @returns {Map} The new scores of all players
+   *
+   * ChatGPT usage: No
    */
   addToPlayerScore = (roomCode, scores) => {
     let room = this.fetchRoom(roomCode);
     let newScores = room.updateScores(scores);
-    roomCodeToGameRoom.set(roomCode, room);
+    this.roomCodeToGameRoom.set(roomCode, room);
     return newScores;
   };
 }

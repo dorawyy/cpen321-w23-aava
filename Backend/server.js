@@ -432,6 +432,7 @@ io.on("connection", (socket) => {
       roomPlayers: playersJson,
       roomSettings: roomSettings,
       possibleCategories: gameManager.possibleCategories,
+      roomCode: room.roomCode,
     });
 
     // Notify players in the room that a new player has joined

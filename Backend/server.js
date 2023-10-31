@@ -185,66 +185,71 @@ app.post("/join-random-room", (req, res) => {
   // Fetch all the public game rooms with space remaining for new players
   const availableRooms = gameManager.getAvailableRooms();
 
-  if (availableRooms.length == 0) {
-    res.status(404).send({
-      message: "No game rooms available at the moment. Please try again later.",
-    });
-    return;
-  }
-
-  // Prioritize rooms that have been waiting for a long time
-  availableRooms.sort(
-    (roomA, roomB) => roomA.getRoomCreationTime() - roomB.getRoomCreationTime()
-  );
-
-  // Prioritize rooms with the rank of players that are closest to the user's rank
-  const roomPriorities = [];
-
-  for (let i = 0; i < availableRooms.length; i++) {
-    const room = availableRooms[i];
-
-    let players = room.getPlayers();
-
-    // Calculate the average rank
-    let totalRank = players.reduce((sum, player) => sum + player.rank, 0);
-    let averageRank = totalRank / players.length;
-
-    // This priority is a weighted value that considers how long the room has been
-    // waiting and how similar the ranks of other players in that room are compared
-    // to the user.
-    //
-    // Rooms that have been waiting for a long time will have a lower priority value.
-    // Rooms with average player ranks that are similar to the user will also have
-    // a lower priority value.
-    //
-    // The lower the priority value, the more suitable the room is for the user.
-    const priority = i + Math.abs(playerRank - averageRank);
-
-    roomPriorities.push({ roomCode: room.roomCode, priority: priority });
-  }
-
-  console.log("Here are all the rooms:");
-  console.log(roomPriorities);
-  console.log(roomPriorities[0]["priority"]);
-
-  roomPriorities.sort((roomA, roomB) => roomA["priority"] - roomB["priority"]);
-
-  const player = new Player(user);
-
-  for (var room of roomPriorities) {
-    let joinSuccess = room.addPlayer(player);
-
-    if (joinSuccess) {
-      res.status(200).send({
-        roomId: bestRoom.roomId,
-        roomCode: bestRoom.roomCode,
+  try {
+    if (availableRooms.length == 0) {
+      res.status(404).send({
+        message: "No game rooms available at the moment. Please try again later.",
       });
-
-      break;
+      return;
     }
+  
+    // Prioritize rooms that have been waiting for a long time
+    availableRooms.sort(
+      (roomA, roomB) => roomA.getRoomCreationTime() - roomB.getRoomCreationTime()
+    );
+  
+    // Prioritize rooms with the rank of players that are closest to the user's rank
+    const roomPriorities = [];
+  
+    for (let i = 0; i < availableRooms.length; i++) {
+      const room = availableRooms[i];
+  
+      let players = room.getPlayers();
+  
+      // Calculate the average rank
+      let totalRank = players.reduce((sum, player) => sum + player.rank, 0);
+      let averageRank = totalRank / players.length;
+  
+      // This priority is a weighted value that considers how long the room has been
+      // waiting and how similar the ranks of other players in that room are compared
+      // to the user.
+      //
+      // Rooms that have been waiting for a long time will have a lower priority value.
+      // Rooms with average player ranks that are similar to the user will also have
+      // a lower priority value.
+      //
+      // The lower the priority value, the more suitable the room is for the user.
+      const priority = i + Math.abs(playerRank - averageRank);
+  
+      roomPriorities.push({ roomCode: room.roomCode, priority: priority });
+    }
+  
+    console.log("Here are all the rooms:");
+    console.log(roomPriorities);
+    console.log(roomPriorities[0]["priority"]);
+  
+    roomPriorities.sort((roomA, roomB) => roomA["priority"] - roomB["priority"]);
+  
+    const player = new Player(user);
+  
+    for (var room of roomPriorities) {
+      let joinSuccess = room.addPlayer(player);
+  
+      if (joinSuccess) {
+        res.status(200).send({
+          roomId: bestRoom.roomId,
+          roomCode: bestRoom.roomCode,
+        });
+  
+        break;
+      }
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({message: err});
   }
 
-  return;
+  
 });
 
 /**
@@ -258,29 +263,35 @@ app.post("/join-room-by-code", (req, res) => {
 
   const room = gameManager.fetchRoom(roomCode);
 
-  if (room) {
-    const userBanned = room.isUserBanned(user.username);
-
-    if (userBanned) {
-      res.status(403).send({ message: "You are banned from this game room." });
-    } else {
-      const player = new Player(user);
-      const joinSuccess = room.addPlayer(player);
-
-      if (joinSuccess) {
-        res.status(200).send({
-          roomId: room.roomId,
-          roomCode: room.roomCode,
-        });
+  try {
+    if (room) {
+      const userBanned = room.isUserBanned(user.username);
+  
+      if (userBanned) {
+        res.status(403).send({ message: "You are banned from this game room." });
       } else {
-        res.status(409).send({
-          message: "The game room is currently full. Please try again later.",
-        });
+        const player = new Player(user);
+        const joinSuccess = room.addPlayer(player);
+  
+        if (joinSuccess) {
+          res.status(200).send({
+            roomId: room.roomId,
+            roomCode: room.roomCode,
+          });
+        } else {
+          res.status(409).send({
+            message: "The game room is currently full. Please try again later.",
+          });
+        }
       }
+    } else {
+      res.status(404).send({ message: "The game room could not be found." });
     }
-  } else {
-    res.status(404).send({ message: "The game room could not be found." });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({message: err});
   }
+ 
 });
 
 /**
@@ -306,9 +317,10 @@ app.post("/create-room", (req, res) => {
       res.status(200).send({ roomId: room.roomId });
     },
     (err) => {
+      console.log(err);
       res
         .status(500)
-        .send({ message: "The room could not be created at this time." });
+        .send({ message: err });
     }
   );
 });
@@ -394,52 +406,58 @@ io.on("connection", (socket) => {
       return;
     }
 
-    const players = room.getPlayers();
+    try {
+      const players = room.getPlayers();
 
-    // This will hold the player fields that we want to include
-    // in our welcomeNewPlayer event payload
-    const playersJson = [];
-    let newPlayerRank;
-
-    for (let player of players) {
-      playersJson.push({
-        username: player.user.username,
-        rank: player.user.rank,
-        isReady: player.isReady,
-      });
-
-      if (player.user.username === message.username) {
-        // Keep the new player's rank to send in the payload of playerJoined
-        newPlayerRank = player.user.rank;
-
-        // Since joinRoom is the first event that is emitted by a client
-        // after they connect to the socket, we need to store their socket id
-        console.log(
-          `User ${username} with socket.id=${socket.id} joined room ${room.roomCode}`
-        );
-
-        player.setSocketId(socket.id);
+      // This will hold the player fields that we want to include
+      // in our welcomeNewPlayer event payload
+      const playersJson = [];
+      let newPlayerRank;
+  
+      for (let player of players) {
+        playersJson.push({
+          username: player.user.username,
+          rank: player.user.rank,
+          isReady: player.isReady,
+        });
+  
+        if (player.user.username === message.username) {
+          // Keep the new player's rank to send in the payload of playerJoined
+          newPlayerRank = player.user.rank;
+  
+          // Since joinRoom is the first event that is emitted by a client
+          // after they connect to the socket, we need to store their socket id
+          console.log(
+            `User ${username} with socket.id=${socket.id} joined room ${room.roomCode}`
+          );
+  
+          player.setSocketId(socket.id);
+        }
       }
+  
+      const roomSettings = room.getSettings();
+  
+      // Player Joins Room
+      socket.join(room.roomId);
+  
+      // Send Room Data to Player
+      socket.emit("welcomeNewPlayer", {
+        roomPlayers: playersJson,
+        roomSettings: roomSettings,
+        possibleCategories: gameManager.possibleCategories,
+        roomCode: room.roomCode,
+      });
+  
+      // Notify players in the room that a new player has joined
+      socket.to(message.roomId).emit("playerJoined", {
+        newPlayerUsername: username,
+        newPlayerRank: newPlayerRank,
+      });
+    } catch (err) {
+      console.log(err);
+      socket.emit("error", {message: message});
     }
-
-    const roomSettings = room.getSettings();
-
-    // Player Joins Room
-    socket.join(room.roomId);
-
-    // Send Room Data to Player
-    socket.emit("welcomeNewPlayer", {
-      roomPlayers: playersJson,
-      roomSettings: roomSettings,
-      possibleCategories: gameManager.possibleCategories,
-      roomCode: room.roomCode,
-    });
-
-    // Notify players in the room that a new player has joined
-    socket.to(message.roomId).emit("playerJoined", {
-      newPlayerUsername: username,
-      newPlayerRank: newPlayerRank,
-    });
+   
   });
 
   /**
@@ -457,17 +475,47 @@ io.on("connection", (socket) => {
     console.log(username);
     console.log(room.getPlayers());
 
-    if (room != undefined && room.isGameMaster(username)) {
-      // Now remove all players from room.
-      for (let player of room.getPlayers()) {
-        const playerUsername = player.user.username;
-        room.removePlayer(playerUsername);
-
-        if (player === undefined) {
-          continue;
+    try {
+      if (room != undefined && room.isGameMaster(username)) {
+        // Now remove all players from room.
+        for (let player of room.getPlayers()) {
+          const playerUsername = player.user.username;
+          room.removePlayer(playerUsername);
+  
+          if (player === undefined) {
+            continue;
+          }
+  
+          // Be sure to also remove them from this socket room
+          let socketId = player.getSocketId();
+          if (socketId != undefined) {
+            let playerSocket = io.sockets.sockets.get(socketId);
+            if (playerSocket) {
+              playerSocket.leave(roomId);
+              playerSocket.emit("roomClosed");
+            }
+          }
         }
-
+  
+        // The room should now be empty. Remove the room so that no one
+        // can join it.
+        assert(room.getPlayers().length === 0);
+        const success = gameManager.removeRoomById(roomId);
+  
+        if (!success) {
+          console.log("Could not remove room with id " + room.roomId);
+        }
+  
+        console.log("Room was removed successfully");
+      } else {
+        const player = room.getPlayer(username);
+        room.removePlayer(username);
+  
         // Be sure to also remove them from this socket room
+        if (player === undefined) {
+          return;
+        }
+  
         let socketId = player.getSocketId();
         if (socketId != undefined) {
           let playerSocket = io.sockets.sockets.get(socketId);
@@ -476,47 +524,23 @@ io.on("connection", (socket) => {
             playerSocket.emit("roomClosed");
           }
         }
+  
+        // Notify other players still in the room that a player
+        // has left
+        socket
+          .to(roomId)
+          .emit("playerLeft", { playerUsername: username, reason: "left" });
+  
+        // Notify the player who left that their request has been fulfilled.
+        socket.emit("removedFromRoom", {
+          reason: "left",
+        });
       }
-
-      // The room should now be empty. Remove the room so that no one
-      // can join it.
-      assert(room.getPlayers().length === 0);
-      const success = gameManager.removeRoomById(roomId);
-
-      if (!success) {
-        console.log("Could not remove room with id " + room.roomId);
-      }
-
-      console.log("Room was removed successfully");
-    } else {
-      const player = room.getPlayer(username);
-      room.removePlayer(username);
-
-      // Be sure to also remove them from this socket room
-      if (player === undefined) {
-        return;
-      }
-
-      let socketId = player.getSocketId();
-      if (socketId != undefined) {
-        let playerSocket = io.sockets.sockets.get(socketId);
-        if (playerSocket) {
-          playerSocket.leave(roomId);
-          playerSocket.emit("roomClosed");
-        }
-      }
-
-      // Notify other players still in the room that a player
-      // has left
-      socket
-        .to(roomId)
-        .emit("playerLeft", { playerUsername: username, reason: "left" });
-
-      // Notify the player who left that their request has been fulfilled.
-      socket.emit("removedFromRoom", {
-        reason: "left",
-      });
+    } catch (err) {
+      console.log(err);
+      socket.emit("error", {message: message});
     }
+    
   });
 
   /**
@@ -532,36 +556,42 @@ io.on("connection", (socket) => {
 
     const room = gameManager.fetchRoomById(roomId);
 
-    if (!room.isGameMaster(username)) {
-      socket.emit("error", {
-        message: "You must be the game room owner to ban another user.",
-      });
-
-      return;
+    try {
+      if (!room.isGameMaster(username)) {
+        socket.emit("error", {
+          message: "You must be the game room owner to ban another user.",
+        });
+  
+        return;
+      }
+  
+      room.removePlayer(bannedUsername);
+      room.banPlayer(bannedUsername);
+  
+      // Notify other players that a player has been banned from the room
+      socket
+        .to(roomId)
+        .emit(
+          "playerLeft",
+          express.json({ playerUsername: bannedUsername, reason: "banned" })
+        );
+  
+      // Notify the banned player that they have been banned
+      const bannedPlayer = room.getPlayer(bannedUsername);
+  
+      const bannedPlayerSocketId = bannedPlayer.getSocketId();
+  
+      if (bannedPlayerSocketId != undefined) {
+        let bannedPlayerSocket = io.sockets.sockets.get(bannedPlayerSocketId);
+        bannedPlayerSocket.emit("removedFromRoom", {
+          reason: "banned",
+        });
+      }
+    } catch (err) {
+      console.log(err);
+      socket.emit("error", {message: message});
     }
-
-    room.removePlayer(bannedUsername);
-    room.banPlayer(bannedUsername);
-
-    // Notify other players that a player has been banned from the room
-    socket
-      .to(roomId)
-      .emit(
-        "playerLeft",
-        express.json({ playerUsername: bannedUsername, reason: "banned" })
-      );
-
-    // Notify the banned player that they have been banned
-    const bannedPlayer = room.getPlayer(bannedUsername);
-
-    const bannedPlayerSocketId = bannedPlayer.getSocketId();
-
-    if (bannedPlayerSocketId != undefined) {
-      let bannedPlayerSocket = io.sockets.sockets.get(bannedPlayerSocketId);
-      bannedPlayerSocket.emit("removedFromRoom", {
-        reason: "banned",
-      });
-    }
+    
   });
 
   /**
@@ -677,20 +707,27 @@ io.on("connection", (socket) => {
     const roomId = message.roomId;
     const username = message.username;
 
-    const room = gameManager.fetchRoomById(message.roomId);
-    const players = room.getPlayers();
+    try {
+      const room = gameManager.fetchRoomById(roomId);
+      const players = room.getPlayers();
 
-    for (let i = 0; i < players.length; i++) {
-      const player = players[i];
+      for (let i = 0; i < players.length; i++) {
+        const player = players[i];
 
-      if (player.user.username === username) {
-        player.isReady = true;
-        break;
+        if (player.user.username === username) {
+          player.isReady = true;
+          break;
+        }
       }
-    }
 
-    io.in(room.roomId)
-      .emit("playerReadyToStartGame", { playerUsername: username });
+      io.in(roomId).emit("playerReadyToStartGame", {
+        playerUsername: username,
+      });
+    } catch (err) {
+      console.log(err);
+
+      socket.emit("error", { message: err });
+    }
   });
 
   /**
@@ -731,130 +768,136 @@ io.on("connection", (socket) => {
     const playerUsername = message.username;
     const roomId = message.roomId;
 
-    const room = gameManager.fetchRoomById(roomId);
-    const roomCode = room.roomCode;
-
-    socket.to(roomId).emit("answerReceived", { playerUsername });
-
-    const newAnswer = new PlayerAction(
-      message.username,
-      message.timeDelay,
-      message.isCorrect,
-      message.powerupCode,
-      message.powerupVictimUsername
-    );
-    const allAnswersReceived = gameManager.addResponseToRoom(
-      roomCode,
-      newAnswer
-    );
-
-    if (allAnswersReceived) {
-      // Get points per round
-      const results = gameManager.calculateScore(roomCode);
-
-      if (results.returnCode == 0) {
-        //Calculate new totals
-        const scoreGain = results.scores;
-        let totalScores = gameManager.addToPlayerScore(roomCode, scoreGain);
-
-        // Format Points per round response and send
-        let scores = [];
-        totalScores.forEach((score) => {
-          let pointsEarned = scoreGain.get(score.username);
-          scores.push({
-            username: score.username,
-            pointsEarned,
-            updatedTotalPoints: score.finalScore,
+    try {
+      const room = gameManager.fetchRoomById(roomId);
+      const roomCode = room.roomCode;
+  
+      socket.to(roomId).emit("answerReceived", { playerUsername });
+  
+      const newAnswer = new PlayerAction(
+        message.username,
+        message.timeDelay,
+        message.isCorrect,
+        message.powerupCode,
+        message.powerupVictimUsername
+      );
+      const allAnswersReceived = gameManager.addResponseToRoom(
+        roomCode,
+        newAnswer
+      );
+  
+      if (allAnswersReceived) {
+        // Get points per round
+        const results = gameManager.calculateScore(roomCode);
+  
+        if (results.returnCode == 0) {
+          //Calculate new totals
+          const scoreGain = results.scores;
+          let totalScores = gameManager.addToPlayerScore(roomCode, scoreGain);
+  
+          // Format Points per round response and send
+          let scores = [];
+          totalScores.forEach((score) => {
+            let pointsEarned = scoreGain.get(score.username);
+            scores.push({
+              username: score.username,
+              pointsEarned,
+              updatedTotalPoints: score.finalScore,
+            });
           });
-        });
-
-        const scoresData = { scores };
-
-        socket.to(roomId).emit("showScoreboard", scoresData);
-        socket.emit("showScoreboard", scoresData);
-
-        // If no remaiing questiosns, end game, else send next questions
-        if (gameManager.fetchQuestionsQuantity(roomCode) != 0) {
-          setTimeout(() => {
-            sendQuestion(socket, roomCode, roomId);
-          }, SHOW_SCOREBOARD_MILLISECONDS);
-        } else {
-          setTimeout(() => {
-            socket.to(roomId).emit("endGame", { scores: totalScores });
-            socket.emit("endGame", { scores: totalScores });
-          }, SHOW_SCOREBOARD_MILLISECONDS);
-
-          // Update ranks in user profile of all players
-          let roomPlayers = room.getPlayers();
-          let numPlayers = roomPlayers.length;
-          let rankValues = [];
-
-          // Sort the array of room players from highest to lowest points
-          roomPlayers.sort((a, b) => b.points - a.points);
-
-          switch (numPlayers) {
-            case 2:
-              rankValues = [1, -1];
-              break;
-
-            case 3:
-              rankValues = [2, 0, -2];
-              break;
-
-            case 4:
-              rankValues = [3, 1, -1, -3];
-              break;
-
-            case 5:
-              rankValues = [3, 2, 0, -2, -3];
-              break;
-
-            case 6:
-              rankValues = [3, 2, 1, -1, -2, -3];
-              break;
-
-            default:
-              for (let i = 0; i < numPlayers; i++) {
-                rankValues.push(0);
-              }
-
-              break;
-          }
-
-          for (let i = 0; i < numPlayers; i++) {
-            let player = roomPlayers[i];
-            let value = rankValues[i];
-
-            userDBManager.updateUserRank(player.user.username, value);
-          }
-
-          // Now remove all players from room and delete the room.
-          for (let player of room.getPlayers()) {
-            const playerUsername = player.user.username;
-            room.removePlayer(playerUsername);
-
-            if (player === undefined) {
-              continue;
+  
+          const scoresData = { scores };
+  
+          socket.to(roomId).emit("showScoreboard", scoresData);
+          socket.emit("showScoreboard", scoresData);
+  
+          // If no remaiing questiosns, end game, else send next questions
+          if (gameManager.fetchQuestionsQuantity(roomCode) != 0) {
+            setTimeout(() => {
+              sendQuestion(socket, roomCode, roomId);
+            }, SHOW_SCOREBOARD_MILLISECONDS);
+          } else {
+            setTimeout(() => {
+              socket.to(roomId).emit("endGame", { scores: totalScores });
+              socket.emit("endGame", { scores: totalScores });
+            }, SHOW_SCOREBOARD_MILLISECONDS);
+  
+            // Update ranks in user profile of all players
+            let roomPlayers = room.getPlayers();
+            let numPlayers = roomPlayers.length;
+            let rankValues = [];
+  
+            // Sort the array of room players from highest to lowest points
+            roomPlayers.sort((a, b) => b.points - a.points);
+  
+            switch (numPlayers) {
+              case 2:
+                rankValues = [1, -1];
+                break;
+  
+              case 3:
+                rankValues = [2, 0, -2];
+                break;
+  
+              case 4:
+                rankValues = [3, 1, -1, -3];
+                break;
+  
+              case 5:
+                rankValues = [3, 2, 0, -2, -3];
+                break;
+  
+              case 6:
+                rankValues = [3, 2, 1, -1, -2, -3];
+                break;
+  
+              default:
+                for (let i = 0; i < numPlayers; i++) {
+                  rankValues.push(0);
+                }
+  
+                break;
             }
-
-            let socketId = player.getSocketId();
-            if (socketId != undefined) {
-              let playerSocket = io.sockets.sockets.get(socketId);
-              if (playerSocket) {
-                playerSocket.leave(roomId);
+  
+            for (let i = 0; i < numPlayers; i++) {
+              let player = roomPlayers[i];
+              let value = rankValues[i];
+  
+              userDBManager.updateUserRank(player.user.username, value);
+            }
+  
+            // Now remove all players from room and delete the room.
+            for (let player of room.getPlayers()) {
+              const playerUsername = player.user.username;
+              room.removePlayer(playerUsername);
+  
+              if (player === undefined) {
+                continue;
+              }
+  
+              let socketId = player.getSocketId();
+              if (socketId != undefined) {
+                let playerSocket = io.sockets.sockets.get(socketId);
+                if (playerSocket) {
+                  playerSocket.leave(roomId);
+                }
               }
             }
-          }
-
-          assert(room.getPlayers().length === 0);
-          const success = gameManager.removeRoomById(roomId);
-
-          if (!success) {
-            console.log("Could not remove room with id " + room.roomId);
+  
+            assert(room.getPlayers().length === 0);
+            const success = gameManager.removeRoomById(roomId);
+  
+            if (!success) {
+              console.log("Could not remove room with id " + room.roomId);
+            }
           }
         }
       }
-    }
+    } catch (err) {
+      console.log(err);
+      socket.emit("error", {message: message});
+    } 
+   
   });
 
   /**

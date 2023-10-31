@@ -51,7 +51,7 @@ class GameRoom {
      */
     this.creationTime = Date.now();
 
-    this.roomState = roomState.WAITING;
+    this.roomState = roomStateEnum.WAITING;
 
     this.actionsArray = [];
   }
@@ -77,13 +77,8 @@ class GameRoom {
    * ChatGPT usage: No
    */
   updateState() {
-    if (this.roomState == roomState.WAITING) {
-      this.roomState = roomState.IN_PROGRESS;
-      return roomState.IN_PROGRESS;
-    } else {
-      this.roomState = roomState.WAITING;
-      return roomState.WAITING;
-    }
+    this.roomState = roomStateEnum.IN_PROGRESS;
+    return this.roomState;
   }
 
   /**
@@ -371,7 +366,7 @@ class GameRoom {
 }
 
 // Enum for room state
-class roomState {
+class roomStateEnum {
   static WAITING = 0;
   static IN_PROGRESS = 1;
 }

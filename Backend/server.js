@@ -689,8 +689,7 @@ io.on("connection", (socket) => {
       }
     }
 
-    socket
-      .to(roomId)
+    io.in(room.roomId)
       .emit("playerReadyToStartGame", { playerUsername: username });
   });
 

@@ -1384,6 +1384,7 @@ public class GameActivity extends AppCompatActivity {
                 }
             } else if (v == scoreboardLeaveImage) {
                 Intent intent = new Intent(GameActivity.this, MenuActivity.class);
+                intent.putExtra("userName", username);
                 intent.putExtra("sessionToken", sessionToken);
                 startActivity(intent);
             }

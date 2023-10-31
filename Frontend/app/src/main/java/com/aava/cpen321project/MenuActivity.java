@@ -228,12 +228,12 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
 
 
 
-    private void joinRoomNext(String userName, String roomId, String sessionToken) {
+    private void joinRoomNext(String userName, String roomId, String sessionToken, boolean isOwner) {
         Intent intent = new Intent(this, GameActivity.class);
         intent.putExtra("username", userName);
         intent.putExtra("roomId", roomId);
         intent.putExtra("sessionToken", sessionToken);
-        intent.putExtra("isOwner", true);
+        intent.putExtra("isOwner", isOwner);
         startActivity(intent);
     }
 
@@ -242,7 +242,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
         performRoomOperation(false, null, sessionToken, "/join-random-room", "Error joining random room", new RoomSuccessCallback() {
             @Override
             public void onSuccess(String roomId) {
-                joinRoomNext(userName, roomId, sessionToken);
+                joinRoomNext(userName, roomId, sessionToken, false);
             }
         });
     }
@@ -251,7 +251,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
         performRoomOperation(true,  roomCode, sessionToken, "/join-room-by-code", "Error joining room by code", new RoomSuccessCallback() {
             @Override
             public void onSuccess(String roomId) {
-                joinRoomNext(userName, roomId, sessionToken);
+                joinRoomNext(userName, roomId, sessionToken, false);
             }
         });
     }
@@ -260,7 +260,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
         performRoomOperation(false, null, sessionToken, "/create-room", "Error creating room", new RoomSuccessCallback() {
             @Override
             public void onSuccess(String roomId) {
-                joinRoomNext(userName, roomId, sessionToken);
+                joinRoomNext(userName, roomId, sessionToken, true);
             }
         });
     }

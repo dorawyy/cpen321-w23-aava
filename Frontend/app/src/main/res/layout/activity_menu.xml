@@ -1,7 +1,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099CC"
+    android:background="@drawable/background"
     android:orientation="vertical"
     android:gravity="center_horizontal">
 
@@ -17,6 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="50dp"
+            android:fontFamily="@font/quantico_regular"
             android:text="@string/kashoot"
             android:textSize="40sp"
             android:textStyle="bold"
@@ -36,43 +37,28 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/titleText"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="0dp"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/quantico_regular"
             android:text="@string/play"
             android:textColor="#FFFFFF"
-            android:textSize="20dp" />
+            android:textSize="20dp"
+            android:textStyle="bold" />
 
 
-        <RelativeLayout
-            android:id="@+id/playView"
-            android:layout_width="250dp"
-            android:layout_height="250dp"
+        <ImageView
+            android:id="@+id/playButton"
+            android:layout_width="246dp"
+            android:layout_height="225dp"
             android:layout_centerHorizontal="true"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="10dp"
+            android:clickable="true"
+            android:contentDescription="Play"
+            android:focusable="true"
             android:layout_below="@id/playText"
-            android:layout_marginTop="20dp">
+            android:onClick="onPlayButtonClick"
+            android:src="@drawable/menu_play" />
 
-            <!-- Background View -->
-
-            <!-- Play Button -->
-
-            <View
-                android:layout_width="250dp"
-                android:layout_height="250dp"
-                android:background="@drawable/polygon_r" />
-
-            <ImageView
-                android:id="@+id/playButton"
-                android:layout_width="146dp"
-                android:layout_height="161dp"
-                android:layout_below="@id/titleText"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="40dp"
-                android:clickable="true"
-                android:contentDescription="Play"
-                android:focusable="true"
-                android:onClick="onPlayButtonClick"
-                android:src="@drawable/menu_play_icon" />
-
-        </RelativeLayout>
 
 
         <!-- Horizontal Layout for the ImageButtons next to the playButton -->
@@ -81,7 +67,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_below="@id/playView"
+            android:layout_below="@id/playButton"
             android:layout_marginTop="0dp">
 
             <!-- Code Button 1 -->
@@ -89,46 +75,43 @@
             <!-- Account Button -->
             <ImageView
                 android:id="@+id/codeButton"
-                android:layout_width="110dp"
-                android:layout_height="126dp"
+                android:layout_width="90dp"
+                android:layout_height="100dp"
                 android:layout_alignParentStart="true"
-                android:layout_marginStart="0dp"
-                android:background="@drawable/polygon_y"
+                android:layout_marginStart="10dp"
                 android:clickable="true"
                 android:contentDescription="Enter Code"
                 android:focusable="true"
                 android:onClick="onCodeButtonClick"
-                android:src="@drawable/menu_code_icon" />
+                android:src="@drawable/menu_code" />
 
             <ImageView
                 android:id="@+id/accountButton"
-                android:layout_width="110dp"
-                android:layout_height="126dp"
+                android:layout_width="90dp"
+                android:layout_height="100dp"
                 android:layout_alignTop="@id/codeButton"
                 android:layout_marginStart="10dp"
-                android:layout_marginTop="60dp"
+                android:layout_marginTop="55dp"
                 android:layout_toEndOf="@id/codeButton"
-                android:background="@drawable/polygon_b"
                 android:clickable="true"
                 android:contentDescription="Account"
                 android:focusable="true"
                 android:onClick="onAccountButtonClick"
-                android:src="@drawable/menu_account" />
+                android:src="@drawable/menu_account_group" />
 
             <!-- Create Button -->
             <ImageView
                 android:id="@+id/createButton"
-                android:layout_width="110dp"
-                android:layout_height="126dp"
+                android:layout_width="90dp"
+                android:layout_height="100dp"
                 android:layout_alignTop="@id/codeButton"
                 android:layout_marginStart="10dp"
                 android:layout_toEndOf="@id/accountButton"
-                android:background="@drawable/polygon_y"
                 android:clickable="true"
                 android:contentDescription="Create"
                 android:focusable="true"
                 android:onClick="onCreateButtonClick"
-                android:src="@drawable/menu_create_icon" />
+                android:src="@drawable/menu_create_group" />
 
         </RelativeLayout>
 
@@ -161,7 +144,7 @@
             android:layout_height="70dp"
             android:layout_below="@id/restButtonView"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="80dp"
+            android:layout_marginTop="100dp"
             android:layout_marginBottom="10dp"
             android:background="?android:attr/selectableItemBackground"
             android:src="@drawable/logo" />

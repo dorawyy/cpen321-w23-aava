@@ -87,6 +87,7 @@ public class LoginActivity extends AppCompatActivity {
                         //createAccount("token-3","name-3");
                         //login("testtoken"); //TODO Test back-end here
                         Log.d(TAG,"Reached click");
+                        showToast("Coming Soon");
 
 //                        final String userN = "testUsername"; ///use it test for test
 //                        Intent serverIntent = new Intent(LoginActivity.this, MenuActivity.class);
@@ -108,6 +109,16 @@ public class LoginActivity extends AppCompatActivity {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
 
+    }
+
+    private void showToast(final String text) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "Showing toast: " + text);
+                Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     @Override
@@ -194,7 +205,9 @@ public class LoginActivity extends AppCompatActivity {
                 public void onFailure(okhttp3.Call call, IOException e) {
                     e.printStackTrace();
                     // Handle failure
+                    showToast("Network Error: Unable to connect to the server. Please check your internet connection and try again.");
                     Log.e(TAG, "httpClient onFailure", e);
+
                 }
 
                 @Override
@@ -258,6 +271,7 @@ public class LoginActivity extends AppCompatActivity {
                 public void onFailure(okhttp3.Call call, IOException e) {
                     e.printStackTrace();
                     // Handle failure
+                    showToast("Network Error: Unable to connect to the server. Please check your internet connection and try again.");
                     Log.e(TAG, "httpClient onFailure", e);
 
                 }
@@ -269,6 +283,7 @@ public class LoginActivity extends AppCompatActivity {
                         Log.d(TAG, "HTTP Error: " + response.code());
                         Log.d(TAG, "check parameters " + token + " username" + userName);
                         //createAccount(token, userName);
+                        showToast("Trouble getting response");
                         return;
                     }
 

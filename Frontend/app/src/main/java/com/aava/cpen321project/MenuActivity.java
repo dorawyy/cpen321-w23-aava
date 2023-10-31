@@ -36,8 +36,11 @@ import okhttp3.Response;
 
 import android.content.Intent;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+
 import java.io.IOException;
 import java.util.function.Consumer;
+
 
 
 public class MenuActivity extends AppCompatActivity implements View.OnClickListener{
@@ -55,6 +58,9 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
     private String userToken;
 
     private String sessionToken;
+
+    GoogleSignInClient mGoogleSignInClient;
+
 
     String serverBaseUrl = "https://35.212.247.165:8081";
     private OkHttpClient httpClient = new OkHttpClient();

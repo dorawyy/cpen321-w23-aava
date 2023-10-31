@@ -17,6 +17,10 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    packagingOptions {
+        exclude 'androidsupportmultidexversion.txt'
+    }
+
     buildTypes {
         release {
             minifyEnabled false

@@ -489,6 +489,10 @@ io.on("connection", (socket) => {
       room.removePlayer(username);
 
       // Be sure to also remove them from this socket room
+      if (player === undefined) {
+        return;
+      }
+      
       let socketId = player.getSocketId();
       if (socketId != undefined) {
         let playerSocket = io.sockets.sockets.get(socketId);

@@ -102,7 +102,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
             userName = intent.getStringExtra("userName");
             sessionToken = intent.getStringExtra("sessionToken");
             userToken = intent.getStringExtra("userToken");
-            Log.d(TAG,"Get userToken from login" + userToken);
+            Log.d(TAG,"Get userName from login" + userName);
         }
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -276,9 +276,9 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
 
 
 
-    private void joinRoomNext(String username, String roomId, String sessionToken) {
+    private void joinRoomNext(String userName, String roomId, String sessionToken) {
         Intent intent = new Intent(this, GameActivity.class);
-        intent.putExtra("roomId", username);
+        intent.putExtra("userName", userName);
         intent.putExtra("roomId", roomId);
         intent.putExtra("sessionToken", sessionToken);
         startActivity(intent);

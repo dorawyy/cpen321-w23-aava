@@ -89,12 +89,6 @@ public class LoginActivity extends AppCompatActivity {
                         Log.d(TAG,"Reached click");
                         showToast("Coming Soon");
 
-//                        final String userN = "testUsername"; ///use it test for test
-//                        Intent serverIntent = new Intent(LoginActivity.this, MenuActivity.class);
-//                        serverIntent.putExtra("username", userN);
-//                        serverIntent.putExtra("sessionToken", "testToken");
-//                        startActivity(serverIntent);
-
                         signIn();
 
                     }
@@ -176,12 +170,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 userName = account.getGivenName() + account.getFamilyName();
                 login(userToken, userName);
-                //Take the logged in user to Menu
 
-//                Intent serverIntent = new Intent(LoginActivity.this, MenuActivity.class);
-//                serverIntent.putExtra("username", userN);
-//                serverIntent.putExtra("sessionToken", token);
-//                startActivity(serverIntent);
 
             }
         }

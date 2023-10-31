@@ -73,8 +73,8 @@
 
                 <RelativeLayout
                     android:id="@+id/game_lobby_user_cloud"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="300dp"
+                    android:layout_height="150dp"
                     android:layout_marginBottom="20dp">
 
                     <ImageView
@@ -83,6 +83,186 @@
                         android:layout_height="wrap_content"
                         android:adjustViewBounds="true"
                         android:src="@drawable/user_cloud_rect" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_gravity="center_vertical"
+                            android:paddingStart="10dp">
+
+                            <LinearLayout
+                                android:id="@+id/game_lobby_user1_layout"
+                                android:layout_width="wrap_content"
+                                android:layout_height="40dp"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:visibility="invisible">
+
+                                <ImageView
+                                    android:id="@+id/game_lobby_user1_icon"
+                                    android:layout_width="30dp"
+                                    android:layout_height="match_parent"
+                                    android:adjustViewBounds="true"
+                                    android:src="@drawable/icon_crown"/>
+
+                                <TextView
+                                    android:id="@+id/game_lobby_user1_label"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center_vertical"
+                                    android:fontFamily="@font/quantico_regular"
+                                    android:text="P1"
+                                    android:textColor="@color/white"
+                                    android:textSize="17dp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/game_lobby_user3_layout"
+                                android:layout_width="wrap_content"
+                                android:layout_height="40dp"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:visibility="invisible">
+
+                                <ImageView
+                                    android:id="@+id/game_lobby_user3_icon"
+                                    android:layout_width="30dp"
+                                    android:layout_height="match_parent"
+                                    android:adjustViewBounds="true"
+                                    android:src="@drawable/icon_cross"/>
+
+                                <TextView
+                                    android:id="@+id/game_lobby_user3_label"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center_vertical"
+                                    android:fontFamily="@font/quantico_regular"
+                                    android:text="P3"
+                                    android:textColor="@color/white"
+                                    android:textSize="17dp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/game_lobby_user5_layout"
+                                android:layout_width="wrap_content"
+                                android:layout_height="40dp"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:visibility="invisible">
+
+                                <ImageView
+                                    android:id="@+id/game_lobby_user5_icon"
+                                    android:layout_width="30dp"
+                                    android:layout_height="match_parent"
+                                    android:adjustViewBounds="true"
+                                    android:src="@drawable/icon_cross"/>
+
+                                <TextView
+                                    android:id="@+id/game_lobby_user5_label"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center_vertical"
+                                    android:fontFamily="@font/quantico_regular"
+                                    android:text="P5"
+                                    android:textColor="@color/white"
+                                    android:textSize="17dp" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_gravity="center_vertical"
+                            android:paddingStart="10dp">
+
+                            <LinearLayout
+                                android:id="@+id/game_lobby_user2_layout"
+                                android:layout_width="wrap_content"
+                                android:layout_height="40dp"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:visibility="invisible">
+
+                                <ImageView
+                                    android:id="@+id/game_lobby_user2_icon"
+                                    android:layout_width="30dp"
+                                    android:layout_height="match_parent"
+                                    android:adjustViewBounds="true"
+                                    android:src="@drawable/icon_cross"/>
+
+                                <TextView
+                                    android:id="@+id/game_lobby_user2_label"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center_vertical"
+                                    android:fontFamily="@font/quantico_regular"
+                                    android:text="P2"
+                                    android:textColor="@color/white"
+                                    android:textSize="17dp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/game_lobby_user4_layout"
+                                android:layout_width="wrap_content"
+                                android:layout_height="40dp"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:visibility="invisible">
+
+                                <ImageView
+                                    android:id="@+id/game_lobby_user4_icon"
+                                    android:layout_width="30dp"
+                                    android:layout_height="match_parent"
+                                    android:adjustViewBounds="true"
+                                    android:src="@drawable/icon_cross"/>
+
+                                <TextView
+                                    android:id="@+id/game_lobby_user4_label"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center_vertical"
+                                    android:fontFamily="@font/quantico_regular"
+                                    android:text="P4"
+                                    android:textColor="@color/white"
+                                    android:textSize="17dp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/game_lobby_user6_layout"
+                                android:layout_width="wrap_content"
+                                android:layout_height="40dp"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:visibility="invisible">
+
+                                <ImageView
+                                    android:id="@+id/game_lobby_user6_icon"
+                                    android:layout_width="30dp"
+                                    android:layout_height="match_parent"
+                                    android:adjustViewBounds="true"
+                                    android:src="@drawable/icon_cross"/>
+
+                                <TextView
+                                    android:id="@+id/game_lobby_user6_label"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center_vertical"
+                                    android:fontFamily="@font/quantico_regular"
+                                    android:text="P6"
+                                    android:textColor="@color/white"
+                                    android:textSize="17dp" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
                 </RelativeLayout>
 
                 <LinearLayout

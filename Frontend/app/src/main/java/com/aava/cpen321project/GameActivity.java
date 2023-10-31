@@ -238,7 +238,7 @@ public class GameActivity extends AppCompatActivity {
     private Random rand = new Random();
     private boolean extraLifeEnabled = false;
 
-    // Chat usage: No
+    // ChatGPT usage: No
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -251,7 +251,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     // Overridden for functionality upon exiting GameActivity.
-    // Chat usage: No
+    // ChatGPT usage: No
     @Override
     public void onPause() {
         super.onPause();
@@ -399,7 +399,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     // A general function for submitting an answer to a question to the server.
-    // Chat usage: No
+    // ChatGPT usage: No
     private void submitAnswer(boolean isCorrect) {
 
         // Save whether the question was answered correctly for use on the scoreboard screen.
@@ -430,7 +430,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     // Init the socket.
-    // Chat usage: No
+    // ChatGPT usage: No
     public void initSocket() {
         try {
             SSLContext mySSLContext = SSLContext.getInstance("TLS");
@@ -864,7 +864,7 @@ public class GameActivity extends AppCompatActivity {
     };
 
     // Get and set the parameters passed from MenuActivity.
-    // Chat usage: No
+    // ChatGPT usage: No
     private void getSetActivityParameters() {
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
@@ -883,7 +883,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     // Update all of the room setting labels on the lobby screen.
-    // Chat usage: No
+    // ChatGPT usage: No
     private void updateRoomSettingLabels() {
         String questionLabel = "Questions: " + roomQuestionCount;
         String playersLabel = "Max Players: " + roomMaxPlayers;
@@ -946,7 +946,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     // Get and set all View objects.
-    // Chat usage: No
+    // ChatGPT usage: No
     private void getSetAllViews() {
         headerLabel = findViewById(R.id.game_header_label);
 
@@ -1146,7 +1146,7 @@ public class GameActivity extends AppCompatActivity {
 
     // This function should be referenced by every clickable View in the layout. The identity of
     // the View determines the onClick functionality.
-    // Chat usage: No
+    // ChatGPT usage: No
     public void onClick(View v) {
         runOnUiThread(() -> {
 
@@ -1402,7 +1402,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     // Make a particular part of the layout invisible and unclickable.
-    // Chat usage: No
+    // ChatGPT usage: No
     private void disableLayout(RelativeLayout layout) {
         runOnUiThread(() -> {
             //layout.setAnimation(AnimationUtils.loadAnimation(GameActivity.this, R.anim.fade_out));
@@ -1414,7 +1414,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     // Make a particular part of the layout visible and clickable, if desired.
-    // Chat usage: No
+    // ChatGPT usage: No
     private void enableLayout(RelativeLayout layout, boolean delayed, boolean activateClickables) {
         runOnUiThread(() -> {
             //layout.setAnimation(AnimationUtils.loadAnimation(GameActivity.this, delayed ? R.anim.fade_in_delay : R.anim.fade_in));
@@ -1429,7 +1429,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     // General function for sending a JSON object through the socket.
-    // Chat usage: No
+    // ChatGPT usage: No
     private void sendSocketJSON(String event, Map<String, Object> fields) {
         JSONObject message = new JSONObject();
         try {

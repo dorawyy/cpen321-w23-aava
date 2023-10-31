@@ -69,7 +69,7 @@ class GameManager {
     );
     const roomCode = "ABC123";
     const room = new GameRoom("roomId-1", gameMaster, roomCode, new Settings());
-    room.isPublic = true;
+    room.roomSettings.roomIsPublic = true;
 
     this.roomCodeToGameRoom.set(roomCode, room);
 
@@ -90,7 +90,7 @@ class GameManager {
       new Settings()
     );
 
-    room_2.isPublic = true;
+    room_2.roomSettings.roomIsPublic = true;
 
     this.roomCodeToGameRoom.set(roomCode_2, room_2);
 
@@ -146,14 +146,14 @@ class GameManager {
    * ChatGPT usage: Partial
    */
   getAvailableRooms() {
-    return [...this.roomCodeToGameRoom.values()];
+    return [...this.roomCodeToGameRoom.values()]
 
-    // .filter(
-    //   (gameRoom) =>
-    //     gameRoom.isPublic === true &&
-    //     gameRoom.roomPlayers.length < gameRoom.roomSettings.maxPlayers &&
-    //     gameRoom.isIdle()
-    // );
+    .filter(
+      (gameRoom) =>
+        gameRoom.roomSettings.isRoomPublic === true &&
+        gameRoom.roomPlayers.length < gameRoom.roomSettings.maxPlayers &&
+        gameRoom.isIdle()
+    );
   }
 
   /**

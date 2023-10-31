@@ -447,11 +447,15 @@ io.on("connection", (socket) => {
         room.removePlayer(playerUsername);
 
         // Be sure to also remove them from this socket room
-        let playerSocket = io.sockets.sockets.get(player.getSocketId());
-        if (playerSocket) {
-          playerSocket.leave(roomId);
-          playerSocket.emit("roomClosed");
+        let socketId = player.getSocketId();
+        if (socketId != undefined){
+          let playerSocket = io.sockets.sockets.get();
+          if (playerSocket) {
+            playerSocket.leave(roomId);
+            playerSocket.emit("roomClosed");
+          }
         }
+        
       }
 
       // The room should now be empty. Remove the room so that no one

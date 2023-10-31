@@ -289,8 +289,10 @@ app.post("/join-room-by-code", (req, res) => {
  * ChatGPT usage: No
  */
 app.post("/create-room", (req, res) => {
-  const user = req.user;
+  const sessionToken = req.body.sessionToken;
 
+  const dbUser = userDBManager.getUserBySessionToken(sessionToken);
+  const user = new User(dbUser.token, dbUser.username, dbUser.rank, sessionToken);
   const gameMaster = new Player(user);
 
   const room = gameManager.createGameRoom(gameMaster);

@@ -77,15 +77,12 @@ public class LoginActivity extends AppCompatActivity {
                 .requestEmail()
                 .build();
 
-
         mGoogleSignInClient = GoogleSignIn.getClient(this,gso);
 
                 findViewById(R.id.signin_button).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //login("token-3");
-                        //createAccount("token-3","name-3");
-                        //login("testtoken"); //TODO Test back-end here
+
                         Log.d(TAG,"Reached click");
                         showToast("Coming Soon");
 
@@ -97,22 +94,12 @@ public class LoginActivity extends AppCompatActivity {
 
         }
 
-
+    //reference: https://developers.google.com/identity/sign-in/android/start-integrating
     private void signIn() {
 
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
 
-    }
-
-    private void showToast(final String text) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "Showing toast: " + text);
-                Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
-            }
-        });
     }
 
     @Override
@@ -143,6 +130,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+
         @Override
         protected void onStart() {
             super.onStart();
@@ -153,6 +141,18 @@ public class LoginActivity extends AppCompatActivity {
         }
 
 
+        private void showToast(final String text) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "Showing toast: " + text);
+                    Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+
+
+        //After user successfully log into their google account, talk to server to log in kashoot
         private void loggedIn(GoogleSignInAccount account) {
             if(account == null){
                 Log.d(TAG, "no users signed in");
@@ -177,7 +177,7 @@ public class LoginActivity extends AppCompatActivity {
         }
 
 
-
+    //Create account in backend
     private void createAccount(String gtoken, String gusername) {
         try {
             JSONObject data = new JSONObject();
@@ -223,7 +223,6 @@ public class LoginActivity extends AppCompatActivity {
                                 Log.d(TAG, "Created account backend: " + username + userToken);
                                 login(userToken,username);
 
-                                //TODO add message to user
                             } else if (responseObject.has("message")) {
                                 // Handle error
                                 String message = responseObject.getString("message");
@@ -323,7 +322,8 @@ public class LoginActivity extends AppCompatActivity {
 
 
 
-
+        //Reference : Chatgpt
+        //created OkHttpClient instance is that it is configured to trust all SSL/TLS certificates
         public static OkHttpClient getInsecureOkHttpClient() {
             try {
                 // Create a trust manager that does not validate certificate chains
@@ -363,11 +363,6 @@ public class LoginActivity extends AppCompatActivity {
         }
 
 
-
-
-
-
-    //TODO Handle the Server’s Response?
 }
 
 

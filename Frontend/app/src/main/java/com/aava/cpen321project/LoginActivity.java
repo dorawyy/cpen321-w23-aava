@@ -61,12 +61,11 @@ public class LoginActivity extends AppCompatActivity {
 
     private String userName;
 
-
+    //ChatGPT usage: No
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //initializeSocket();
 
         setContentView(R.layout.activity_login); // Replace with your login layout name
 
@@ -94,6 +93,7 @@ public class LoginActivity extends AppCompatActivity {
 
         }
 
+    //ChatGPT usage: No
     //reference: https://developers.google.com/identity/sign-in/android/start-integrating
     private void signIn() {
 
@@ -102,11 +102,12 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    //ChatGPT usage:No
+    //reference: https://developers.google.com/identity/sign-in/android/start-integrating
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             // The Task returned from this call is always completed, no need to attach
             // a listener.
@@ -115,6 +116,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    //ChatGPT usage: No
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
@@ -130,53 +132,53 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    //ChatGPT usage: No
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Check for existing Google Sign In account, if the user is already signed in
+        // the GoogleSignInAccount will be non-null.
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        loggedIn(account);
+    }
 
-        @Override
-        protected void onStart() {
-            super.onStart();
-            // Check for existing Google Sign In account, if the user is already signed in
-            // the GoogleSignInAccount will be non-null.
-            GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-            loggedIn(account);
-        }
-
-
-        private void showToast(final String text) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Log.d(TAG, "Showing toast: " + text);
-                    Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
-                }
-            });
-        }
-
-
-        //After user successfully log into their google account, talk to server to log in kashoot
-        private void loggedIn(GoogleSignInAccount account) {
-            if(account == null){
-                Log.d(TAG, "no users signed in");
+    //ChatGPT usage: No
+    private void showToast(final String text) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "Showing toast: " + text);
+                Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
             }
-            else{
-                Log.d(TAG, "Pref Name: " + account.getDisplayName());
-                Log.d(TAG, "Email: " + account.getEmail());
-                Log.d(TAG, "Display URL: " + account.getPhotoUrl());
-                Log.d(TAG, "Given Name: " + account.getGivenName());
-                Log.d(TAG, "id: " + account.getId());
+        });
+    }
 
-                userToken = account.getIdToken();
-                //sendTokenToBackend(token);
-                Log.d(TAG,"userToken from google" + userToken);
-
-                String email = account.getEmail();
-                userName = email.substring(0, email.indexOf('@'));
-                login(userToken, userName);
-
-
-            }
+    //ChatGPT usage: No
+    //After user successfully log into their google account, talk to server to log in kashoot
+    private void loggedIn(GoogleSignInAccount account) {
+        if(account == null){
+            Log.d(TAG, "no users signed in");
         }
+        else{
+            Log.d(TAG, "Pref Name: " + account.getDisplayName());
+            Log.d(TAG, "Email: " + account.getEmail());
+            Log.d(TAG, "Display URL: " + account.getPhotoUrl());
+            Log.d(TAG, "Given Name: " + account.getGivenName());
+            Log.d(TAG, "id: " + account.getId());
+
+            userToken = account.getIdToken();
+            //sendTokenToBackend(token);
+            Log.d(TAG,"userToken from google" + userToken);
+
+            String email = account.getEmail();
+            userName = email.substring(0, email.indexOf('@'));
+            login(userToken, userName);
 
 
+        }
+    }
+
+    //ChatGPT usage: Partial
     //Create account in backend
     private void createAccount(String gtoken, String gusername) {
         try {
@@ -242,7 +244,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-
+    //ChatGPT usage: Partial
     private void login(String token, String userName) {
         try {
             JSONObject data = new JSONObject();
@@ -312,6 +314,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    //ChatGPT usage: No
     private void navigateToMenuActivity(String userName, String userToken, String sessionToken) {
         Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
         intent.putExtra("userName", userName);
@@ -322,45 +325,45 @@ public class LoginActivity extends AppCompatActivity {
 
 
 
-        //Reference : Chatgpt
-        //created OkHttpClient instance is that it is configured to trust all SSL/TLS certificates
-        public static OkHttpClient getInsecureOkHttpClient() {
-            try {
-                // Create a trust manager that does not validate certificate chains
-                final TrustManager[] trustAllCerts = new TrustManager[]{
-                        new X509TrustManager() {
-                            @Override
-                            public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                            }
-
-                            @Override
-                            public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                            }
-
-                            @Override
-                            public X509Certificate[] getAcceptedIssuers() {
-                                return new X509Certificate[]{};
-                            }
+    //ChatGPT usage: Yes
+    //created OkHttpClient instance is that it is configured to trust all SSL/TLS certificates
+    public static OkHttpClient getInsecureOkHttpClient() {
+        try {
+            // Create a trust manager that does not validate certificate chains
+            final TrustManager[] trustAllCerts = new TrustManager[]{
+                    new X509TrustManager() {
+                        @Override
+                        public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
                         }
-                };
 
-                // Install the all-trusting trust manager
-                final SSLContext sslContext = SSLContext.getInstance("SSL");
-                sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+                        @Override
+                        public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                        }
 
-                // Create an ssl socket factory with our all-trusting manager
-                final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+                        @Override
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return new X509Certificate[]{};
+                        }
+                    }
+            };
 
-                OkHttpClient.Builder builder = new OkHttpClient.Builder();
-                builder.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0]);
-                builder.hostnameVerifier((hostname, session) -> true);
+            // Install the all-trusting trust manager
+            final SSLContext sslContext = SSLContext.getInstance("SSL");
+            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
 
-                return builder.build();
+            // Create an ssl socket factory with our all-trusting manager
+            final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            OkHttpClient.Builder builder = new OkHttpClient.Builder();
+            builder.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0]);
+            builder.hostnameVerifier((hostname, session) -> true);
+
+            return builder.build();
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
+    }
 
 
 }

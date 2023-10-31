@@ -291,13 +291,26 @@ app.post("/join-room-by-code", (req, res) => {
 app.post("/create-room", (req, res) => {
   const sessionToken = req.body.sessionToken;
 
-  const dbUser = userDBManager.getUserBySessionToken(sessionToken);
-  const user = new User(dbUser.token, dbUser.username, dbUser.rank, sessionToken);
-  const gameMaster = new Player(user);
+  userDBManager.getUserBySessionToken(sessionToken).then(
+    (dbUser) => {
+      const user = new User(
+        dbUser.token,
+        dbUser.username,
+        dbUser.rank,
+        sessionToken
+      );
+      const gameMaster = new Player(user);
 
-  const room = gameManager.createGameRoom(gameMaster);
+      const room = gameManager.createGameRoom(gameMaster);
 
-  res.status(200).send({ roomId: room.roomId });
+      res.status(200).send({ roomId: room.roomId });
+    },
+    (err) => {
+      res
+        .status(500)
+        .send({ message: "The room could not be created at this time." });
+    }
+  );
 });
 
 // Delay between start of game and question
@@ -440,6 +453,9 @@ io.on("connection", (socket) => {
 
     const room = gameManager.fetchRoomById(roomId);
 
+    console.log(username);
+    console.log(room.getPlayers());
+
     if (room != undefined && room.isGameMaster(username)) {
       // Now remove all players from room.
       for (let player of room.getPlayers()) {
@@ -448,14 +464,13 @@ io.on("connection", (socket) => {
 
         // Be sure to also remove them from this socket room
         let socketId = player.getSocketId();
-        if (socketId != undefined){
+        if (socketId != undefined) {
           let playerSocket = io.sockets.sockets.get(socketId);
           if (playerSocket) {
             playerSocket.leave(roomId);
             playerSocket.emit("roomClosed");
           }
         }
-        
       }
 
       // The room should now be empty. Remove the room so that no one
@@ -474,13 +489,13 @@ io.on("connection", (socket) => {
 
       // Be sure to also remove them from this socket room
       let socketId = player.getSocketId();
-        if (socketId != undefined){
-          let playerSocket = io.sockets.sockets.get(socketId);
-          if (playerSocket) {
-            playerSocket.leave(roomId);
-            playerSocket.emit("roomClosed");
-          }
+      if (socketId != undefined) {
+        let playerSocket = io.sockets.sockets.get(socketId);
+        if (playerSocket) {
+          playerSocket.leave(roomId);
+          playerSocket.emit("roomClosed");
         }
+      }
 
       // Notify other players still in the room that a player
       // has left
@@ -529,11 +544,10 @@ io.on("connection", (socket) => {
 
     // Notify the banned player that they have been banned
     const bannedPlayer = room.getPlayer(bannedUsername);
-    
 
     const bannedPlayerSocketId = bannedPlayer.getSocketId();
 
-    if (bannedPlayerSocketId != undefined){
+    if (bannedPlayerSocketId != undefined) {
       let bannedPlayerSocket = io.sockets.sockets.get(bannedPlayerSocketId);
       bannedPlayerSocket.emit("removedFromRoom", {
         reason: "banned",
@@ -812,14 +826,12 @@ io.on("connection", (socket) => {
             room.removePlayer(playerUsername);
 
             let socketId = player.getSocketId();
-            if (socketId != undefined){
+            if (socketId != undefined) {
               let playerSocket = io.sockets.sockets.get(socketId);
               if (playerSocket) {
                 playerSocket.leave(roomId);
               }
             }
-
-            
           }
 
           assert(room.getPlayers().length === 0);

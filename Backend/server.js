@@ -228,13 +228,16 @@ app.post("/join-random-room", (req, res) => {
   
     const player = new Player(user);
   
-    for (var room of roomPriorities) {
+    for (var roomPriority of roomPriorities) {
+      let roomCode = roomPriority.roomCode;
+      let room = gameManager.fetchRoom(roomCode);
+
       let joinSuccess = room.addPlayer(player);
   
       if (joinSuccess) {
         res.status(200).send({
-          roomId: bestRoom.roomId,
-          roomCode: bestRoom.roomCode,
+          roomId: room.roomId,
+          roomCode: room.roomCode,
         });
   
         break;

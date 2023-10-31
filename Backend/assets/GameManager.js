@@ -69,7 +69,7 @@ class GameManager {
     );
     const roomCode = "ABC123";
     const room = new GameRoom("roomId-1", gameMaster, roomCode, new Settings());
-    room.roomSettings.roomIsPublic = true;
+    // room.roomSettings.roomIsPublic = true;
 
     this.roomCodeToGameRoom.set(roomCode, room);
 
@@ -90,7 +90,7 @@ class GameManager {
       new Settings()
     );
 
-    room_2.roomSettings.roomIsPublic = true;
+    // room_2.roomSettings.roomIsPublic = true;k
 
     this.roomCodeToGameRoom.set(roomCode_2, room_2);
 

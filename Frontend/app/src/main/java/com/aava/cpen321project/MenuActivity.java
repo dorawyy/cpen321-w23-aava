@@ -213,6 +213,9 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
                         // Update your UI here
                     }
                 });
+
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
     }
 
 
@@ -222,101 +225,16 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
 
 
 
-//    private void joinRandomRoom(String sessionToken) {
-//        JSONObject data = new JSONObject();
-//        try {
-//            data.put("sessionToken", sessionToken);
-//            RequestBody body = RequestBody.create(MediaType.parse("application/json"), data.toString());
-//            Request request = new Request.Builder()
-//                    .url(serverBaseUrl + "/join-random-room")
-//                    .post(body)
-//                    .build();
-//
-//            OkHttpClient insecureClient = getInsecureOkHttpClient();
-//
-//            insecureClient.newCall(request).enqueue(new Callback() {
-//                @Override
-//                public void onFailure(Call call, IOException e) {
-//                    Log.e(TAG, "Network error: " + e.getMessage());
-//                    //showErrorToast("Network error. Please try again later.");
-//                }
-//
-//                @Override
-//                public void onResponse(Call call, Response response) throws IOException {
-//                    if (!response.isSuccessful()) {
-//                        Log.e(TAG, "Server error: " + response.message());
-//                        //showErrorToast("Server error. Please try again later.");
-//                        return;
-//                    }
-//
-//                    try {
-//                        JSONObject responseObject = new JSONObject(response.body().string());
-//                        if (responseObject.has("roomId")) {
-//                            String roomId = responseObject.getString("roomId");
-//                            String roomCode = responseObject.getString("roomCode");
-//                            //Move to GameActivity
-//                            joinRoomNext(userName,roomId, sessionToken);
-//                        } else if (responseObject.has("message")) {
-//                            String message = responseObject.getString("message");
-//                            Log.e(TAG, "Error joining random room: " + message);
-//                            //showErrorToast(message);
-//                        }
-//                    } catch (JSONException e) {
-//                        Log.e(TAG, "Failed to parse join random room response", e);
-//                        //showErrorToast("Unexpected error. Please try again later.");
-//                    }
-//                }
-//            });
-//        } catch (JSONException e) {
-//            Log.e(TAG, "Failed to create JSON object for join random room", e);
-//            //showErrorToast("Unexpected error. Please try again later.");
-//        }
-//    }
-
-
 
 
     private void joinRoomNext(String userName, String roomId, String sessionToken) {
         Intent intent = new Intent(this, GameActivity.class);
-        intent.putExtra("userName", userName);
+        intent.putExtra("username", userName);
         intent.putExtra("roomId", roomId);
         intent.putExtra("sessionToken", sessionToken);
         startActivity(intent);
     }
 
-//    private void joinRoomByCode(String sessionToken, String roomCode) {
-//        try {
-//            JSONObject data = new JSONObject();
-//            data.put("sessionToken", sessionToken);
-//            data.put("roomCode", roomCode);
-//
-//            socket.emit("join-room-by-code", data, (Ack) args -> {
-//                JSONObject response = (JSONObject) args[0];
-//                try {
-//                    if (response.has("roomId")) {
-//                        // User successfully joined the game room
-//                        String roomId = response.getString("roomId");
-//                        // Now connect to the socket and emit joinRoom event with the roomId
-//                        boolean isOwner = false;
-//
-//                        joinRoomNext(roomId,sessionToken,roomCode,isOwner);
-//
-//                    } else if (response.has("message")) {
-//                        // Handle error
-//                        String message = response.getString("message");
-//                        Log.e(TAG, "Error joining room by code: " + message);
-//                        // Update UI to show error message, etc.
-//                    }
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                    Log.e(TAG, "Failed to parse join room by code response", e);
-//                }
-//            });
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//            Log.e(TAG, "Failed to create JSON object for join room by code", e);
-//        }
-//    }
 
     private void joinRandomRoom(String sessionToken) {
         performRoomOperation(false, null, sessionToken, "/join-random-room", "Error joining random room", new RoomSuccessCallback() {
@@ -443,8 +361,8 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
                             showToast("User not found. Please log in again.");
                             Log.e(TAG, "HTTP Error 404: User with that session token cannot be found");
                         } else {
-                            showToast("Trouble logging out. Please try again later.");
-                            Log.e(TAG, "HTTP Error: " + response.code());
+                            showToast("Logging you out");
+                            signOut();
                         }
                         return;
                     }

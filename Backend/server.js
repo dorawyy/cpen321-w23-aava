@@ -185,8 +185,6 @@ app.post("/join-random-room", (req, res) => {
   // Fetch all the public game rooms with space remaining for new players
   const availableRooms = gameManager.getAvailableRooms();
 
-  console.log(availableRooms);
-
   try {
     if (availableRooms.length == 0) {
       res.status(404).send({
@@ -221,14 +219,10 @@ app.post("/join-random-room", (req, res) => {
       // a lower priority value.
       //
       // The lower the priority value, the more suitable the room is for the user.
-      const priority = i + Math.abs(playerRank - averageRank);
+      const priority = i + Math.abs(user.rank - averageRank);
   
       roomPriorities.push({ roomCode: room.roomCode, priority: priority });
     }
-  
-    console.log("Here are all the rooms:");
-    console.log(roomPriorities);
-    console.log(roomPriorities[0]["priority"]);
   
     roomPriorities.sort((roomA, roomB) => roomA["priority"] - roomB["priority"]);
   

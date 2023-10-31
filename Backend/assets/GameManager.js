@@ -146,11 +146,9 @@ class GameManager {
    * ChatGPT usage: Partial
    */
   getAvailableRooms() {
-    return [...this.roomCodeToGameRoom.values()]
-
-    .filter(
+    return [...this.roomCodeToGameRoom.values()].filter(
       (gameRoom) =>
-        gameRoom.roomSettings.isRoomPublic === true &&
+        gameRoom.roomSettings.roomIsPublic === true &&
         gameRoom.roomPlayers.length < gameRoom.roomSettings.maxPlayers &&
         gameRoom.isIdle()
     );

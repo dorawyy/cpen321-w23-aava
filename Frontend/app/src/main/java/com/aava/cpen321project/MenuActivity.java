@@ -199,6 +199,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
         // Handle create button click
         createRoom(sessionToken);
 
+
     }
 
 
@@ -212,11 +213,19 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
                         // Update your UI here
                     }
                 });
+
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
     }
+
 
     private void showToast(String message) {
         runOnUiThread(() -> Toast.makeText(this, message, Toast.LENGTH_LONG).show());
     }
+
+
+
+
 
     private void joinRoomNext(String userName, String roomId, String sessionToken) {
         Intent intent = new Intent(this, GameActivity.class);
@@ -225,6 +234,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
         intent.putExtra("sessionToken", sessionToken);
         startActivity(intent);
     }
+
 
     private void joinRandomRoom(String sessionToken) {
         performRoomOperation(false, null, sessionToken, "/join-random-room", "Error joining random room", new RoomSuccessCallback() {
@@ -351,8 +361,8 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
                             showToast("User not found. Please log in again.");
                             Log.e(TAG, "HTTP Error 404: User with that session token cannot be found");
                         } else {
-                            showToast("Trouble logging out. Please try again later.");
-                            Log.e(TAG, "HTTP Error: " + response.code());
+                            showToast("Logging you out");
+                            signOut();
                         }
                         return;
                     }

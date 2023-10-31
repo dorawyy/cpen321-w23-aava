@@ -287,16 +287,7 @@ public class LoginActivity extends AppCompatActivity {
                             if (responseObject.has("token")) {
                                 String userToken = responseObject.getString("token");
                                 String username = responseObject.getString("username");
-//                                int totalPoints;
-//                                if (responseObject.has("totalPoints")) {
-//                                    totalPoints = responseObject.getInt("totalPoints");
-//                                    // Use totalPoints as needed
-//                                } else {
-//                                    // Handle the absence of totalPoints
-//                                    // For example, you can set a default value or log a message
-//                                    totalPoints = 0; // or some other default value
-//                                    Log.d(TAG, "totalPoints not present in response, using default value: " + totalPoints);
-//                                }
+                                //before get the value always check if the field exist
                                 String sessionToken = responseObject.getString("sessionToken");
                                 navigateToMenuActivity(username, userToken, sessionToken);
                                 // Handle success, update UI, store session token, etc.

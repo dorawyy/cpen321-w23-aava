@@ -83,6 +83,28 @@ public class GameActivity extends AppCompatActivity {
     private TextView lobbyUniversalCategory5Label;
     private TextView[] lobbyUniversalCategoryLabels = new TextView[5];
 
+    private LinearLayout lobbyPlayer1Layout;
+    private LinearLayout lobbyPlayer2Layout;
+    private LinearLayout lobbyPlayer3Layout;
+    private LinearLayout lobbyPlayer4Layout;
+    private LinearLayout lobbyPlayer5Layout;
+    private LinearLayout lobbyPlayer6Layout;
+    private ImageView lobbyPlayer1Icon;
+    private ImageView lobbyPlayer2Icon;
+    private ImageView lobbyPlayer3Icon;
+    private ImageView lobbyPlayer4Icon;
+    private ImageView lobbyPlayer5Icon;
+    private ImageView lobbyPlayer6Icon;
+    private TextView lobbyPlayer1Label;
+    private TextView lobbyPlayer2Label;
+    private TextView lobbyPlayer3Label;
+    private TextView lobbyPlayer4Label;
+    private TextView lobbyPlayer5Label;
+    private TextView lobbyPlayer6Label;
+    private List<LinearLayout> lobbyPlayerLayouts;
+    private List<ImageView> lobbyPlayerIcons;
+    private List<TextView> lobbyPlayerLabels;
+
     private ImageView lobbyJoinerReadyImage;
 
     private ImageView lobbyOwnerEditImage;
@@ -388,7 +410,6 @@ public class GameActivity extends AppCompatActivity {
             put("username", username);
             put("timeDelay", timeDelay);
             put("isCorrect", isCorrect);
-            put("isCorrect", isCorrect);
             put("powerupCode", powerupCode);
             put("powerupVictimUsername", powerupVictimUsername);
         }});
@@ -461,6 +482,8 @@ public class GameActivity extends AppCompatActivity {
                 JSONObject data = (JSONObject) args[0];
                 try {
                     roomPlayers = data.getJSONArray("roomPlayers");
+                    updateRoomPlayerLabels();
+
                     Log.d(TAG, data.toString());
                     for (int i = 0; i < roomPlayers.length(); i++) {
                         if (!roomPlayers.getJSONObject(i).getString("username").equals(username)) {
@@ -510,8 +533,12 @@ public class GameActivity extends AppCompatActivity {
                     // Add the incoming data to the player state.
                     JSONObject newPlayerData = new JSONObject();
                     newPlayerData.put("username", data.getString("newPlayerUsername"));
-                    newPlayerData.put("rank", data.getInt("newPlayerRank"));
+                    // TODO: set back to the appropriate value
+                    newPlayerData.put("rank", 0);
+                    newPlayerData.put("isReady", false);
                     roomPlayers.put(newPlayerData);
+                    updateRoomPlayerLabels();
+
                     otherPlayerUsernames.add(data.getString("newPlayerUsername"));
                     // If owner, disable Start button by default, as the new player needs to ready up.
                     // TODO: Undo comment
@@ -531,6 +558,7 @@ public class GameActivity extends AppCompatActivity {
                     for (int p = 0; p < roomPlayers.length(); p++) {
                         if (roomPlayers.getJSONObject(p).getString("username").equals(leftPlayerUsername)) {
                             roomPlayers.remove(p);
+                            updateRoomPlayerLabels();
                             break;
                         }
                     }
@@ -643,6 +671,14 @@ public class GameActivity extends AppCompatActivity {
                 JSONObject data = (JSONObject) args[0];
                 try {
                     String playerReadyUsername = data.getString("playerUsername");
+
+                    for (int p = 0; p < roomPlayers.length(); p++) {
+                        if (roomPlayers.getJSONObject(p).getString("username").equals(playerReadyUsername)) {
+                            roomPlayers.getJSONObject(p).put("isReady", true);
+                            updateRoomPlayerLabels();
+                            break;
+                        }
+                    }
                     readyCount++;
                     if (isOwner && readyCount == roomPlayers.length() - 1) {
                         runOnUiThread(() -> {
@@ -872,6 +908,34 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
+    // Update all of the room player labels on the lobby screen.
+    private void updateRoomPlayerLabels() {
+        runOnUiThread(() -> {
+            for (int p = 0; p < 6; p++) {
+                if (p >= roomPlayers.length()) {
+                    lobbyPlayerLayouts.get(p).setVisibility(View.INVISIBLE);
+                } else {
+                    lobbyPlayerLayouts.get(p).setVisibility(View.VISIBLE);
+                    try {
+                        JSONObject playerObject = roomPlayers.getJSONObject(p);
+                        String name = playerObject.getString("username");
+                        int iconResource = R.drawable.icon_crown;
+                        if (p > 0 && playerObject.getBoolean("isReady")) {
+                            iconResource = R.drawable.icon_check;
+                        } else if (p > 0 && !playerObject.getBoolean("isReady")) {
+                            iconResource = R.drawable.icon_cross;
+                        }
+
+                        lobbyPlayerIcons.get(p).setImageResource(iconResource);
+                        lobbyPlayerLabels.get(p).setText(name);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
+
     // Get and set all View objects.
     private void getSetAllViews() {
         headerLabel = findViewById(R.id.game_header_label);
@@ -901,6 +965,49 @@ public class GameActivity extends AppCompatActivity {
                 lobbyUniversalCategory1Label, lobbyUniversalCategory2Label, lobbyUniversalCategory3Label,
                 lobbyUniversalCategory4Label, lobbyUniversalCategory5Label
         };
+
+        lobbyPlayer1Layout = findViewById(R.id.game_lobby_user1_layout);
+        lobbyPlayer2Layout = findViewById(R.id.game_lobby_user2_layout);
+        lobbyPlayer3Layout = findViewById(R.id.game_lobby_user3_layout);
+        lobbyPlayer4Layout = findViewById(R.id.game_lobby_user4_layout);
+        lobbyPlayer5Layout = findViewById(R.id.game_lobby_user5_layout);
+        lobbyPlayer6Layout = findViewById(R.id.game_lobby_user6_layout);
+        lobbyPlayer1Icon = findViewById(R.id.game_lobby_user1_icon);
+        lobbyPlayer2Icon = findViewById(R.id.game_lobby_user2_icon);
+        lobbyPlayer3Icon = findViewById(R.id.game_lobby_user3_icon);
+        lobbyPlayer4Icon = findViewById(R.id.game_lobby_user4_icon);
+        lobbyPlayer5Icon = findViewById(R.id.game_lobby_user5_icon);
+        lobbyPlayer6Icon = findViewById(R.id.game_lobby_user6_icon);
+        lobbyPlayer1Label = findViewById(R.id.game_lobby_user1_label);
+        lobbyPlayer2Label = findViewById(R.id.game_lobby_user2_label);
+        lobbyPlayer3Label = findViewById(R.id.game_lobby_user3_label);
+        lobbyPlayer4Label = findViewById(R.id.game_lobby_user4_label);
+        lobbyPlayer5Label = findViewById(R.id.game_lobby_user5_label);
+        lobbyPlayer6Label = findViewById(R.id.game_lobby_user6_label);
+        lobbyPlayerLayouts = new ArrayList<LinearLayout>() {{
+            add(lobbyPlayer1Layout);
+            add(lobbyPlayer2Layout);
+            add(lobbyPlayer3Layout);
+            add(lobbyPlayer4Layout);
+            add(lobbyPlayer5Layout);
+            add(lobbyPlayer6Layout);
+        }};
+        lobbyPlayerIcons = new ArrayList<ImageView>() {{
+            add(lobbyPlayer1Icon);
+            add(lobbyPlayer2Icon);
+            add(lobbyPlayer3Icon);
+            add(lobbyPlayer4Icon);
+            add(lobbyPlayer5Icon);
+            add(lobbyPlayer6Icon);
+        }};
+        lobbyPlayerLabels = new ArrayList<TextView>() {{
+            add(lobbyPlayer1Label);
+            add(lobbyPlayer2Label);
+            add(lobbyPlayer3Label);
+            add(lobbyPlayer4Label);
+            add(lobbyPlayer5Label);
+            add(lobbyPlayer6Label);
+        }};
 
         lobbyJoinerReadyImage = findViewById(R.id.game_lobby_joiner_ready_image);
 

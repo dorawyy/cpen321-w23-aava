@@ -1,4 +1,5 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background"
@@ -47,17 +48,17 @@
 
         <ImageView
             android:id="@+id/playButton"
-            android:layout_width="246dp"
-            android:layout_height="225dp"
+            android:layout_width="227dp"
+            android:layout_height="211dp"
+            android:layout_below="@id/playText"
             android:layout_centerHorizontal="true"
             android:layout_marginStart="0dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="0dp"
             android:clickable="true"
-            android:scaleType="centerInside"
             android:contentDescription="Play"
             android:focusable="true"
-            android:layout_below="@id/playText"
             android:onClick="onPlayButtonClick"
+            android:scaleType="centerCrop"
             android:src="@drawable/menu_play" />
 
 
@@ -70,16 +71,17 @@
             android:layout_centerHorizontal="true"
             android:layout_alignParentLeft="true"
             android:layout_below="@id/playButton"
-            android:layout_marginLeft="20dp">
+            android:layout_marginLeft="25dp">
 
 
             <!-- Code Button -->
+
             <ImageView
                 android:id="@+id/codeButton"
                 android:layout_width="90dp"
                 android:layout_height="100dp"
                 android:layout_alignParentStart="true"
-                android:layout_marginStart="10dp"
+                android:layout_marginStart="0dp"
                 android:clickable="true"
                 android:contentDescription="Enter Code"
                 android:focusable="true"
@@ -93,7 +95,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="10dp"
                 android:fontFamily="@font/quantico_regular"
-                android:text="Join By Code"
+                android:text="Code"
                 android:textColor="#FFFFFF"
                 android:textSize="20dp"
                 android:textStyle="bold" />
@@ -115,9 +117,7 @@
                 android:layout_width="90dp"
                 android:layout_height="100dp"
                 android:layout_alignTop="@id/codeButton"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="55dp"
-                android:layout_toEndOf="@id/codeButton"
+                android:layout_marginTop="60dp"
                 android:clickable="true"
                 android:contentDescription="Account"
                 android:focusable="true"
@@ -148,16 +148,17 @@
             android:layout_centerHorizontal="true"
             android:layout_alignParentRight="true"
             android:layout_below="@id/playButton"
-            android:layout_marginRight="20dp">
+            android:layout_marginRight="25dp">
 
             <!-- Create Button -->
+
             <ImageView
                 android:id="@+id/createButton"
                 android:layout_width="90dp"
                 android:layout_height="100dp"
                 android:layout_alignTop="@id/codeButton"
+                android:layout_marginStart="0dp"
                 android:layout_toEndOf="@id/accountButton"
-                android:layout_marginStart="10dp"
                 android:clickable="true"
                 android:contentDescription="Create"
                 android:focusable="true"
@@ -207,7 +208,7 @@
             android:layout_height="60dp"
             android:layout_below="@id/accountButtonView"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="70dp"
+            android:layout_marginTop="80dp"
             android:layout_marginBottom="10dp"
             android:background="?android:attr/selectableItemBackground"
             android:src="@drawable/logo" />

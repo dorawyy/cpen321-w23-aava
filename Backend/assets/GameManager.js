@@ -17,7 +17,7 @@ class GameManager {
     this.possibleCategories = [];
     this.possibleDifficulties = ["easy", "medium", "hard"];
     this.possibleAnswerTimeSeconds = [10, 15, 20, 25, 30];
-    this.possibleNumberOfQuestions = [2, 10, 15, 20];
+    this.possibleNumberOfQuestions = [5, 10, 15, 20];
     this.possibleMaxPlayers = [2, 3, 4, 5, 6];
   }
 

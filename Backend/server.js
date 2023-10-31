@@ -323,7 +323,7 @@ app.post("/create-room", (req, res) => {
 });
 
 // Delay between start of game and question
-const SHOW_SCOREBOARD_MILLISECONDS = 10000;
+const SHOW_SCOREBOARD_MILLISECONDS = 5000;
 
 const io = require("socket.io")(server, {
   cors: {
@@ -468,9 +468,6 @@ io.on("connection", (socket) => {
     const roomId = message.roomId;
 
     const room = gameManager.fetchRoomById(roomId);
-
-    console.log(username);
-    console.log(room.getPlayers());
 
     try {
       if (room != undefined && room.isGameMaster(username)) {

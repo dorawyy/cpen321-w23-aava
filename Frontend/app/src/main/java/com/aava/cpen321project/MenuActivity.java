@@ -293,9 +293,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     if (!response.isSuccessful()) {
-                        Log.e(TAG,""+ response.body().string());
-                        Log.e(TAG, errorMessage + ": " + response.message());
-                        runOnUiThread(() -> showToast(errorMessage + ". Please try again later."));
+                        createRoom(sessionToken);
                         return;
                     }
 

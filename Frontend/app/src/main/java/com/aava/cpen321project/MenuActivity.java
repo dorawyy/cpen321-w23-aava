@@ -2,6 +2,7 @@ package com.aava.cpen321project;
 
 import static com.aava.cpen321project.LoginActivity.getInsecureOkHttpClient;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
@@ -36,7 +37,11 @@ import okhttp3.Response;
 
 import android.content.Intent;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -100,6 +105,14 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
             Log.d(TAG,"Get userToken from login" + userToken);
         }
 
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.server_client_id))
+                .requestEmail()
+                .build();
+
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this,gso);
+
 
         //initializeSocket();
 
@@ -124,11 +137,11 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
 
-        private void onPlayButtonClick () {
-            Toast.makeText(this, "Play Button Clicked", Toast.LENGTH_SHORT).show();
-            // Handle play button click
-            joinRandomRoom(sessionToken);
-        }
+    private void onPlayButtonClick () {
+        Toast.makeText(this, "Play Button Clicked", Toast.LENGTH_SHORT).show();
+        // Handle play button click
+        joinRandomRoom(sessionToken);
+    }
 
     private void onCodeButtonClick() {
         // Create an AlertDialog to prompt the user for a code
@@ -176,53 +189,34 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
     private void onAccountButtonClick () {
             Toast.makeText(this, "Account Button Clicked", Toast.LENGTH_SHORT).show();
             // Handle account button click
-        }
 
-        private void onCreateButtonClick () {
-            Toast.makeText(this, "Create Button Clicked", Toast.LENGTH_SHORT).show();
-            // Handle create button click
-            createRoom(sessionToken);
-
+            showLogoutConfirmationDialog();
 
         }
 
+    private void onCreateButtonClick () {
+        Toast.makeText(this, "Create Button Clicked", Toast.LENGTH_SHORT).show();
+        // Handle create button click
+        createRoom(sessionToken);
 
 
-//    private void joinRandomRoom(String sessionToken) {
-//        try {
-//            JSONObject data = new JSONObject();
-//            data.put("sessionToken", sessionToken);
-//
-//            socket.emit("join-random-room", data, (Ack) args -> {
-//                JSONObject response = (JSONObject) args[0];
-//                try {
-//                    if (response.has("roomId")) {
-//                        // User successfully placed in a game room
-//                        String roomId = response.getString("roomId");
-//                        String roomCode = response.getString("roomCode");
-//                        // Now connect to the socket and emit joinRoom event with the roomId
-//                        boolean isOwner = false;
-//
-//                        joinRoomNext(roomId,sessionToken,roomCode,isOwner);
-//
-//                    } else if (response.has("message")) {
-//                        // Handle error
-//                        String message = response.getString("message");
-//                        Log.e(TAG, "Error joining random room: " + message);
-//                        // Update UI to show error message, etc.
-//                    }
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                    Log.e(TAG, "Failed to parse join random room response", e);
-//                }
-//            });
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//            Log.e(TAG, "Failed to create JSON object for join random room", e);
-//        }
-//    }
+    }
 
-    private void showErrorToast(String message) {
+
+    private void signOut() {
+        mGoogleSignInClient.signOut()
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        // User is now signed out
+                        showToast("Signed out successfully");
+                        // Update your UI here
+                    }
+                });
+    }
+
+
+    private void showToast(String message) {
         runOnUiThread(() -> Toast.makeText(this, message, Toast.LENGTH_LONG).show());
     }
 
@@ -373,7 +367,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void onFailure(Call call, IOException e) {
                     Log.e(TAG, "Network error: " + e.getMessage());
-                    runOnUiThread(() -> showErrorToast("Network error. Please try again later."));
+                    runOnUiThread(() -> showToast("Network error. Please try again later."));
                 }
 
                 @Override
@@ -381,7 +375,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
                     if (!response.isSuccessful()) {
                         Log.e(TAG,""+ response.body().string());
                         Log.e(TAG, errorMessage + ": " + response.message());
-                        runOnUiThread(() -> showErrorToast(errorMessage + ". Please try again later."));
+                        runOnUiThread(() -> showToast(errorMessage + ". Please try again later."));
                         return;
                     }
 
@@ -394,23 +388,107 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
                             String message = responseObject.getString("message");
                             Log.e(TAG, errorMessage + ": " + message);
                             Log.d(TAG,"cant find room id");
-                            runOnUiThread(() -> showErrorToast(message));
+                            runOnUiThread(() -> showToast(message));
                         }
                     } catch (JSONException e) {
                         Log.e(TAG, "Failed to parse response", e);
-                        runOnUiThread(() -> showErrorToast("Unexpected error. Please try again later."));
+                        runOnUiThread(() -> showToast("Unexpected error. Please try again later."));
                     }
                 }
             });
         } catch (JSONException e) {
             Log.e(TAG, "Failed to create JSON object", e);
-            runOnUiThread(() -> showErrorToast("Unexpected error. Please try again later."));
+            runOnUiThread(() -> showToast("Unexpected error. Please try again later."));
         }
     }
 
     public interface RoomSuccessCallback {
         void onSuccess(String roomId);
     }
+
+
+    private void logout(String sessionToken) {
+        try {
+            // Creating JSON object for request body
+            JSONObject data = new JSONObject();
+            data.put("sessionToken", sessionToken);
+
+            // Creating request body
+            RequestBody body = RequestBody.create(MediaType.parse("application/json"), data.toString());
+
+            // Creating HTTP POST request
+            Request request = new Request.Builder()
+                    .url("https://35.212.247.165:8081/logout")
+                    .post(body)
+                    .build();
+
+            // Getting insecure OkHttpClient
+            OkHttpClient insecureClient = getInsecureOkHttpClient();
+
+            // Making asynchronous HTTP call
+            insecureClient.newCall(request).enqueue(new okhttp3.Callback() {
+                @Override
+                public void onFailure(okhttp3.Call call, IOException e) {
+                    // Handle network failure
+                    e.printStackTrace();
+                    showToast("Network Error: Unable to connect to the server. Please check your internet connection and try again.");
+                    Log.e(TAG, "httpClient onFailure", e);
+                }
+
+                @Override
+                public void onResponse(okhttp3.Call call, Response response) throws IOException {
+                    if (!response.isSuccessful()) {
+                        // Handle HTTP errors
+                        if (response.code() == 404) {
+                            showToast("User not found. Please log in again.");
+                            Log.e(TAG, "HTTP Error 404: User with that session token cannot be found");
+                        } else {
+                            showToast("Trouble logging out. Please try again later.");
+                            Log.e(TAG, "HTTP Error: " + response.code());
+                        }
+                        return;
+                    }
+                    // Handle success (200 OK)
+                    showToast("Logged out successfully");
+                    Log.d(TAG, "User successfully logged out");
+                    // Optionally, update UI or navigate to another activity
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+            showToast("An error occurred while creating the request");
+            Log.e(TAG, "JSON Exception", e);
+        }
+    }
+
+    private void showLogoutConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Logout Confirmation");
+        builder.setMessage("Are you sure you want to log out?");
+
+        // Add the "Yes" button and its action
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                // Perform the logout action here
+                logout(sessionToken);
+            }
+        });
+
+        // Add the "No" button and its action
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                // User clicked "No," do nothing or dismiss the dialog
+                dialogInterface.dismiss();
+            }
+        });
+
+        // Create and show the dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
 
 
 

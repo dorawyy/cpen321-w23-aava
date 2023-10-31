@@ -168,6 +168,7 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d(TAG, "Email: " + account.getEmail());
                 Log.d(TAG, "Display URL: " + account.getPhotoUrl());
                 Log.d(TAG, "Given Name: " + account.getGivenName());
+                Log.d(TAG, "id: " + account.getId());
 
                 userToken = account.getIdToken();
                 //sendTokenToBackend(token);
@@ -283,7 +284,9 @@ public class LoginActivity extends AppCompatActivity {
                         Log.d(TAG, "HTTP Error: " + response.code());
                         Log.d(TAG, "check parameters " + token + " username" + userName);
                         //createAccount(token, userName);
+                        Log.e(TAG,""+ response.body().string());
                         showToast("Trouble getting response");
+                        createAccount(token, userName);
                         return;
                     }
 
@@ -377,6 +380,7 @@ public class LoginActivity extends AppCompatActivity {
                 throw new RuntimeException(e);
             }
         }
+
 
 
 

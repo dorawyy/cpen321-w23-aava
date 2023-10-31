@@ -143,7 +143,7 @@ app.post("/login", (req, res) => {
           sessionToken: user.sessionToken,
         });
       } else {
-        res.status(404).send({
+        res.status(400).send({
           message: "Unable to find the user for this account.",
         });
       }
@@ -449,7 +449,7 @@ io.on("connection", (socket) => {
         // Be sure to also remove them from this socket room
         let socketId = player.getSocketId();
         if (socketId != undefined){
-          let playerSocket = io.sockets.sockets.get();
+          let playerSocket = io.sockets.sockets.get(socketId);
           if (playerSocket) {
             playerSocket.leave(roomId);
             playerSocket.emit("roomClosed");
@@ -473,11 +473,14 @@ io.on("connection", (socket) => {
       room.removePlayer(username);
 
       // Be sure to also remove them from this socket room
-      let playerSocket = io.sockets.sockets.get(player.getSocketId());
-      if (playerSocket) {
-        playerSocket.leave(roomId);
-        playerSocket.emit("roomClosed");
-      }
+      let socketId = player.getSocketId();
+        if (socketId != undefined){
+          let playerSocket = io.sockets.sockets.get(socketId);
+          if (playerSocket) {
+            playerSocket.leave(roomId);
+            playerSocket.emit("roomClosed");
+          }
+        }
 
       // Notify other players still in the room that a player
       // has left
@@ -526,12 +529,16 @@ io.on("connection", (socket) => {
 
     // Notify the banned player that they have been banned
     const bannedPlayer = room.getPlayer(bannedUsername);
+    
+
     const bannedPlayerSocketId = bannedPlayer.getSocketId();
 
-    let bannedPlayerSocket = io.sockets.sockets.get(bannedPlayerSocketId);
-    bannedPlayerSocket.emit("removedFromRoom", {
-      reason: "banned",
-    });
+    if (bannedPlayerSocketId != undefined){
+      let bannedPlayerSocket = io.sockets.sockets.get(bannedPlayerSocketId);
+      bannedPlayerSocket.emit("removedFromRoom", {
+        reason: "banned",
+      });
+    }
   });
 
   /**
@@ -804,10 +811,15 @@ io.on("connection", (socket) => {
             const playerUsername = player.user.username;
             room.removePlayer(playerUsername);
 
-            let playerSocket = io.sockets.sockets.get(player.getSocketId());
-            if (playerSocket) {
-              playerSocket.leave(roomId);
+            let socketId = player.getSocketId();
+            if (socketId != undefined){
+              let playerSocket = io.sockets.sockets.get(socketId);
+              if (playerSocket) {
+                playerSocket.leave(roomId);
+              }
             }
+
+            
           }
 
           assert(room.getPlayers().length === 0);

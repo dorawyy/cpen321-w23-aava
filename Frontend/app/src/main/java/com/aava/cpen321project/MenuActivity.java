@@ -197,6 +197,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
     private void onCreateButtonClick () {
         Toast.makeText(this, "Create Button Clicked", Toast.LENGTH_SHORT).show();
         // Handle create button click
+        Log.d("MELO", sessionToken);
         createRoom(sessionToken);
 
 

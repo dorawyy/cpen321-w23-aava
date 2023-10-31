@@ -163,11 +163,11 @@ public class GameActivity extends AppCompatActivity {
 
     // Constant values that last throughout the duration of the game.
     private Socket mSocket;
-    private String sessionToken = "0aae56ce-3788-4c3d-81fc-c1fe397c0cd9";
-    private String username = "username-1";
-    private String roomId = "roomId-2";
-    private String roomCode = "XYZ123";
-    private boolean isOwner = true;
+    private String sessionToken;
+    private String username;
+    private String roomId;
+    private String roomCode;
+    private boolean isOwner;
     private List<String> possibleCategories = new ArrayList<String>();
 
     // Constant options for room settings.
@@ -388,6 +388,7 @@ public class GameActivity extends AppCompatActivity {
             put("username", username);
             put("timeDelay", timeDelay);
             put("isCorrect", isCorrect);
+            put("isCorrect", isCorrect);
             put("powerupCode", powerupCode);
             put("powerupVictimUsername", powerupVictimUsername);
         }});
@@ -460,7 +461,7 @@ public class GameActivity extends AppCompatActivity {
                 JSONObject data = (JSONObject) args[0];
                 try {
                     roomPlayers = data.getJSONArray("roomPlayers");
-
+                    Log.d(TAG, data.toString());
                     for (int i = 0; i < roomPlayers.length(); i++) {
                         if (!roomPlayers.getJSONObject(i).getString("username").equals(username)) {
                             otherPlayerUsernames.add(roomPlayers.getJSONObject(i).getString("username"));
@@ -823,14 +824,12 @@ public class GameActivity extends AppCompatActivity {
     private void getSetActivityParameters() {
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            //username = bundle.getString("username");
-            //sessionToken = bundle.getString("sessionToken");
+            username = bundle.getString("username");
+            sessionToken = bundle.getString("sessionToken");
             roomCode = bundle.getString("roomCode");
             roomId = bundle.getString("roomId");
             isOwner = bundle.getBoolean("isOwner");
-//            if (isOwner) {
-//                availableCategories = bundle.getStringArray("questionCategories");
-//            }
+
             Log.d(TAG, "Username: " + username);
             Log.d(TAG, "Session Token: " + sessionToken);
             Log.d(TAG, "Room Code: " + roomCode);

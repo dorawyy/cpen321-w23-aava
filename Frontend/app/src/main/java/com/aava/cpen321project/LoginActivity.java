@@ -168,7 +168,8 @@ public class LoginActivity extends AppCompatActivity {
                 //sendTokenToBackend(token);
                 Log.d(TAG,"userToken from google" + userToken);
 
-                userName = account.getGivenName() + account.getFamilyName();
+                String email = account.getEmail();
+                userName = email.substring(0, email.indexOf('@'));
                 login(userToken, userName);
 
 

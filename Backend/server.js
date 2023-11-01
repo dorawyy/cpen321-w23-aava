@@ -161,16 +161,18 @@ app.post("/login", (req, res) => {
  * ChatGPT usage: No
  */
 app.post("/logout", (req, res) => {
-  userDBManager.setUserSessionToken(loggedInUser.token, null).then(
-    (loggedOutUser) => {
-      assert(loggedOutUser.sessionToken === null);
-      res.status(200).send();
-    },
-    (err) => {
-      console.log("[ERROR]: " + err);
-      res.status(500).send({ message: "An unknown error occurred" });
-    }
-  );
+  userDBManager.getUserBySessionToken(req.sessionToken).then((loggedInUser) => {
+    userDBManager.setUserSessionToken(loggedInUser.token, null).then(
+      (loggedOutUser) => {
+        assert(loggedOutUser.sessionToken === null);
+        res.status(200).send();
+      },
+      (err) => {
+        console.log("[ERROR]: " + err);
+        res.status(500).send({ message: "An unknown error occurred" });
+      }
+    );
+  });  
 });
 
 /**

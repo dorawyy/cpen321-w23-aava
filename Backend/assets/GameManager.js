@@ -1,7 +1,6 @@
 const GameRoom = require("./GameRoom.js");
 const QuestionGenerator = require("./QuestionGenerator.js");
 const PowerupEnum = require("./PowerUpEnum.js");
-const PlayerAction = require("./PlayerAction.js");
 const Settings = require("./Settings");
 const { v4: uuidv4 } = require("uuid");
 const Player = require("./Player.js");
@@ -46,7 +45,7 @@ class GameManager {
     // Filters the code down to 6 characters and makes sure it is unique
     let roomCode;
     do {
-      roomCode = uuid.replace(/[-]/g, "").toUpperCase().substring(0, 6);
+      roomCode = uuid.replace(/-/g, "").toUpperCase().substring(0, 6);
     } while (this.roomCodeToGameRoom.has(roomCode));
 
     // Create the room and add it to the map

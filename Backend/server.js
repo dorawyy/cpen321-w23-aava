@@ -13,7 +13,6 @@ const UserDBManager = require("./assets/UserDBManager.js");
 const Player = require("./assets/Player.js");
 const User = require("./assets/User.js");
 const PlayerAction = require("./assets/PlayerAction.js");
-const { Socket } = require("socket.io");
 
 let gameManager = new GameManager();
 let userDBManager = new UserDBManager(db.getUsersCollection());
@@ -161,17 +160,22 @@ app.post("/login", (req, res) => {
  * ChatGPT usage: No
  */
 app.post("/logout", (req, res) => {
-  userDBManager.setUserSessionToken(loggedInUser.token, null).then(
-    (loggedOutUser) => {
-      assert(loggedOutUser.sessionToken === null);
-      res.status(200).send();
-    },
-    (err) => {
-      console.log("[ERROR]: " + err);
-      res.status(500).send({ message: "An unknown error occurred" });
-    }
-  );
-});
+    const sessionToken = req.body.sessionToken;
+    userDBManager.getUserBySessionToken(sessionToken).then((user) => {
+      const token = user.token;
+  
+      userDBManager.setUserSessionToken(token, null).then(
+        (loggedOutUser) => {
+          assert(loggedOutUser.sessionToken === null);
+          res.status(200).send();
+        },
+        (err) => {
+          console.log("[ERROR]: " + err);
+          res.status(500).send({ message: "An unknown error occurred" });
+        }
+      );
+    });
+  });
 
 /**
  * Puts the user in a random active game room. The user will only
@@ -186,7 +190,7 @@ app.post("/join-random-room", (req, res) => {
   const availableRooms = gameManager.getAvailableRooms();
 
   try {
-    if (availableRooms.length == 0) {
+    if (availableRooms.length === 0) {
       res.status(404).send({
         message:
           "No game rooms available at the moment. Please try again later.",
@@ -741,9 +745,9 @@ io.on("connection", (socket) => {
       })
       .catch((errCode) => {
         let message = "";
-        if (errCode == 1) {
+        if (errCode === 1) {
           message = "Invalid RoomId";
-        } else if (errCode == 2) {
+        } else if (errCode === 2) {
           message = "No Categories Selected";
         }
         socket.emit("error", { message: message });
@@ -784,7 +788,7 @@ io.on("connection", (socket) => {
         // Get points per round
         const results = gameManager.calculateScore(roomCode);
 
-        if (results.returnCode == 0) {
+        if (results.returnCode === 0) {
           //Calculate new totals
           const scoreGain = results.scores;
           let totalScores = gameManager.addToPlayerScore(roomCode, scoreGain);
@@ -806,7 +810,7 @@ io.on("connection", (socket) => {
           socket.emit("showScoreboard", scoresData);
 
           // If no remaiing questiosns, end game, else send next questions
-          if (gameManager.fetchQuestionsQuantity(roomCode) != 0) {
+          if (gameManager.fetchQuestionsQuantity(roomCode) !== 0) {
             setTimeout(() => {
               sendQuestion(socket, roomCode, roomId);
             }, SHOW_SCOREBOARD_MILLISECONDS);

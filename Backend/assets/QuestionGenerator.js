@@ -88,7 +88,7 @@ class QuestionGenerator {
     let parameters = {
       params: {
         amount: quantity,
-        difficulty: difficulty,
+        difficulty,
       }
     };
 

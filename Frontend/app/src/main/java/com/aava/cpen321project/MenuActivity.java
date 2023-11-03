@@ -13,16 +13,10 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-//import io.socket.client.Ack;
-//import io.socket.client.IO;
-//import io.socket.client.Socket;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,8 +29,6 @@ import okhttp3.RequestBody;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import android.content.Intent;
-
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -44,31 +36,20 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
 import java.io.IOException;
-import java.util.function.Consumer;
+
 
 
 
 public class MenuActivity extends AppCompatActivity implements View.OnClickListener{
 
-    private TextView titleText, playText, accountText, userText;
-    private ImageView playButton, createButton, codeButton, accountButton;
-
-    private ImageView logoImage;
-
     final static String TAG = "MenuActivity";
-
-    //private Socket socket;
-
     private String userName;
     private String userToken;
 
     private String sessionToken;
 
     GoogleSignInClient mGoogleSignInClient;
-
-
     String serverBaseUrl = "https://35.212.247.165:8081";
-    private OkHttpClient httpClient = new OkHttpClient();
 
     //ChatGPT usage: No
     @Override
@@ -76,15 +57,12 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
 
-        // Initialize views
-        titleText = findViewById(R.id.titleText);
-        playText = findViewById(R.id.playText);
 
         // Initialize ImageViews
-        playButton = findViewById(R.id.playButton);
-        codeButton = findViewById(R.id.codeButton);
-        accountButton = findViewById(R.id.accountButton);
-        createButton = findViewById(R.id.createButton);
+        ImageView playButton = findViewById(R.id.playButton);
+        ImageView codeButton = findViewById(R.id.codeButton);
+        ImageView accountButton = findViewById(R.id.accountButton);
+        ImageView createButton = findViewById(R.id.createButton);
 
 
         // Set click listeners
@@ -93,14 +71,12 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
         accountButton.setOnClickListener(this);
         createButton.setOnClickListener(this);
 
-        logoImage = findViewById(R.id.logoImage);
-
         Intent intent = getIntent();
         if (intent != null) {
             userName = intent.getStringExtra("userName");
             sessionToken = intent.getStringExtra("sessionToken");
             userToken = intent.getStringExtra("userToken");
-            Log.d(TAG,"Get userName from login" + userName);
+            Log.d(TAG,"Get userName from login" + userName + "userToken:" + userToken);
         }
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -351,9 +327,9 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
             OkHttpClient insecureClient = getInsecureOkHttpClient();
 
             // Making asynchronous HTTP call
-            insecureClient.newCall(request).enqueue(new okhttp3.Callback() {
+            insecureClient.newCall(request).enqueue(new Callback() {
                 @Override
-                public void onFailure(okhttp3.Call call, IOException e) {
+                public void onFailure(Call call, IOException e) {
                     // Handle network failure
                     e.printStackTrace();
                     showToast("Network Error: Unable to connect to the server. Please check your internet connection and try again.");
@@ -361,7 +337,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
                 }
 
                 @Override
-                public void onResponse(okhttp3.Call call, Response response) throws IOException {
+                public void onResponse(Call call, Response response) throws IOException {
                     if (!response.isSuccessful()) {
                         // Handle HTTP errors
                         if (response.code() == 404) {

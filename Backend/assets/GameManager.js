@@ -310,7 +310,8 @@ class GameManager {
       totalScores.set(username, score + stolenScores.get(username));
     });
 
-    return { returnCode: 0, scores: totalScores };
+    const result = { returnCode: 0, scores: totalScores };
+    return result;
   }
 
   /* Room Interaction Stuff */

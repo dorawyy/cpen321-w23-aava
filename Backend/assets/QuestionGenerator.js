@@ -142,7 +142,8 @@ class QuestionGenerator {
       console.log(err);
     }
 
-    return { questions, res_code };
+    const result = { questions, res_code }; 
+    return result;
   };
 
   /** 

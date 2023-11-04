@@ -7,23 +7,14 @@ import android.os.Bundle;
 
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
-import android.Manifest;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-
-
-import io.socket.client.Ack;
-import io.socket.client.IO;
-import io.socket.client.Socket;
-import io.socket.emitter.Emitter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -52,10 +43,6 @@ public class LoginActivity extends AppCompatActivity {
     final static String TAG = "LoginActivity";
 
     private GoogleSignInClient mGoogleSignInClient;
-
-    //private Socket socket;
-    String serverBaseUrl = "https://35.212.247.165:8081/";
-    private OkHttpClient httpClient = new OkHttpClient();
 
     private String userToken;
 
@@ -327,17 +314,19 @@ public class LoginActivity extends AppCompatActivity {
 
     //ChatGPT usage: Yes
     //created OkHttpClient instance is that it is configured to trust all SSL/TLS certificates
-    public static OkHttpClient getInsecureOkHttpClient() {
+    static public OkHttpClient getInsecureOkHttpClient() {
         try {
             // Create a trust manager that does not validate certificate chains
             final TrustManager[] trustAllCerts = new TrustManager[]{
                     new X509TrustManager() {
                         @Override
                         public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                            // Intentionally left empty as no specific logic is required here
                         }
 
                         @Override
                         public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                            // Intentionally left empty as no specific logic is required here
                         }
 
                         @Override
@@ -361,9 +350,16 @@ public class LoginActivity extends AppCompatActivity {
             return builder.build();
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new InsecureOkHttpClientException(e);
         }
     }
+
+    static class InsecureOkHttpClientException extends RuntimeException {
+        public InsecureOkHttpClientException(Throwable cause) {
+            super(cause);
+        }
+    }
+
 
 
 }

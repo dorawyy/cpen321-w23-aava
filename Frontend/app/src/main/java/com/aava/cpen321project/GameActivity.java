@@ -76,11 +76,6 @@ public class GameActivity extends AppCompatActivity {
     private TextView lobbyUniversalTimeLabel;
     private TextView lobbyUniversalPublicLabel;
     private TextView lobbyUniversalDifficultyLabel;
-    private TextView lobbyUniversalCategory1Label;
-    private TextView lobbyUniversalCategory2Label;
-    private TextView lobbyUniversalCategory3Label;
-    private TextView lobbyUniversalCategory4Label;
-    private TextView lobbyUniversalCategory5Label;
     private TextView[] lobbyUniversalCategoryLabels = new TextView[5];
 
     private LinearLayout lobbyPlayer1Layout;
@@ -122,11 +117,6 @@ public class GameActivity extends AppCompatActivity {
     private TextView lobbyEditTimeLabel;
     private TextView lobbyEditPublicLabel;
     private TextView lobbyEditDifficultyLabel;
-    private TextView lobbyEditCategory1Label;
-    private TextView lobbyEditCategory2Label;
-    private TextView lobbyEditCategory3Label;
-    private TextView lobbyEditCategory4Label;
-    private TextView lobbyEditCategory5Label;
     private TextView[] lobbyEditCategoryLabels = new TextView[5];
 
     private TextView countdownReadyLabel;
@@ -146,24 +136,18 @@ public class GameActivity extends AppCompatActivity {
     private TextView questionTimerLabel;
     private TextView questionPlayersFinishedLabel;
 
-    private TextView stallBlurbLabel;
-
     private LinearLayout scoreboardLesserColumn;
     private LinearLayout scoreboardGreaterColumn;
     private TextView scoreboardLesserGainLabel;
     private TextView scoreboardLesserScoreLabel;
     private TextView scoreboardLesserUsernameLabel;
-    private ImageView scoreboardLesserImage;
     private TextView scoreboardCurrentGainLabel;
     private TextView scoreboardCurrentScoreLabel;
     private TextView scoreboardCurrentUsernameLabel;
-    private ImageView scoreboardCurrentImage;
     private TextView scoreboardGreaterGainLabel;
     private TextView scoreboardGreaterScoreLabel;
     private TextView scoreboardGreaterUsernameLabel;
-    private ImageView scoreboardGreaterImage;
     private TextView scoreboardRankLabel;
-    private TextView scoreboardBlurbLabel;
     private ImageView scoreboardLeaveImage;
 
     private ImageView powerup1Image;
@@ -190,14 +174,14 @@ public class GameActivity extends AppCompatActivity {
     private String roomId;
     private String roomCode;
     private boolean isOwner;
-    private List<String> possibleCategories = new ArrayList<String>();
+    private final List<String> possibleCategories = new ArrayList<String>();
 
     // Constant options for room settings.
-    private String[] questionCountOptions = new String[] {"5", "10", "15", "20"};
-    private String[] maxPlayerOptions = new String[] {"2", "3", "4", "5", "6"};
-    private String[] timeLimitOptions = new String[] {"10", "15", "20", "25", "30"};
-    private String[] publicOptions = new String[] {"Public", "Private"};
-    private String[] difficultyOptions = new String[] {"Easy", "Medium", "Hard"};
+    private final String[] questionCountOptions = new String[] {"5", "10", "15", "20"};
+    private final String[] maxPlayerOptions = new String[] {"2", "3", "4", "5", "6"};
+    private final String[] timeLimitOptions = new String[] {"10", "15", "20", "25", "30"};
+    private final String[] publicOptions = new String[] {"Public", "Private"};
+    private final String[] difficultyOptions = new String[] {"Easy", "Medium", "Hard"};
 
     // State concerning the players in the game room.
     private JSONArray roomPlayers;
@@ -206,7 +190,7 @@ public class GameActivity extends AppCompatActivity {
 
     // State concerning the settings of the game room.
     private boolean roomIsPublic;
-    private List<String> roomChosenCategories = new ArrayList<String>();
+    private final List<String> roomChosenCategories = new ArrayList<String>();
     private String roomQuestionDifficulty;
     private int roomMaxPlayers;
     private int roomQuestionTime;
@@ -231,11 +215,10 @@ public class GameActivity extends AppCompatActivity {
     private final List<Integer> remainingPowerups = new ArrayList<Integer>() {{
         add(0);add(1);add(2);add(3);add(4);
     }};
-    private boolean chosenPowerup;
     private int powerupCode = -1;
-    private List<String> otherPlayerUsernames =  new ArrayList<>();
+    private final List<String> otherPlayerUsernames =  new ArrayList<>();
     private String powerupVictimUsername;
-    private Random rand = new Random();
+    private final Random rand = new Random();
     private boolean extraLifeEnabled = false;
 
     // ChatGPT usage: No
@@ -529,7 +512,7 @@ public class GameActivity extends AppCompatActivity {
                         enableLayout(lobbyJoinerLayout, false, true);
                     }
                 } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
             });
 
@@ -552,7 +535,7 @@ public class GameActivity extends AppCompatActivity {
                     // lobbyOwnerStartImage.setClickable(false);
                     Log.d(TAG, "Player joined: " + data.getString("newPlayerUsername"));
                 } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
             });
 
@@ -576,7 +559,7 @@ public class GameActivity extends AppCompatActivity {
                         });
                     }
                 } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
             });
 
@@ -615,7 +598,7 @@ public class GameActivity extends AppCompatActivity {
                                 .show();
                     }
                 } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
             });
 
@@ -669,7 +652,7 @@ public class GameActivity extends AppCompatActivity {
                     }
                     updateRoomSettingLabels();
                 } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
             });
 
@@ -693,7 +676,7 @@ public class GameActivity extends AppCompatActivity {
                         });
                     }
                 } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
             });
 
@@ -709,7 +692,7 @@ public class GameActivity extends AppCompatActivity {
                     }
                     correctAnswer = data.getInt("correctIndex");
                 } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
                 if (!started) {
                     // If this is the first question, initialize some of the game state, and
@@ -742,7 +725,7 @@ public class GameActivity extends AppCompatActivity {
                     // Set all question state values.
                     Log.d(TAG, "Player answered: " + data.getString("playerUsername"));
                 } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
             });
 
@@ -759,13 +742,13 @@ public class GameActivity extends AppCompatActivity {
                             scoreInfoList.add(scoreInfo.getJSONObject(i));
                         }
                         Collections.sort(scoreInfoList, (a, b) -> {
-                            int scoreA;
-                            int scoreB;
+                            int scoreA = 0;
+                            int scoreB = 0;
                             try {
                                 scoreA = a.getInt("updatedTotalPoints");
                                 scoreB = b.getInt("updatedTotalPoints");
                             } catch (JSONException e) {
-                                throw new RuntimeException(e);
+                                e.printStackTrace();
                             }
                             return scoreB - scoreA;
                         });
@@ -811,7 +794,7 @@ public class GameActivity extends AppCompatActivity {
                         }
 
                     } catch (JSONException e) {
-                        throw new RuntimeException(e);
+                        e.printStackTrace();
                     }
 
                     // If the game is over...
@@ -830,7 +813,7 @@ public class GameActivity extends AppCompatActivity {
             });
 
         } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (KeyManagementException e) {
@@ -966,11 +949,11 @@ public class GameActivity extends AppCompatActivity {
         lobbyUniversalTimeLabel = findViewById(R.id.game_lobby_time_limit_label);
         lobbyUniversalPublicLabel = findViewById(R.id.game_lobby_is_public_label);
         lobbyUniversalDifficultyLabel = findViewById(R.id.game_lobby_question_difficulty_label);
-        lobbyUniversalCategory1Label = findViewById(R.id.game_lobby_category1_label);
-        lobbyUniversalCategory2Label = findViewById(R.id.game_lobby_category2_label);
-        lobbyUniversalCategory3Label = findViewById(R.id.game_lobby_category3_label);
-        lobbyUniversalCategory4Label = findViewById(R.id.game_lobby_category4_label);
-        lobbyUniversalCategory5Label = findViewById(R.id.game_lobby_category5_label);
+        TextView lobbyUniversalCategory1Label = findViewById(R.id.game_lobby_category1_label);
+        TextView lobbyUniversalCategory2Label = findViewById(R.id.game_lobby_category2_label);
+        TextView lobbyUniversalCategory3Label = findViewById(R.id.game_lobby_category3_label);
+        TextView lobbyUniversalCategory4Label = findViewById(R.id.game_lobby_category4_label);
+        TextView lobbyUniversalCategory5Label = findViewById(R.id.game_lobby_category5_label);
         lobbyUniversalCategoryLabels = new TextView[] {
                 lobbyUniversalCategory1Label, lobbyUniversalCategory2Label, lobbyUniversalCategory3Label,
                 lobbyUniversalCategory4Label, lobbyUniversalCategory5Label
@@ -1036,11 +1019,11 @@ public class GameActivity extends AppCompatActivity {
         lobbyEditTimeLabel = findViewById(R.id.game_lobby_edit_label_time_limit);
         lobbyEditPublicLabel = findViewById(R.id.game_lobby_edit_label_is_public);
         lobbyEditDifficultyLabel = findViewById(R.id.game_lobby_edit_label_question_difficulty);
-        lobbyEditCategory1Label = findViewById(R.id.game_lobby_edit_category1);
-        lobbyEditCategory2Label = findViewById(R.id.game_lobby_edit_category2);
-        lobbyEditCategory3Label = findViewById(R.id.game_lobby_edit_category3);
-        lobbyEditCategory4Label = findViewById(R.id.game_lobby_edit_category4);
-        lobbyEditCategory5Label = findViewById(R.id.game_lobby_edit_category5);
+        TextView lobbyEditCategory1Label = findViewById(R.id.game_lobby_edit_category1);
+        TextView lobbyEditCategory2Label = findViewById(R.id.game_lobby_edit_category2);
+        TextView lobbyEditCategory3Label = findViewById(R.id.game_lobby_edit_category3);
+        TextView lobbyEditCategory4Label = findViewById(R.id.game_lobby_edit_category4);
+        TextView lobbyEditCategory5Label = findViewById(R.id.game_lobby_edit_category5);
         lobbyEditCategoryLabels = new TextView[] {
                 lobbyEditCategory1Label, lobbyEditCategory2Label, lobbyEditCategory3Label,
                 lobbyEditCategory4Label, lobbyEditCategory5Label
@@ -1073,7 +1056,7 @@ public class GameActivity extends AppCompatActivity {
         questionTimerLabel = findViewById(R.id.game_question_timer_label);
         questionPlayersFinishedLabel = findViewById(R.id.game_question_players_finished_label);
 
-        stallBlurbLabel = findViewById(R.id.game_stall_blurb_label);
+//        TextView stallBlurbLabel = findViewById(R.id.game_stall_blurb_label);
 
         scoreboardLesserColumn = findViewById(R.id.game_scoreboard_lesser_column);
         scoreboardGreaterColumn = findViewById(R.id.game_scoreboard_greater_column);
@@ -1081,17 +1064,17 @@ public class GameActivity extends AppCompatActivity {
         scoreboardLesserGainLabel = findViewById(R.id.game_scoreboard_lesser_gain_label);
         scoreboardLesserScoreLabel = findViewById(R.id.game_scoreboard_lesser_score_label);
         scoreboardLesserUsernameLabel = findViewById(R.id.game_scoreboard_lesser_username_label);
-        scoreboardLesserImage = findViewById(R.id.game_scoreboard_lesser_image);
+//        ImageView scoreboardLesserImage = findViewById(R.id.game_scoreboard_lesser_image);
         scoreboardCurrentGainLabel = findViewById(R.id.game_scoreboard_current_gain_label);
         scoreboardCurrentScoreLabel = findViewById(R.id.game_scoreboard_current_score_label);
         scoreboardCurrentUsernameLabel = findViewById(R.id.game_scoreboard_current_username_label);
-        scoreboardCurrentImage = findViewById(R.id.game_scoreboard_current_image);
+//        ImageView scoreboardCurrentImage = findViewById(R.id.game_scoreboard_current_image);
         scoreboardGreaterGainLabel = findViewById(R.id.game_scoreboard_greater_gain_label);
         scoreboardGreaterScoreLabel = findViewById(R.id.game_scoreboard_greater_score_label);
         scoreboardGreaterUsernameLabel = findViewById(R.id.game_scoreboard_greater_username_label);
-        scoreboardGreaterImage = findViewById(R.id.game_scoreboard_greater_image);
+//        ImageView scoreboardGreaterImage = findViewById(R.id.game_scoreboard_greater_image);
         scoreboardRankLabel = findViewById(R.id.game_scoreboard_rank_label);
-        scoreboardBlurbLabel = findViewById(R.id.game_scoreboard_blurb_label);
+//        TextView scoreboardBlurbLabel = findViewById(R.id.game_scoreboard_blurb_label);
         scoreboardLeaveImage = findViewById(R.id.game_scoreboard_leave_image);
 
         powerup1Image = findViewById(R.id.game_powerup_image1);

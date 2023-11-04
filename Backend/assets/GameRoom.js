@@ -1,5 +1,3 @@
-const Settings = require("./Settings");
-
 /**
  * A GameRoom is a place where users can gather before starting a game together.
  * It has settings that can be changed to customize the game.

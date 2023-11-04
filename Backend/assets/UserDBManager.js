@@ -27,7 +27,7 @@ class UserDBManager {
    */
   async createNewUser(token, username) {
     // Check if a user already exists with the same token or username
-    const existingUser = await this.usersCollection.findOne({ token: token });
+    const existingUser = await this.usersCollection.findOne({ token });
 
     // If an existing user is found, handle it by throwing an error.
     if (existingUser) {
@@ -60,8 +60,8 @@ class UserDBManager {
   async setUserSessionToken(token, sessionToken) {
     try {
       const result = await this.usersCollection.updateOne(
-        { token: token },
-        { $set: { sessionToken: sessionToken } }
+        { token },
+        { $set: { sessionToken } }
       );
 
       // Return undefined if no user could be found
@@ -69,7 +69,7 @@ class UserDBManager {
         return;
       } else {
         const user = await this.usersCollection.findOne({
-          token: token,
+          token,
         });
 
         return user;
@@ -89,7 +89,7 @@ class UserDBManager {
    */
   async getUserBySessionToken(sessionToken) {
     const user = await this.usersCollection.findOne({
-      sessionToken: sessionToken,
+      sessionToken
     });
 
     if (user) {
@@ -108,7 +108,7 @@ class UserDBManager {
    * ChatGPT usage: Partial
    */
   async getUserByUsername(username) {
-    const user = await this.usersCollection.findOne({ username: username });
+    const user = await this.usersCollection.findOne({ username });
 
     if (user) {
       return user;
@@ -130,11 +130,11 @@ class UserDBManager {
     }
 
     return this.usersCollection
-      .updateOne({ username: username }, { $inc: { rank: value } })
+      .updateOne({ username }, { $inc: { rank: value } })
       .then((_) => {
         if (value < 0) {
           return this.usersCollection.updateOne(
-            { username: username, rank: { $lt: 0 } },
+            { username, rank: { $lt: 0 } },
             { $set: { rank: 0 } }
           );
         }

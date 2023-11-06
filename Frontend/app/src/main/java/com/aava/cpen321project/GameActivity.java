@@ -4,6 +4,7 @@ import static java.lang.System.currentTimeMillis;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -78,24 +79,6 @@ public class GameActivity extends AppCompatActivity {
     private TextView lobbyUniversalDifficultyLabel;
     private TextView[] lobbyUniversalCategoryLabels = new TextView[5];
 
-    private LinearLayout lobbyPlayer1Layout;
-    private LinearLayout lobbyPlayer2Layout;
-    private LinearLayout lobbyPlayer3Layout;
-    private LinearLayout lobbyPlayer4Layout;
-    private LinearLayout lobbyPlayer5Layout;
-    private LinearLayout lobbyPlayer6Layout;
-    private ImageView lobbyPlayer1Icon;
-    private ImageView lobbyPlayer2Icon;
-    private ImageView lobbyPlayer3Icon;
-    private ImageView lobbyPlayer4Icon;
-    private ImageView lobbyPlayer5Icon;
-    private ImageView lobbyPlayer6Icon;
-    private TextView lobbyPlayer1Label;
-    private TextView lobbyPlayer2Label;
-    private TextView lobbyPlayer3Label;
-    private TextView lobbyPlayer4Label;
-    private TextView lobbyPlayer5Label;
-    private TextView lobbyPlayer6Label;
     private List<LinearLayout> lobbyPlayerLayouts;
     private List<ImageView> lobbyPlayerIcons;
     private List<TextView> lobbyPlayerLabels;
@@ -150,20 +133,10 @@ public class GameActivity extends AppCompatActivity {
     private TextView scoreboardRankLabel;
     private ImageView scoreboardLeaveImage;
 
-    private ImageView powerup1Image;
-    private ImageView powerup2Image;
-    private ImageView powerup3Image;
-    private ImageView powerup4Image;
-    private ImageView powerup5Image;
-    private ImageView powerupIcon1Image;
-    private ImageView powerupIcon2Image;
-    private ImageView powerupIcon3Image;
-    private ImageView powerupIcon4Image;
-    private ImageView powerupIcon5Image;
     private List<ImageView> powerupImages = new ArrayList<>();
     private List<ImageView> powerupIconImages = new ArrayList<>();
 
-    private Map<RelativeLayout, List<View>> clickableViews;
+    private Map<RelativeLayout, List<ImageView>> clickableViews;
 
     // STATE VARIABLES
 
@@ -260,7 +233,7 @@ public class GameActivity extends AppCompatActivity {
             countdownCountLabel.setVisibility(View.INVISIBLE);
             countdownReadyLabel.setVisibility(View.VISIBLE);
         });
-        enableLayout(countdownLayout, true, false);
+        enableLayout(countdownLayout, false);
 
         // Start a timer for the countdown; ends with the question being displayed.
         runOnUiThread(() -> {
@@ -306,8 +279,8 @@ public class GameActivity extends AppCompatActivity {
 
                     // Display the question layout and the powerups layout.
                     disableLayout(countdownLayout);
-                    enableLayout(questionLayout, true, false);
-                    enableLayout(powerupLayout, true, false);
+                    enableLayout(questionLayout, false);
+                    enableLayout(powerupLayout, false);
 
                     // Manually set which powerups should be clickable, and set their images
                     runOnUiThread(() -> {
@@ -409,7 +382,7 @@ public class GameActivity extends AppCompatActivity {
         // Since the question has been answered, switch to the next screen, waiting for the scoreboard.
         disableLayout(questionLayout);
         disableLayout(powerupLayout);
-        enableLayout(stallLayout, true, true);
+        enableLayout(stallLayout, true);
     }
 
     // Init the socket.
@@ -448,8 +421,8 @@ public class GameActivity extends AppCompatActivity {
                     put("username", username);
                 }});
 
-                enableLayout(lobbyUniversalLayout, false, true);
-                enableLayout(isOwner ? lobbyOwnerLayout : lobbyJoinerLayout, false, true);
+                enableLayout(lobbyUniversalLayout, true);
+                enableLayout(isOwner ? lobbyOwnerLayout : lobbyJoinerLayout, true);
                 headerLabel.setText("Lobby");
             });
 
@@ -502,14 +475,14 @@ public class GameActivity extends AppCompatActivity {
                     updateRoomSettingLabels();
 
                     // Initialize the lobby layout.
-                    enableLayout(lobbyUniversalLayout, false, true);
+                    enableLayout(lobbyUniversalLayout, true);
                     if (isOwner) {
-                        enableLayout(lobbyOwnerLayout, false, true);
+                        enableLayout(lobbyOwnerLayout, true);
                         // Disable Start button by default, as more players need to join.
                         // TODO: Undo this comment
                         // lobbyOwnerStartImage.setClickable(false);
                     } else {
-                        enableLayout(lobbyJoinerLayout, false, true);
+                        enableLayout(lobbyJoinerLayout, true);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -809,7 +782,7 @@ public class GameActivity extends AppCompatActivity {
 
                 // Display the scoreboard screen.
                 disableLayout(stallLayout);
-                enableLayout(scoreboardLayout, true, true);
+                enableLayout(scoreboardLayout, true);
             });
 
         } catch (URISyntaxException e) {
@@ -826,16 +799,20 @@ public class GameActivity extends AppCompatActivity {
     }
 
     TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
-        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-            return new java.security.cert.X509Certificate[]{};
+        @SuppressLint("TrustAllX509TrustManager")
+        @Override
+        public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+
         }
 
-        public void checkClientTrusted(X509Certificate[] chain,
-                                       String authType) throws CertificateException {
+        @SuppressLint("TrustAllX509TrustManager")
+        @Override
+        public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+
         }
 
-        public void checkServerTrusted(X509Certificate[] chain,
-                                       String authType) throws CertificateException {
+        public X509Certificate[] getAcceptedIssuers() {
+            return new X509Certificate[]{};
         }
     }};
 
@@ -959,47 +936,29 @@ public class GameActivity extends AppCompatActivity {
                 lobbyUniversalCategory4Label, lobbyUniversalCategory5Label
         };
 
-        lobbyPlayer1Layout = findViewById(R.id.game_lobby_user1_layout);
-        lobbyPlayer2Layout = findViewById(R.id.game_lobby_user2_layout);
-        lobbyPlayer3Layout = findViewById(R.id.game_lobby_user3_layout);
-        lobbyPlayer4Layout = findViewById(R.id.game_lobby_user4_layout);
-        lobbyPlayer5Layout = findViewById(R.id.game_lobby_user5_layout);
-        lobbyPlayer6Layout = findViewById(R.id.game_lobby_user6_layout);
-        lobbyPlayer1Icon = findViewById(R.id.game_lobby_user1_icon);
-        lobbyPlayer2Icon = findViewById(R.id.game_lobby_user2_icon);
-        lobbyPlayer3Icon = findViewById(R.id.game_lobby_user3_icon);
-        lobbyPlayer4Icon = findViewById(R.id.game_lobby_user4_icon);
-        lobbyPlayer5Icon = findViewById(R.id.game_lobby_user5_icon);
-        lobbyPlayer6Icon = findViewById(R.id.game_lobby_user6_icon);
-        lobbyPlayer1Label = findViewById(R.id.game_lobby_user1_label);
-        lobbyPlayer2Label = findViewById(R.id.game_lobby_user2_label);
-        lobbyPlayer3Label = findViewById(R.id.game_lobby_user3_label);
-        lobbyPlayer4Label = findViewById(R.id.game_lobby_user4_label);
-        lobbyPlayer5Label = findViewById(R.id.game_lobby_user5_label);
-        lobbyPlayer6Label = findViewById(R.id.game_lobby_user6_label);
         lobbyPlayerLayouts = new ArrayList<LinearLayout>() {{
-            add(lobbyPlayer1Layout);
-            add(lobbyPlayer2Layout);
-            add(lobbyPlayer3Layout);
-            add(lobbyPlayer4Layout);
-            add(lobbyPlayer5Layout);
-            add(lobbyPlayer6Layout);
+            add(findViewById(R.id.game_lobby_user1_layout));
+            add(findViewById(R.id.game_lobby_user2_layout));
+            add(findViewById(R.id.game_lobby_user3_layout));
+            add(findViewById(R.id.game_lobby_user4_layout));
+            add(findViewById(R.id.game_lobby_user5_layout));
+            add(findViewById(R.id.game_lobby_user6_layout));
         }};
         lobbyPlayerIcons = new ArrayList<ImageView>() {{
-            add(lobbyPlayer1Icon);
-            add(lobbyPlayer2Icon);
-            add(lobbyPlayer3Icon);
-            add(lobbyPlayer4Icon);
-            add(lobbyPlayer5Icon);
-            add(lobbyPlayer6Icon);
+            add(findViewById(R.id.game_lobby_user1_icon));
+            add(findViewById(R.id.game_lobby_user2_icon));
+            add(findViewById(R.id.game_lobby_user3_icon));
+            add(findViewById(R.id.game_lobby_user4_icon));
+            add(findViewById(R.id.game_lobby_user5_icon));
+            add(findViewById(R.id.game_lobby_user6_icon));
         }};
         lobbyPlayerLabels = new ArrayList<TextView>() {{
-            add(lobbyPlayer1Label);
-            add(lobbyPlayer2Label);
-            add(lobbyPlayer3Label);
-            add(lobbyPlayer4Label);
-            add(lobbyPlayer5Label);
-            add(lobbyPlayer6Label);
+            add(findViewById(R.id.game_lobby_user1_label));
+            add(findViewById(R.id.game_lobby_user2_label));
+            add(findViewById(R.id.game_lobby_user3_label));
+            add(findViewById(R.id.game_lobby_user4_label));
+            add(findViewById(R.id.game_lobby_user5_label));
+            add(findViewById(R.id.game_lobby_user6_label));
         }};
 
         lobbyJoinerReadyImage = findViewById(R.id.game_lobby_joiner_ready_image);
@@ -1077,32 +1036,22 @@ public class GameActivity extends AppCompatActivity {
 //        TextView scoreboardBlurbLabel = findViewById(R.id.game_scoreboard_blurb_label);
         scoreboardLeaveImage = findViewById(R.id.game_scoreboard_leave_image);
 
-        powerup1Image = findViewById(R.id.game_powerup_image1);
-        powerup2Image = findViewById(R.id.game_powerup_image2);
-        powerup3Image = findViewById(R.id.game_powerup_image3);
-        powerup4Image = findViewById(R.id.game_powerup_image4);
-        powerup5Image = findViewById(R.id.game_powerup_image5);
-        powerupIcon1Image = findViewById(R.id.game_powerup_icon1);
-        powerupIcon2Image = findViewById(R.id.game_powerup_icon2);
-        powerupIcon3Image = findViewById(R.id.game_powerup_icon3);
-        powerupIcon4Image = findViewById(R.id.game_powerup_icon4);
-        powerupIcon5Image = findViewById(R.id.game_powerup_icon5);
         powerupImages = new ArrayList<ImageView>() {{
-            add(powerup1Image);
-            add(powerup2Image);
-            add(powerup3Image);
-            add(powerup4Image);
-            add(powerup5Image);
+            add(findViewById(R.id.game_powerup_image1));
+            add(findViewById(R.id.game_powerup_image2));
+            add(findViewById(R.id.game_powerup_image3));
+            add(findViewById(R.id.game_powerup_image4));
+            add(findViewById(R.id.game_powerup_image5));
         }};
         powerupIconImages = new ArrayList<ImageView>() {{
-            add(powerupIcon1Image);
-            add(powerupIcon2Image);
-            add(powerupIcon3Image);
-            add(powerupIcon4Image);
-            add(powerupIcon5Image);
+            findViewById(R.id.game_powerup_icon1);
+            findViewById(R.id.game_powerup_icon2);
+            findViewById(R.id.game_powerup_icon3);
+            findViewById(R.id.game_powerup_icon4);
+            findViewById(R.id.game_powerup_icon5);
         }};
 
-        clickableViews = new HashMap<RelativeLayout, List<View>>() {{
+        clickableViews = new HashMap<RelativeLayout, List<ImageView>>() {{
             put(lobbyUniversalLayout, Arrays.asList());
             put(lobbyJoinerLayout, Arrays.asList(
                     lobbyJoinerReadyImage
@@ -1121,9 +1070,7 @@ public class GameActivity extends AppCompatActivity {
             ));
             put(stallLayout, Arrays.asList());
             put(scoreboardLayout, Arrays.asList());
-            put(powerupLayout, Arrays.asList(
-                    powerup1Image, powerup2Image, powerup3Image, powerup4Image, powerup5Image
-            ));
+            put(powerupLayout, powerupImages);
         }};
     }
 
@@ -1150,7 +1097,7 @@ public class GameActivity extends AppCompatActivity {
 
                 disableLayout(lobbyUniversalLayout);
                 disableLayout(lobbyOwnerLayout);
-                enableLayout(lobbyEditLayout, true, true);
+                enableLayout(lobbyEditLayout, true);
             } else if (v == lobbyEditQuestionsImage) {
                 // Change question count and emit changeSetting event
                 new AlertDialog.Builder(this)
@@ -1285,8 +1232,8 @@ public class GameActivity extends AppCompatActivity {
                 headerLabel.setText("Lobby");
 
                 disableLayout(lobbyEditLayout);
-                enableLayout(lobbyUniversalLayout, true, true);
-                enableLayout(lobbyOwnerLayout, true, true);
+                enableLayout(lobbyUniversalLayout, true);
+                enableLayout(lobbyOwnerLayout, true);
             } else if (v == lobbyOwnerStartImage) {
                 // Emit startGame event, and disable the button
                 sendSocketJSON("startGame", new HashMap<String, Object>() {{
@@ -1398,7 +1345,7 @@ public class GameActivity extends AppCompatActivity {
 
     // Make a particular part of the layout visible and clickable, if desired.
     // ChatGPT usage: No
-    private void enableLayout(RelativeLayout layout, boolean delayed, boolean activateClickables) {
+    private void enableLayout(RelativeLayout layout, boolean activateClickables) {
         runOnUiThread(() -> {
             //layout.setAnimation(AnimationUtils.loadAnimation(GameActivity.this, delayed ? R.anim.fade_in_delay : R.anim.fade_in));
             layout.setVisibility(View.VISIBLE);

@@ -802,13 +802,13 @@ public class GameActivity extends AppCompatActivity {
         @SuppressLint("TrustAllX509TrustManager")
         @Override
         public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
-
+            // Intentionally empty
         }
 
         @SuppressLint("TrustAllX509TrustManager")
         @Override
         public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
-
+            // Intentionally empty
         }
 
         public X509Certificate[] getAcceptedIssuers() {

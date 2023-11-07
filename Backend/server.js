@@ -750,7 +750,7 @@ io.on("connection", (socket) => {
         } else if (errCode === 2) {
           message = "No Categories Selected";
         }
-        socket.emit("error", { message: message });
+        socket.emit("error", { message });
       });
   });
 
@@ -893,7 +893,7 @@ io.on("connection", (socket) => {
       }
     } catch (err) {
       console.log(err);
-      socket.emit("error", { message: message });
+      socket.emit("error", { message });
     }
   });
 

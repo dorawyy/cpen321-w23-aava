@@ -369,11 +369,22 @@ public class GameState implements SocketManagerListener{
         }
     }
 
+    // ChatGPD usage: No
+    public void errorReceived(@NonNull JSONObject errorData) {
+        try {
+            String message = errorData.getString("message");
+            Log.d(TAG, "Error: " + message);
+            gameStateListener.errorReceived(message);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     // OTHER METHODS
 
     // ChatGPT usage: No
     public void leaveRoom() {
-        socketManager.sendLeaveRoom();
+        socketManager.disconnect();
     }
 
     // ChatGPT usage: No

@@ -15,4 +15,6 @@ public interface SocketManagerListener {
     void questionReceived(JSONObject questionData);
     void otherPlayerAnswered(JSONObject playerData);
     void scoreboardReceived(JSONObject scoreboardData);
+
+    void errorReceived(JSONObject errorData);
 }

@@ -483,6 +483,18 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
         });
     }
 
+    // ChatGPD usage: No
+    public void errorReceived(String message) {
+        Toast.makeText(GameActivity.this, message, Toast.LENGTH_SHORT).show();
+        gameState.leaveRoom();
+        Intent intent = new Intent(GameActivity.this, MenuActivity.class);
+        intent.putExtra("userName", gameConstants.username);
+        intent.putExtra("sessionToken", gameConstants.sessionToken);
+        startActivity(intent);
+    }
+
+    // OTHER METHODS
+
     // Get and set all View objects.
     // ChatGPT usage: No
     private void getSetAllViews() {
@@ -840,12 +852,19 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                     gameState.extraLifeEnabled = true;
                 }
             } else if (v == scoreboardLeaveImage) {
-                Intent intent = new Intent(GameActivity.this, MenuActivity.class);
-                intent.putExtra("userName", gameConstants.username);
-                intent.putExtra("sessionToken", gameConstants.sessionToken);
-                startActivity(intent);
+                returnToMenu();
             }
         });
+    }
+
+    // Return to the menu activity.
+    // ChatGPT usage: No
+    private void returnToMenu() {
+        gameState.leaveRoom();
+        Intent intent = new Intent(GameActivity.this, MenuActivity.class);
+        intent.putExtra("userName", gameConstants.username);
+        intent.putExtra("sessionToken", gameConstants.sessionToken);
+        startActivity(intent);
     }
 
     // Make a particular part of the layout invisible and unclickable.

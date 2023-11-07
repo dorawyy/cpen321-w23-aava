@@ -27,4 +27,6 @@ public interface GameStateListener {
     void otherPlayerAnswered();
     void youAnswered();
     void scoreboardReceived(boolean finished, int rank, List<JSONObject> scoreInfoList);
+
+    void errorReceived(String message);
 }

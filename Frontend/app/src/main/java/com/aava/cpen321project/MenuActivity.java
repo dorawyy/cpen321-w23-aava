@@ -49,7 +49,6 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
     private String sessionToken;
 
     GoogleSignInClient mGoogleSignInClient;
-    String serverBaseUrl = "https://35.212.247.165:8081";
 
     //ChatGPT usage: No
     @Override
@@ -259,7 +258,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
             }
             RequestBody body = RequestBody.create(MediaType.parse("application/json"), data.toString());
             Request request = new Request.Builder()
-                    .url(serverBaseUrl + endpoint)
+                    .url(getResources().getString(R.string.serverURL) + endpoint)
                     .post(body)
                     .build();
 
@@ -319,7 +318,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
 
             // Creating HTTP POST request
             Request request = new Request.Builder()
-                    .url("https://35.212.247.165:8081/logout")
+                    .url(getResources().getString(R.string.serverURL) + "/logout")
                     .post(body)
                     .build();
 

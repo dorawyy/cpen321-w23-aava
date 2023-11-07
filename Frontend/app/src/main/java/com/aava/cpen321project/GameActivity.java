@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -167,7 +168,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     // ChatGPT usage: No
     public void youJoined() {
         runOnUiThread(() -> {
-            headerLabel.setText("Lobby");
+            headerLabel.setText(getString(R.string.gameHeaderLobby));
             enableLayout(lobbyUniversalLayout, true);
             if (gameConstants.isOwner) {
                 enableLayout(lobbyOwnerLayout, true);
@@ -315,7 +316,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                 disableLayout(scoreboardLayout);
             }
 
-            headerLabel.setText("Q" + gameState.questionNumber);
+            headerLabel.setText(getString(R.string.gameHeaderQuestion, gameState.questionNumber));
         });
     }
 
@@ -387,7 +388,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     // Update the question timer accordingly.
     // ChatGPT usage: No
     public void questionTicked(long millisUntilFinished) {
-        runOnUiThread(() -> questionTimerLabel.setText(String.format("%.1f", millisUntilFinished / 1000.0)));
+        runOnUiThread(() -> questionTimerLabel.setText(getString(R.string.gameTimer, millisUntilFinished / 1000.0)));
     }
 
     // Show the possible answers.
@@ -412,7 +413,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     // Update the answer timer accordingly.
     // ChatGPT usage: No
     public void answerTicked(long millisUntilFinished) {
-        runOnUiThread(() -> questionTimerLabel.setText(String.format("%.1f", millisUntilFinished / 1000.0)));
+        runOnUiThread(() -> questionTimerLabel.setText(getString(R.string.gameTimer, millisUntilFinished / 1000.0)));
     }
 
     // ChatGPT usage: No
@@ -448,14 +449,14 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
 
             headerLabel.setText(gameState.lastQuestionCorrect ? "Correct!" : "Incorrect");
             scoreboardRankLabel.setText(
-                    (rank == 0) ? "1st" : (rank == 1) ? "2nd" : (rank == 2) ? "3rd" : String.format("%dth", rank + 1)
+                    (rank == 0) ? "1st" : (rank == 1) ? "2nd" : (rank == 2) ? "3rd" : String.format(Locale.US, "%dth", rank + 1)
             );
 
             Log.d(TAG, "Rank: " + rank);
 
             try {
                 JSONObject currentPlayer = scoreInfoList.get(rank);
-                scoreboardCurrentGainLabel.setText(String.format("+%d", currentPlayer.getInt("pointsEarned")));
+                scoreboardCurrentGainLabel.setText(getString(R.string.scoreboardPoints, currentPlayer.getInt("pointsEarned")));
                 scoreboardCurrentScoreLabel.setText(String.valueOf(currentPlayer.getInt("updatedTotalPoints")));
                 scoreboardCurrentUsernameLabel.setText(currentPlayer.getString("username"));
 
@@ -463,7 +464,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                     scoreboardLesserColumn.setVisibility(View.INVISIBLE);
                 } else {
                     JSONObject lesserPlayer = scoreInfoList.get(rank + 1);
-                    scoreboardLesserGainLabel.setText(String.format("+%d", lesserPlayer.getInt("pointsEarned")));
+                    scoreboardLesserGainLabel.setText(getString(R.string.scoreboardPoints, lesserPlayer.getInt("pointsEarned")));
                     scoreboardLesserScoreLabel.setText(String.valueOf(lesserPlayer.getInt("updatedTotalPoints")));
                     scoreboardLesserUsernameLabel.setText(lesserPlayer.getString("username"));
                     scoreboardLesserColumn.setVisibility(View.VISIBLE);
@@ -472,7 +473,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                     scoreboardGreaterColumn.setVisibility(View.INVISIBLE);
                 } else {
                     JSONObject greaterPlayer = scoreInfoList.get(rank - 1);
-                    scoreboardGreaterGainLabel.setText(String.format("+%d", greaterPlayer.getInt("pointsEarned")));
+                    scoreboardGreaterGainLabel.setText(getString(R.string.scoreboardPoints, greaterPlayer.getInt("pointsEarned")));
                     scoreboardGreaterScoreLabel.setText(String.valueOf(greaterPlayer.getInt("updatedTotalPoints")));
                     scoreboardGreaterUsernameLabel.setText(greaterPlayer.getString("username"));
                     scoreboardGreaterColumn.setVisibility(View.VISIBLE);
@@ -679,7 +680,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                 v.setAnimation(AnimationUtils.loadAnimation(GameActivity.this, R.anim.fade_out));
             } else if (v == lobbyOwnerEditImage) {
                 // Switch to edit layout
-                headerLabel.setText("Edit Room");
+                headerLabel.setText(getString(R.string.gameHeaderEdit));
 
                 disableLayout(lobbyUniversalLayout);
                 disableLayout(lobbyOwnerLayout);
@@ -763,7 +764,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                         })
                         .show();
             } else if (v == lobbyEditBackImage) {
-                headerLabel.setText("Lobby");
+                headerLabel.setText(R.string.gameHeaderLobby);
 
                 disableLayout(lobbyEditLayout);
                 enableLayout(lobbyUniversalLayout, true);
@@ -774,7 +775,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
             }
 
             // GAMEPLAY
-            else if (questionAnswerImages.contains(v)) {
+            else if (questionAnswerImages.contains((ImageView) v)) {
                 // Manipulate answer fields, emit submitAnswer event, switch to stall layout
                 int chosenAnswer = questionAnswerImages.indexOf(v);
                 boolean isCorrect = chosenAnswer == gameState.correctAnswer;

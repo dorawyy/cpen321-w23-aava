@@ -119,10 +119,12 @@ public class SocketManager {
         }
     }
 
+    // ChatGPT usage: No
     public void disconnect() {
         mSocket.disconnect();
     }
 
+    // ChatGPT usage: No
     public void sendLeaveRoom() {
         sendSocketJSON("leaveRoom", new HashMap<String, Object>() {{
             put("roomId", gameConstants.roomId);
@@ -130,6 +132,7 @@ public class SocketManager {
         }});
     }
 
+    // ChatGPT usage: No
     public void sendReadyToStartGame() {
         sendSocketJSON("readyToStartGame", new HashMap<String, Object>() {{
             put("roomId", gameConstants.roomId);
@@ -137,6 +140,7 @@ public class SocketManager {
         }});
     }
 
+    // ChatGPT usage: No
     public void sendQuestionCount(int questionCount) {
         sendSocketJSON("changeSetting", new HashMap<String, Object>() {{
             put("roomId", gameConstants.roomId);
@@ -145,6 +149,7 @@ public class SocketManager {
         }});
     }
 
+    // ChatGPT usage: No
     public void sendMaxPlayers(int maxPlayers) {
         sendSocketJSON("changeSetting", new HashMap<String, Object>() {{
             put("roomId", gameConstants.roomId);
@@ -153,6 +158,7 @@ public class SocketManager {
         }});
     }
 
+    // ChatGPT usage: No
     public void sendTimeLimit(int timeLimit) {
         sendSocketJSON("changeSetting", new HashMap<String, Object>() {{
             put("roomId", gameConstants.roomId);
@@ -161,6 +167,7 @@ public class SocketManager {
         }});
     }
 
+    // ChatGPT usage: No
     public void sendRoomPublicity(boolean isPublic) {
         sendSocketJSON("changeSetting", new HashMap<String, Object>() {{
             put("roomId", gameConstants.roomId);
@@ -169,6 +176,7 @@ public class SocketManager {
         }});
     }
 
+    // ChatGPT usage: No
     public void sendQuestionDifficulty(String questionDifficulty) {
         sendSocketJSON("changeSetting", new HashMap<String, Object>() {{
             put("roomId", gameConstants.roomId);
@@ -177,6 +185,7 @@ public class SocketManager {
         }});
     }
 
+    // ChatGPT usage: No
     public void sendQuestionCategory(String name, boolean active) {
         sendSocketJSON("changeSetting", new HashMap<String, Object>() {{
             put("roomId", gameConstants.roomId);
@@ -185,12 +194,14 @@ public class SocketManager {
         }});
     }
 
+    // ChatGPT usage: No
     public void sendStartGame() {
         sendSocketJSON("startGame", new HashMap<String, Object>() {{
             put("roomId", gameConstants.roomId);
         }});
     }
 
+    // ChatGPT usage: No
     public void sendSubmitAnswer(long timeDelay, boolean isCorrect, int powerupCode, String powerupVictimUsername) {
         sendSocketJSON("submitAnswer", new HashMap<String, Object>() {{
             put("roomId", gameConstants.roomId);

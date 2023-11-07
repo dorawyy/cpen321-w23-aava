@@ -164,6 +164,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
 
     // GAME STATE CALLBACKS
 
+    // ChatGPT usage: No
     public void youJoined() {
         headerLabel.setText("Lobby");
         enableLayout(lobbyUniversalLayout, true);
@@ -176,6 +177,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
         }
     }
 
+    // ChatGPT usage: No
     public void youLeft(String reason) {
         if (reason.equals("left")) {
             new AlertDialog.Builder(this)
@@ -231,6 +233,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
         });
     }
 
+    // ChatGPT usage: No
     public void roomCodeObtained() {
         lobbyCodeLabel.setText(gameConstants.roomCode);
     }
@@ -269,10 +272,12 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
         });
     }
 
+    // ChatGPT usage: No
     public void roomCanStartChanged(boolean canStart) {
         lobbyOwnerStartImage.setClickable(canStart);
     }
 
+    // ChatGPT usage: No
     public void creatorLeft() {
         new AlertDialog.Builder(this)
                 .setTitle("")
@@ -286,6 +291,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                 .show();
     }
 
+    // ChatGPT usage: No
     public void questionSequenceStarted(boolean isFirst) {
         if (isFirst) {
             disableLayout(lobbyUniversalLayout);
@@ -302,6 +308,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     }
 
     // Display a countdown in preparation for the question.
+    // ChatGPT usage: No
     public void countdownInitialized() {
         runOnUiThread(() -> {
             questionPlayersFinishedLabel.setText("0");
@@ -313,6 +320,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     }
 
     // Update the countdown timer accordingly.
+    // ChatGPT usage: No
     public void countdownTicked(long millisUntilFinished) {
         if (millisUntilFinished <= 1000) {
             countdownCountLabel.setText("1");
@@ -325,6 +333,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     }
 
     // Switch between the countdown layout and the question layout.
+    // ChatGPT usage: No
     public void countdownFinished() {
         disableLayout(countdownLayout);
         enableLayout(questionLayout, false);
@@ -362,11 +371,13 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     }
 
     // Update the question timer accordingly.
+    // ChatGPT usage: No
     public void questionTicked(long millisUntilFinished) {
         runOnUiThread(() -> questionTimerLabel.setText(String.format("%.1f", millisUntilFinished / 1000.0)));
     }
 
     // Show the possible answers.
+    // ChatGPT usage: No
     public void questionFinished() {
         runOnUiThread(() -> {
             questionAnswer1Image.setClickable(true);
@@ -385,14 +396,17 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     }
 
     // Update the answer timer accordingly.
+    // ChatGPT usage: No
     public void answerTicked(long millisUntilFinished) {
         runOnUiThread(() -> questionTimerLabel.setText(String.format("%.1f", millisUntilFinished / 1000.0)));
     }
 
+    // ChatGPT usage: No
     public void otherPlayerAnswered() {
         questionPlayersFinishedLabel.setText(String.valueOf(gameState.otherPlayersAnswered));
     }
 
+    // ChatGPT usage: No
     public void youAnswered() {
         if (gameState.powerupCode != -1) {
             powerupIconImages.get(gameState.powerupCode).setVisibility(View.INVISIBLE);
@@ -402,6 +416,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
         enableLayout(stallLayout, true);
     }
 
+    // ChatGPT usage: No
     public void scoreboardReceived(boolean finished, int rank, @NonNull List<JSONObject> scoreInfoList) {
         disableLayout(stallLayout);
         enableLayout(scoreboardLayout, true);

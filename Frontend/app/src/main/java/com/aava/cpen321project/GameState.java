@@ -63,6 +63,7 @@ public class GameState implements SocketManagerListener{
     public final Random rand = new Random();
     public boolean extraLifeEnabled = false;
 
+    // ChatGPT usage: No
     public GameState(GameStateListener gameActivityListener, GameConstants gameConstants) {
         this.gameStateListener = gameActivityListener;
         this.gameConstants = gameConstants;
@@ -71,6 +72,7 @@ public class GameState implements SocketManagerListener{
 
     // SOCKET MANAGER CALLBACKS
 
+    // ChatGPT usage: No
     public void youJoined(@NonNull JSONObject joinData) {
         Log.d(TAG, "Welcome!");
         try {
@@ -114,6 +116,7 @@ public class GameState implements SocketManagerListener{
         }
     }
 
+    // ChatGPT usage: No
     public void youLeft(@NonNull JSONObject leaveData) {
         try {
             String reason = leaveData.getString("reason");
@@ -123,6 +126,7 @@ public class GameState implements SocketManagerListener{
         }
     }
 
+    // ChatGPT usage: No
     public void otherPlayerJoined(@NonNull JSONObject playerData) {
         try {
             // Add the incoming data to the player state.
@@ -143,6 +147,7 @@ public class GameState implements SocketManagerListener{
         }
     }
 
+    // ChatGPT usage: No
     public void otherPlayerLeft(@NonNull JSONObject playerData) {
         try {
             // Remove the data from the player state.
@@ -163,10 +168,12 @@ public class GameState implements SocketManagerListener{
         }
     }
 
+    // ChatGPT usage: No
     public void creatorLeft() {
         gameStateListener.creatorLeft();
     }
 
+    // ChatGPT usage: No
     public void settingChanged(@NonNull JSONObject settingData) {
         try {
             String option = settingData.getString("settingOption");
@@ -203,6 +210,7 @@ public class GameState implements SocketManagerListener{
         }
     }
 
+    // ChatGPT usage: No
     public void otherPlayerReadied(@NonNull JSONObject playerData) {
         try {
             String playerReadyUsername = playerData.getString("playerUsername");
@@ -223,6 +231,7 @@ public class GameState implements SocketManagerListener{
         }
     }
 
+    // ChatGPT usage: No
     public void questionReceived(@NonNull JSONObject questionData) {
         try {
             // Set all question state values.
@@ -302,6 +311,7 @@ public class GameState implements SocketManagerListener{
         }.start();
     }
 
+    // ChatGPT usage: No
     public void otherPlayerAnswered(@NonNull JSONObject playerData) {
         otherPlayersAnswered++;
 
@@ -314,6 +324,7 @@ public class GameState implements SocketManagerListener{
         }
     }
 
+    // ChatGPT usage: No
     public void scoreboardReceived(@NonNull JSONObject scoreboardData) {
         int rank = -1;
         List<JSONObject> scoreInfoList = new ArrayList<>();
@@ -358,42 +369,52 @@ public class GameState implements SocketManagerListener{
 
     // OTHER METHODS
 
+    // ChatGPT usage: No
     public void leaveRoom() {
         socketManager.sendLeaveRoom();
     }
 
+    // ChatGPT usage: No
     public void readyUp() {
         socketManager.sendReadyToStartGame();
     }
 
+    // ChatGPT usage: No
     public void chooseQuestionCount(int questionCount) {
         socketManager.sendQuestionCount(questionCount);
     }
 
+    // ChatGPT usage: No
     public void chooseMaxPlayers(int maxPlayers) {
         socketManager.sendMaxPlayers(maxPlayers);
     }
 
+    // ChatGPT usage: No
     public void chooseTimeLimit(int timeLimit) {
         socketManager.sendTimeLimit(timeLimit);
     }
 
+    // ChatGPT usage: No
     public void chooseRoomPublicity(boolean isPublic) {
         socketManager.sendRoomPublicity(isPublic);
     }
 
+    // ChatGPT usage: No
     public void chooseQuestionDifficulty(String difficulty) {
         socketManager.sendQuestionDifficulty(difficulty);
     }
 
+    // ChatGPT usage: No
     public void chooseQuestionCategory(String name, boolean active) {
         socketManager.sendQuestionCategory(name, active);
     }
 
+    // ChatGPT usage: No
     public void startGame() {
         socketManager.sendStartGame();
     }
 
+    // ChatGPT usage: No
     public void submitAnswer(int answerIndex) {
         boolean isCorrect = (answerIndex == correctAnswer);
         long timeDelay = currentTimeMillis() - answeringStartTime;

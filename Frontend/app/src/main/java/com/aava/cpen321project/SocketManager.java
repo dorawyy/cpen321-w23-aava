@@ -113,10 +113,8 @@ public class SocketManager {
 
             mSocket.on("showScoreboard", args -> socketManagerListener.scoreboardReceived((JSONObject) args[0]));
 
-        } catch (URISyntaxException e) {
+        } catch (URISyntaxException | NoSuchAlgorithmException | KeyManagementException e) {
             e.printStackTrace();
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -126,12 +124,13 @@ public class SocketManager {
     }
 
     // ChatGPT usage: No
-    public void sendLeaveRoom() {
-        sendSocketJSON("leaveRoom", new HashMap<String, Object>() {{
-            put("roomId", gameConstants.roomId);
-            put("username", gameConstants.username);
-        }});
-    }
+    // To be used in the final product
+//    public void sendLeaveRoom() {
+//        sendSocketJSON("leaveRoom", new HashMap<String, Object>() {{
+//            put("roomId", gameConstants.roomId);
+//            put("username", gameConstants.username);
+//        }});
+//    }
 
     // ChatGPT usage: No
     public void sendReadyToStartGame() {

@@ -166,42 +166,46 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
 
     // ChatGPT usage: No
     public void youJoined() {
-        headerLabel.setText("Lobby");
-        enableLayout(lobbyUniversalLayout, true);
-        if (gameConstants.isOwner) {
-            enableLayout(lobbyOwnerLayout, true);
-            // Disable Start button by default, as more players need to join.
-            lobbyOwnerStartImage.setClickable(false);
-        } else {
-            enableLayout(lobbyJoinerLayout, true);
-        }
+        runOnUiThread(() -> {
+            headerLabel.setText("Lobby");
+            enableLayout(lobbyUniversalLayout, true);
+            if (gameConstants.isOwner) {
+                enableLayout(lobbyOwnerLayout, true);
+                // Disable Start button by default, as more players need to join.
+                lobbyOwnerStartImage.setClickable(false);
+            } else {
+                enableLayout(lobbyJoinerLayout, true);
+            }
+        });
     }
 
     // ChatGPT usage: No
     public void youLeft(String reason) {
-        if (reason.equals("left")) {
-            new AlertDialog.Builder(this)
-                    .setTitle("")
-                    .setMessage("You have successfully left the room.")
-                    .setPositiveButton("OK", (dialogInterface, i) -> {
-                        dialogInterface.dismiss();
-                        Intent intent = new Intent(GameActivity.this, MenuActivity.class);
-                        startActivity(intent);
-                    })
-                    .create()
-                    .show();
-        } else if (reason.equals("banned")) {
-            new AlertDialog.Builder(this)
-                    .setTitle("")
-                    .setMessage("You have been kicked from the room.")
-                    .setPositiveButton("Damn", (dialogInterface, i) -> {
-                        dialogInterface.dismiss();
-                        Intent intent = new Intent(GameActivity.this, MenuActivity.class);
-                        startActivity(intent);
-                    })
-                    .create()
-                    .show();
-        }
+        runOnUiThread(() -> {
+            if (reason.equals("left")) {
+                new AlertDialog.Builder(this)
+                        .setTitle("")
+                        .setMessage("You have successfully left the room.")
+                        .setPositiveButton("OK", (dialogInterface, i) -> {
+                            dialogInterface.dismiss();
+                            Intent intent = new Intent(GameActivity.this, MenuActivity.class);
+                            startActivity(intent);
+                        })
+                        .create()
+                        .show();
+            } else if (reason.equals("banned")) {
+                new AlertDialog.Builder(this)
+                        .setTitle("")
+                        .setMessage("You have been kicked from the room.")
+                        .setPositiveButton("Damn", (dialogInterface, i) -> {
+                            dialogInterface.dismiss();
+                            Intent intent = new Intent(GameActivity.this, MenuActivity.class);
+                            startActivity(intent);
+                        })
+                        .create()
+                        .show();
+            }
+        });
     }
 
     // Update all of the room player labels on the lobby screen.
@@ -235,7 +239,9 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
 
     // ChatGPT usage: No
     public void roomCodeObtained() {
-        lobbyCodeLabel.setText(gameConstants.roomCode);
+        runOnUiThread(() -> {
+            lobbyCodeLabel.setText(gameConstants.roomCode);
+        });
     }
 
     // Update all of the room setting labels on the lobby screen.
@@ -274,37 +280,43 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
 
     // ChatGPT usage: No
     public void roomCanStartChanged(boolean canStart) {
-        lobbyOwnerStartImage.setClickable(canStart);
+        runOnUiThread(() -> {
+            lobbyOwnerStartImage.setClickable(canStart);
+        });
     }
 
     // ChatGPT usage: No
     public void creatorLeft() {
-        new AlertDialog.Builder(this)
-                .setTitle("")
-                .setMessage("Unfortunately, the room owner has left. You will be sent to the main menu.")
-                .setPositiveButton("OK", (dialogInterface, i) -> {
-                    dialogInterface.dismiss();
-                    Intent intent = new Intent(GameActivity.this, MenuActivity.class);
-                    startActivity(intent);
-                })
-                .create()
-                .show();
+        runOnUiThread(() -> {
+            new AlertDialog.Builder(this)
+                    .setTitle("")
+                    .setMessage("Unfortunately, the room owner has left. You will be sent to the main menu.")
+                    .setPositiveButton("OK", (dialogInterface, i) -> {
+                        dialogInterface.dismiss();
+                        Intent intent = new Intent(GameActivity.this, MenuActivity.class);
+                        startActivity(intent);
+                    })
+                    .create()
+                    .show();
+        });
     }
 
     // ChatGPT usage: No
     public void questionSequenceStarted(boolean isFirst) {
-        if (isFirst) {
-            disableLayout(lobbyUniversalLayout);
-            if (gameConstants.isOwner) {
-                disableLayout(lobbyOwnerLayout);
+        runOnUiThread(() -> {
+            if (isFirst) {
+                disableLayout(lobbyUniversalLayout);
+                if (gameConstants.isOwner) {
+                    disableLayout(lobbyOwnerLayout);
+                } else {
+                    disableLayout(lobbyJoinerLayout);
+                }
             } else {
-                disableLayout(lobbyJoinerLayout);
+                disableLayout(scoreboardLayout);
             }
-        } else {
-            disableLayout(scoreboardLayout);
-        }
 
-        headerLabel.setText("Q" + gameState.questionNumber);
+            headerLabel.setText("Q" + gameState.questionNumber);
+        });
     }
 
     // Display a countdown in preparation for the question.
@@ -315,21 +327,23 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
             countdownCountLabel.setText("3");
             countdownCountLabel.setVisibility(View.INVISIBLE);
             countdownReadyLabel.setVisibility(View.VISIBLE);
+            enableLayout(countdownLayout, false);
         });
-        enableLayout(countdownLayout, false);
     }
 
     // Update the countdown timer accordingly.
     // ChatGPT usage: No
     public void countdownTicked(long millisUntilFinished) {
-        if (millisUntilFinished <= 1000) {
-            countdownCountLabel.setText("1");
-        } else if (millisUntilFinished <= 2000) {
-            countdownCountLabel.setText("2");
-        } else if (millisUntilFinished <= 3000) {
-            countdownReadyLabel.setVisibility(View.INVISIBLE);
-            countdownCountLabel.setVisibility(View.VISIBLE);
-        }
+        runOnUiThread(() -> {
+            if (millisUntilFinished <= 1000) {
+                countdownCountLabel.setText("1");
+            } else if (millisUntilFinished <= 2000) {
+                countdownCountLabel.setText("2");
+            } else if (millisUntilFinished <= 3000) {
+                countdownReadyLabel.setVisibility(View.INVISIBLE);
+                countdownCountLabel.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     // Switch between the countdown layout and the question layout.
@@ -403,63 +417,70 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
 
     // ChatGPT usage: No
     public void otherPlayerAnswered() {
-        questionPlayersFinishedLabel.setText(String.valueOf(gameState.otherPlayersAnswered));
+        runOnUiThread(() -> questionPlayersFinishedLabel.setText(String.valueOf(gameState.otherPlayersAnswered)));
     }
 
     // ChatGPT usage: No
     public void youAnswered() {
-        if (gameState.powerupCode != -1) {
-            powerupIconImages.get(gameState.powerupCode).setVisibility(View.INVISIBLE);
-        }
+        runOnUiThread(() -> {
+            if (gameState.powerupCode != -1) {
+                Log.d(TAG, "Powerup code: " + gameState.powerupCode);
+                powerupIconImages.get(gameState.powerupCode).setVisibility(View.INVISIBLE);
+            }
+        });
 
         disableLayout(questionLayout);
+        disableLayout(powerupLayout);
         enableLayout(stallLayout, true);
     }
 
     // ChatGPT usage: No
     public void scoreboardReceived(boolean finished, int rank, @NonNull List<JSONObject> scoreInfoList) {
+        disableLayout(powerupLayout);
         disableLayout(stallLayout);
         enableLayout(scoreboardLayout, true);
 
-        if (finished) {
-            scoreboardLeaveImage.setVisibility(View.VISIBLE);
-            scoreboardLeaveImage.setClickable(true);
-        }
-
-        headerLabel.setText(gameState.lastQuestionCorrect ? "Correct!" : "Incorrect");
-        scoreboardRankLabel.setText(
-                (rank == 0) ? "1st" : (rank == 1) ? "2nd" : (rank == 2) ? "3rd" : String.format("%dth", rank + 1)
-        );
-
-        Log.d(TAG, "Rank: " + rank);
-
-        try {
-            JSONObject currentPlayer = scoreInfoList.get(rank);
-            scoreboardCurrentGainLabel.setText(String.format("+%d", currentPlayer.getInt("pointsEarned")));
-            scoreboardCurrentScoreLabel.setText(String.valueOf(currentPlayer.getInt("updatedTotalPoints")));
-            scoreboardCurrentUsernameLabel.setText(currentPlayer.getString("username"));
-
-            if (rank == gameState.roomPlayers.length() - 1) {
-                scoreboardLesserColumn.setVisibility(View.INVISIBLE);
-            } else {
-                JSONObject lesserPlayer = scoreInfoList.get(rank + 1);
-                scoreboardLesserGainLabel.setText(String.format("+%d", lesserPlayer.getInt("pointsEarned")));
-                scoreboardLesserScoreLabel.setText(String.valueOf(lesserPlayer.getInt("updatedTotalPoints")));
-                scoreboardLesserUsernameLabel.setText(lesserPlayer.getString("username"));
-                scoreboardLesserColumn.setVisibility(View.VISIBLE);
+        runOnUiThread(() -> {
+            if (finished) {
+                scoreboardLeaveImage.setVisibility(View.VISIBLE);
+                scoreboardLeaveImage.setClickable(true);
             }
-            if (rank == 0) {
-                scoreboardGreaterColumn.setVisibility(View.INVISIBLE);
-            } else {
-                JSONObject greaterPlayer = scoreInfoList.get(rank - 1);
-                scoreboardGreaterGainLabel.setText(String.format("+%d", greaterPlayer.getInt("pointsEarned")));
-                scoreboardGreaterScoreLabel.setText(String.valueOf(greaterPlayer.getInt("updatedTotalPoints")));
-                scoreboardGreaterUsernameLabel.setText(greaterPlayer.getString("username"));
-                scoreboardGreaterColumn.setVisibility(View.VISIBLE);
+
+            headerLabel.setText(gameState.lastQuestionCorrect ? "Correct!" : "Incorrect");
+            scoreboardRankLabel.setText(
+                    (rank == 0) ? "1st" : (rank == 1) ? "2nd" : (rank == 2) ? "3rd" : String.format("%dth", rank + 1)
+            );
+
+            Log.d(TAG, "Rank: " + rank);
+
+            try {
+                JSONObject currentPlayer = scoreInfoList.get(rank);
+                scoreboardCurrentGainLabel.setText(String.format("+%d", currentPlayer.getInt("pointsEarned")));
+                scoreboardCurrentScoreLabel.setText(String.valueOf(currentPlayer.getInt("updatedTotalPoints")));
+                scoreboardCurrentUsernameLabel.setText(currentPlayer.getString("username"));
+
+                if (rank == gameState.roomPlayers.length() - 1) {
+                    scoreboardLesserColumn.setVisibility(View.INVISIBLE);
+                } else {
+                    JSONObject lesserPlayer = scoreInfoList.get(rank + 1);
+                    scoreboardLesserGainLabel.setText(String.format("+%d", lesserPlayer.getInt("pointsEarned")));
+                    scoreboardLesserScoreLabel.setText(String.valueOf(lesserPlayer.getInt("updatedTotalPoints")));
+                    scoreboardLesserUsernameLabel.setText(lesserPlayer.getString("username"));
+                    scoreboardLesserColumn.setVisibility(View.VISIBLE);
+                }
+                if (rank == 0) {
+                    scoreboardGreaterColumn.setVisibility(View.INVISIBLE);
+                } else {
+                    JSONObject greaterPlayer = scoreInfoList.get(rank - 1);
+                    scoreboardGreaterGainLabel.setText(String.format("+%d", greaterPlayer.getInt("pointsEarned")));
+                    scoreboardGreaterScoreLabel.setText(String.valueOf(greaterPlayer.getInt("updatedTotalPoints")));
+                    scoreboardGreaterUsernameLabel.setText(greaterPlayer.getString("username"));
+                    scoreboardGreaterColumn.setVisibility(View.VISIBLE);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        });
     }
 
     // Get and set all View objects.
@@ -601,11 +622,11 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
             add(findViewById(R.id.game_powerup_image5));
         }};
         powerupIconImages = new ArrayList<ImageView>() {{
-            findViewById(R.id.game_powerup_icon1);
-            findViewById(R.id.game_powerup_icon2);
-            findViewById(R.id.game_powerup_icon3);
-            findViewById(R.id.game_powerup_icon4);
-            findViewById(R.id.game_powerup_icon5);
+            add(findViewById(R.id.game_powerup_icon1));
+            add(findViewById(R.id.game_powerup_icon2));
+            add(findViewById(R.id.game_powerup_icon3));
+            add(findViewById(R.id.game_powerup_icon4));
+            add(findViewById(R.id.game_powerup_icon5));
         }};
 
         clickableViews = new HashMap<RelativeLayout, List<ImageView>>() {{

@@ -2,7 +2,7 @@ package com.aava.cpen321project;
 
 import static java.lang.System.currentTimeMillis;
 
-import android.content.Context;
+import android.app.Activity;
 import android.os.CountDownTimer;
 import android.util.Log;
 
@@ -22,7 +22,7 @@ public class GameState implements SocketManagerListener{
     private final String TAG = "GameState";
 
     private final GameStateListener gameStateListener;
-    private final Context context;
+    private final Activity activity;
     private final GameConstants gameConstants;
 
     private final SocketManager socketManager;
@@ -66,11 +66,11 @@ public class GameState implements SocketManagerListener{
     public boolean extraLifeEnabled = false;
 
     // ChatGPT usage: No
-    public GameState(GameStateListener gameActivityListener, Context context, GameConstants gameConstants) {
+    public GameState(GameStateListener gameActivityListener, Activity activity, GameConstants gameConstants) {
         this.gameStateListener = gameActivityListener;
-        this.context = context;
+        this.activity = activity;
         this.gameConstants = gameConstants;
-        this.socketManager = new SocketManager(this, context, gameConstants);
+        this.socketManager = new SocketManager(this, activity, gameConstants);
     }
 
     // SOCKET MANAGER CALLBACKS
@@ -89,7 +89,6 @@ public class GameState implements SocketManagerListener{
                 }
             }
 
-            // TODO: See if the room code can be accessed by the lobby code label
             gameConstants.roomCode = joinData.getString("roomCode");
 
             JSONObject roomSettings = joinData.getJSONObject("roomSettings");
@@ -263,7 +262,7 @@ public class GameState implements SocketManagerListener{
         otherPlayersAnswered = 0;
         gameStateListener.countdownInitialized();
 
-        new CountDownTimer(5000, 1000) {
+        activity.runOnUiThread(() -> new CountDownTimer(5000, 1000) {
 
             // Update the countdown timer accordingly.
             public void onTick(long millisUntilFinished) {
@@ -311,7 +310,7 @@ public class GameState implements SocketManagerListener{
                 };
                 questionCountdownTimer.start();
             }
-        }.start();
+        }.start());
     }
 
     // ChatGPT usage: No
@@ -366,7 +365,7 @@ public class GameState implements SocketManagerListener{
             socketManager.disconnect();
             gameStateListener.scoreboardReceived(true, rank, scoreInfoList);
         } else {
-            gameStateListener.scoreboardReceived(true, rank, scoreInfoList);
+            gameStateListener.scoreboardReceived(false, rank, scoreInfoList);
         }
     }
 

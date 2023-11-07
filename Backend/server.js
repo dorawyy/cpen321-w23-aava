@@ -588,7 +588,7 @@ io.on("connection", (socket) => {
       }
     } catch (err) {
       console.log(err);
-      socket.emit("error", { message: message });
+      socket.emit("error", { message });
     }
   });
 

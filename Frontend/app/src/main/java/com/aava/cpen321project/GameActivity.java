@@ -133,7 +133,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
         getSetActivityParameters();
         getSetAllViews();
 
-        gameState = new GameState(this, gameConstants);
+        gameState = new GameState(this, this, gameConstants);
     }
 
     // Overridden for functionality upon exiting GameActivity.

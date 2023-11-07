@@ -1,6 +1,9 @@
 package com.aava.cpen321project;
 
+import static com.google.android.material.internal.ContextUtils.getActivity;
+
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -13,6 +16,7 @@ import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -29,13 +33,15 @@ public class SocketManager {
 
     final private String TAG = "SocketManager";
 
+    final private Context context;
     final private GameConstants gameConstants;
 
     private Socket mSocket;
 
     // Init the socket.
     // ChatGPT usage: No
-    public SocketManager(SocketManagerListener socketManagerListener, GameConstants gameConstants) {
+    public SocketManager(SocketManagerListener socketManagerListener, Context context, GameConstants gameConstants) {
+        this.context = context;
         this.gameConstants = gameConstants;
 
         try {
@@ -77,7 +83,7 @@ public class SocketManager {
 
             opts.query = "sessionToken=" + gameConstants.sessionToken;
 
-            mSocket = IO.socket("https://35.212.247.165:8081", opts);
+            mSocket = IO.socket(context.getResources().getString(R.string.serverURL), opts);
             mSocket.connect();
 
             mSocket.on(Socket.EVENT_CONNECT, args -> {

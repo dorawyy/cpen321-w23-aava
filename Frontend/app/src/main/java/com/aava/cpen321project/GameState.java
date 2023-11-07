@@ -2,6 +2,7 @@ package com.aava.cpen321project;
 
 import static java.lang.System.currentTimeMillis;
 
+import android.content.Context;
 import android.os.CountDownTimer;
 import android.util.Log;
 
@@ -21,6 +22,7 @@ public class GameState implements SocketManagerListener{
     private final String TAG = "GameState";
 
     private final GameStateListener gameStateListener;
+    private final Context context;
     private final GameConstants gameConstants;
 
     private final SocketManager socketManager;
@@ -64,10 +66,11 @@ public class GameState implements SocketManagerListener{
     public boolean extraLifeEnabled = false;
 
     // ChatGPT usage: No
-    public GameState(GameStateListener gameActivityListener, GameConstants gameConstants) {
+    public GameState(GameStateListener gameActivityListener, Context context, GameConstants gameConstants) {
         this.gameStateListener = gameActivityListener;
+        this.context = context;
         this.gameConstants = gameConstants;
-        this.socketManager = new SocketManager(this, gameConstants);
+        this.socketManager = new SocketManager(this, context, gameConstants);
     }
 
     // SOCKET MANAGER CALLBACKS

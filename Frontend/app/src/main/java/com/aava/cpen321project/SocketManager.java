@@ -113,6 +113,8 @@ public class SocketManager {
 
             mSocket.on("showScoreboard", args -> socketManagerListener.scoreboardReceived((JSONObject) args[0]));
 
+            mSocket.on("error", args -> socketManagerListener.errorReceived((JSONObject) args[0]));
+
         } catch (URISyntaxException | NoSuchAlgorithmException | KeyManagementException e) {
             e.printStackTrace();
         }

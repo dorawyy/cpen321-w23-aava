@@ -369,7 +369,7 @@ public class GameState implements SocketManagerListener{
         }
     }
 
-    // ChatGPD usage: No
+    // ChatGPT usage: No
     public void errorReceived(@NonNull JSONObject errorData) {
         try {
             String message = errorData.getString("message");

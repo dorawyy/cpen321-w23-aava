@@ -9,5 +9,8 @@
   },
   "scripts": {
     "server": "nodemon server.js"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }

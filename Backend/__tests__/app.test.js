@@ -10,23 +10,23 @@ jest.mock("../models/UserDBManager.js");
 // Global test variables
 let server;
 
+beforeEach(() => {
+  server = app.listen(4000, (err) => {
+    if (err) return done(err);
+  });
+});
+
+afterEach((done) => {
+  server.close((err) => {
+    if (err) return done(err);
+    done();
+  });
+});
+
 /**
  * Interface POST /create-account
  */
 describe("POST /create-account", () => {
-  beforeEach(() => {
-    server = app.listen(4000, (err) => {
-      if (err) return done(err);
-    });
-  });
-
-  afterEach((done) => {
-    server.close((err) => {
-      if (err) return done(err);
-      done();
-    });
-  });
-
   /**
    * Input: Empty parameters
    *
@@ -161,6 +161,31 @@ describe("POST /create-account", () => {
       token,
       username,
       rank: 0,
+    });
+  });
+});
+
+/**
+ * Interface POST /login
+ */
+describe("POST /login", () => {
+  /**
+   * Input: A token that does not exist in the database.
+   *
+   * Expected status code: 400
+   * Expected behaviour: The user's session token is not returned.
+   * Expected output:
+   * {    "message": "Unable to find the user for this account."   }
+   */
+  it("should return 400 with empty parameters", async () => {
+    const token = "non-existent-token";
+
+    const response = await request.post("/login").send({ token });
+
+    expect(response.status).toEqual(400);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({
+      message: "Unable to find the user for this account.",
     });
   });
 });

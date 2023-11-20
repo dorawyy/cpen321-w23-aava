@@ -88,7 +88,7 @@ class QuestionGenerator {
     let parameters = {
       params: {
         amount: quantity,
-        difficulty: difficulty,
+        difficulty,
       }
     };
 
@@ -142,7 +142,8 @@ class QuestionGenerator {
       console.log(err);
     }
 
-    return { questions, res_code };
+    const result = { questions, res_code }; 
+    return result;
   };
 
   /** 

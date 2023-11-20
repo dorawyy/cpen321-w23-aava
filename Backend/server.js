@@ -6,9 +6,10 @@ var assert = require("assert");
 // Custom application modules
 const app = require("./app.js");
 const db = require("./Database/dbSetup.js");
-const GameManager = require("./assets/GameManager.js");
-const UserDBManager = require("./assets/UserDBManager.js");
-const PlayerAction = require("./assets/PlayerAction.js");
+const GameManager = require("./models/GameManager.js");
+const UserDBManager = require("./models/UserDBManager.js");
+const PlayerAction = require("./models/PlayerAction.js");
+const { Socket } = require("socket.io");
 
 let gameManager = new GameManager();
 let userDBManager = new UserDBManager(db.getUsersCollection());

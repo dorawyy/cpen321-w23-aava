@@ -5,8 +5,8 @@ const express = require("express");
 // Custom application modules
 const app = express();
 const db = require("./Database/dbSetup.js");
-const GameManager = require("./assets/GameManager.js");
-const UserDBManager = require("./assets/UserDBManager.js");
+const GameManager = require("./models/GameManager.js");
+const UserDBManager = require("./models/UserDBManager.js");
 
 let gameManager = new GameManager();
 let userDBManager = new UserDBManager(db.getUsersCollection());

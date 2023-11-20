@@ -2,6 +2,12 @@ const supertest = require("supertest");
 const app = require("../app.js");
 const request = supertest(app);
 
+// Mocked components
+jest.mock("../models/UserDBManager.js");
+// jest.mock("./Database/dbSetup.js");
+// jest.mock("./models/GameManager.js");
+
+// Global test variables
 let server;
 
 /**
@@ -33,7 +39,8 @@ describe("POST /create-account", () => {
     const response = await request.post("/create-account").send({});
 
     expect(response.status).toEqual(400);
-    expect(response.body).toEqual({
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({
       message: "Invalid parameters were passed in.",
     });
   });
@@ -52,7 +59,8 @@ describe("POST /create-account", () => {
       .send({ username: "test-username" });
 
     expect(response.status).toEqual(400);
-    expect(response.body).toEqual({
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({
       message: "Invalid parameters were passed in.",
     });
   });
@@ -71,7 +79,8 @@ describe("POST /create-account", () => {
       .send({ token: "test-token" });
 
     expect(response.status).toEqual(400);
-    expect(response.body).toEqual({
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({
       message: "Invalid parameters were passed in.",
     });
   });
@@ -85,11 +94,18 @@ describe("POST /create-account", () => {
    * {    "message": "An account already exists for this user."   }
    */
   it("should return 400 with existing token", async () => {
-    // const response = await request.post("/create-account").send({});
-    // expect(response.status).toEqual(400);
-    // expect(response.body).toEqual({
-    //   message: "Invalid parameters were passed in.",
-    // });
+    const token = "existing-token";
+    const username = "test-username";
+
+    const response = await request
+      .post("/create-account")
+      .send({ token, username });
+
+    expect(response.status).toEqual(400);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({
+      message: "An account already exists for this user.",
+    });
   });
 
   /**
@@ -101,11 +117,18 @@ describe("POST /create-account", () => {
    * {    "message": "There was an error creating the account."   }
    */
   it("should return 500 in case of database error", async () => {
-    // const response = await request.post("/create-account").send({});
-    // expect(response.status).toEqual(400);
-    // expect(response.body).toEqual({
-    //   message: "Invalid parameters were passed in.",
-    // });
+    const token = "error-token";
+    const username = "test-username";
+
+    const response = await request
+      .post("/create-account")
+      .send({ token, username });
+
+    expect(response.status).toEqual(500);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({
+      message: "There was an error creating the account.",
+    });
   });
 
   /**
@@ -124,11 +147,20 @@ describe("POST /create-account", () => {
    *    "rank": 0
    * }
    */
-  it("should return 200 with valid parameters", async () => {
-    // const response = await request.post("/create-account").send({});
-    // expect(response.status).toEqual(400);
-    // expect(response.body).toEqual({
-    //   message: "Invalid parameters were passed in.",
-    // });
+  it("should return 201 with valid parameters", async () => {
+    token = "test-token";
+    username = "test-username";
+
+    const response = await request
+      .post("/create-account")
+      .send({ token, username });
+
+    expect(response.status).toEqual(201);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({
+      token,
+      username,
+      rank: 0,
+    });
   });
 });

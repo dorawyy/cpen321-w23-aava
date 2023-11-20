@@ -1,3 +1,13 @@
 <resources>
-    <string name="app_name">cpen321project</string>
+    <string name="app_name">Kashoot!</string>
+    <string name="kashoot">Kashoot!</string>
+    <string name="play">PLAY!</string>
+    <string name="serverURL">https://35.212.157.242:8081</string>
+    <string name="server_client_id">1076447558797-ets8u002mi6j1o4m2kepp2fs5h6isvh1.apps.googleusercontent.com</string>
+
+    <string name="gameHeaderLobby">Lobby</string>
+    <string name="gameHeaderEdit">Edit Room</string>
+    <string name="gameHeaderQuestion">Q%1$d</string>
+    <string name="gameTimer">%1$.1f</string>
+    <string name="scoreboardPoints">+%1$d</string>
 </resources>

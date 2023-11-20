@@ -158,7 +158,7 @@ io.on("connection", (socket) => {
       // Send Room Data to Player
       socket.emit("welcomeNewPlayer", {
         roomPlayers: playersJson,
-        roomSettings: roomSettings,
+        roomSettings,
         possibleCategories: gameManager.possibleCategories,
         roomCode: room.roomCode,
       });
@@ -166,11 +166,11 @@ io.on("connection", (socket) => {
       // Notify players in the room that a new player has joined
       socket.to(message.roomId).emit("playerJoined", {
         newPlayerUsername: username,
-        newPlayerRank: newPlayerRank,
+        newPlayerRank,
       });
     } catch (err) {
       console.log(err);
-      socket.emit("error", { message: message });
+      socket.emit("error", { message });
     }
   });
 
@@ -249,7 +249,7 @@ io.on("connection", (socket) => {
       }
     } catch (err) {
       console.log(err);
-      socket.emit("error", { message: message });
+      socket.emit("error", { message });
     }
   });
 
@@ -299,7 +299,7 @@ io.on("connection", (socket) => {
       }
     } catch (err) {
       console.log(err);
-      socket.emit("error", { message: message });
+      socket.emit("error", { message });
     }
   });
 
@@ -400,8 +400,8 @@ io.on("connection", (socket) => {
     } else {
       // Sends the updated setting to all players, including the game room owner
       io.in(room.roomId).emit("changedSetting", {
-        settingOption: settingOption,
-        optionValue: optionValue,
+        settingOption,
+        optionValue,
       });
     }
   });
@@ -456,12 +456,12 @@ io.on("connection", (socket) => {
       })
       .catch((errCode) => {
         let message = "";
-        if (errCode == 1) {
+        if (errCode === 1) {
           message = "Invalid RoomId";
-        } else if (errCode == 2) {
+        } else if (errCode === 2) {
           message = "No Categories Selected";
         }
-        socket.emit("error", { message: message });
+        socket.emit("error", { message });
       });
   });
 
@@ -499,7 +499,7 @@ io.on("connection", (socket) => {
         // Get points per round
         const results = gameManager.calculateScore(roomCode);
 
-        if (results.returnCode == 0) {
+        if (results.returnCode === 0) {
           //Calculate new totals
           const scoreGain = results.scores;
           let totalScores = gameManager.addToPlayerScore(roomCode, scoreGain);
@@ -521,7 +521,7 @@ io.on("connection", (socket) => {
           socket.emit("showScoreboard", scoresData);
 
           // If no remaiing questiosns, end game, else send next questions
-          if (gameManager.fetchQuestionsQuantity(roomCode) != 0) {
+          if (gameManager.fetchQuestionsQuantity(roomCode) !== 0) {
             setTimeout(() => {
               sendQuestion(socket, roomCode, roomId);
             }, SHOW_SCOREBOARD_MILLISECONDS);
@@ -604,7 +604,7 @@ io.on("connection", (socket) => {
       }
     } catch (err) {
       console.log(err);
-      socket.emit("error", { message: message });
+      socket.emit("error", { message });
     }
   });
 
@@ -619,8 +619,6 @@ io.on("connection", (socket) => {
     const username = message.username;
     const emoteCode = message.emoteCode;
 
-    socket
-      .to(roomId)
-      .emit("emoteReceived", { username: username, emoteCode: emoteCode });
+    socket.to(roomId).emit("emoteReceived", { username, emoteCode });
   });
 });

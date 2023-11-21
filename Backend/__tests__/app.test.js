@@ -172,20 +172,182 @@ describe("POST /login", () => {
   /**
    * Input: A token that does not exist in the database.
    *
-   * Expected status code: 400
-   * Expected behaviour: The user's session token is not returned.
+   * Expected status code: 404
+   * Expected behaviour: No changes made due to non-existent user token
    * Expected output:
    * {    "message": "Unable to find the user for this account."   }
    */
-  it("should return 400 with empty parameters", async () => {
+  it("should return 404 with non-existent user token", async () => {
     const token = "non-existent-token";
 
     const response = await request.post("/login").send({ token });
 
-    // expect(response.status).toEqual(400);
-    // const responseBody = JSON.parse(response.text);
-    // expect(responseBody).toEqual({
-    //   message: "Unable to find the user for this account.",
-    // });
+    expect(response.status).toEqual(404);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({
+      message: "Unable to find the user for this account.",
+    });
+  });
+
+  /**
+   * Input: A valid `token`.
+   *
+   * Expected status code: 500
+   * Expected behaviour: No changes made due to an error in the database
+   * Expected output:
+   * {    "message": "An unknown error occurred."   }
+   */
+  it("should return 500 on database error", async () => {
+    const token = "error-token";
+
+    const response = await request.post("/login").send({ token });
+
+    expect(response.status).toEqual(500);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({
+      message: "An unknown error occurred",
+    });
+  });
+
+  /**
+   * Input: A valid `token`.
+   * {
+   *   "token": "test-token"
+   * }
+   *
+   * Expected status code: 200
+   * Expected behaviour: Returns a session token and updates the database
+   * Expected output:
+   * {
+   *   "token": "test-token",
+   *   "username": "test-username",
+   *   "rank": "0",
+   *   "sessionToken": "test-sessionToken"
+   * }
+   */
+  it("should return 200 and user object on successful login", async () => {
+    const token = "test-token";
+
+    const response = await request.post("/login").send({ token });
+
+    expect(response.status).toEqual(200);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({
+      token,
+      username: "test-username",
+      rank: 0,
+      sessionToken: "test-sessionToken",
+    });
   });
 });
+
+/**
+ * Interface POST /logout
+ */
+describe("POST /logout", () => {
+  /**
+   * Input: A `sessionToken` that does not exist in the database.
+   *
+   * Expected status code: 404
+   * Expected behaviour: No changes made due to non-existent user token
+   * Expected output:
+   * {    "message": "Unable to find the user for this account."   }
+   */
+  it("should return 404 with non-existent user token", async () => {
+    const sessionToken = "non-existent-sessionToken";
+
+    const response = await request.post("/logout").send({ sessionToken });
+
+    expect(response.status).toEqual(404);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({
+      message: "Unable to find the user for this account.",
+    });
+  });
+
+  /**
+   * Input: A valid `sessionToken`.
+   *
+   * Expected status code: 500
+   * Expected behaviour: No changes made due to an error in the database
+   * Expected output:
+   * {    "message": "An unknown error occurred."   }
+   */
+  it("should return 500 on database error", async () => {
+    const sessionToken = "error-sessionToken";
+
+    const response = await request.post("/logout").send({ sessionToken });
+
+    expect(response.status).toEqual(500);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({
+      message: "An unknown error occurred",
+    });
+  });
+
+  /**
+   * Input: A valid `sessionToken` that belongs to an existing user
+   *
+   * Expected status code: 200
+   * Expected behaviour: Sets session token to null and updates the database
+   * Expected output: None
+   */
+  it("should return 200 on successful logout", async () => {
+    const sessionToken = "test-sessionToken";
+
+    const response = await request.post("/logout").send({ sessionToken });
+
+    expect(response.status).toEqual(200);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({});
+  });
+});
+
+/**
+ * Interface POST /join-random-room
+ */
+describe("POST /join-random-room", () => {
+  /**
+   * Input: No public rooms available
+   *
+   * Expected status code: 404
+   * Expected behaviour: User is not added to a public room
+   * Expected output:
+   * {    "message": "No game rooms available at the moment. Please try again later."   }
+   */
+  it("should return 404 when no rooms are available", async () => {});
+
+  /**
+   * Input: One public room available
+   *
+   * Expected status code: 200
+   * Expected behaviour: User is added as a player of the room.
+   * Expected output:
+   * {
+   *   "roomId": "test-roomId",
+   *   "roomCode": "test-roomCode",
+   * }
+   */
+  it(`should return 200 and add user to the room 
+      if it is the only public room available`, async () => {});
+
+  /**
+   * Input: Two public rooms available with the same average rank ("priority")
+   *        of its players and the same number of players.
+   *        However, the creation time of roomA is earlier than roomB.
+   *
+   * Expected status code: 200
+   * Expected behaviour: User is added as a player of the earlier room.
+   * Expected output:
+   * {
+   *   "roomId": "roomId-A-earlier",
+   *   "roomCode": "roomCode-A-earlier",
+   * }
+   */
+  it(`should return 200 and add user to the room 
+      that has been waiting for players for a longer time`, async () => {});
+});
+
+/**
+ * Interface middleware
+ */

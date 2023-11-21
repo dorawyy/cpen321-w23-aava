@@ -11,8 +11,9 @@ const UserDBManager = require("./models/UserDBManager.js");
 const PlayerAction = require("./models/PlayerAction.js");
 const { Socket } = require("socket.io");
 
-let gameManager = new GameManager();
-let userDBManager = new UserDBManager(db.getUsersCollection());
+// TODO
+// let gameManager = require("./models");
+// let userDBManager = new UserDBManager(db.getUsersCollection());
 
 // Read the SSL certificate files from the current directory
 const privateKey = fs.readFileSync("./key.pem", "utf8");

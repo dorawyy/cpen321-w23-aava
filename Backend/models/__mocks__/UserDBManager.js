@@ -1,3 +1,5 @@
+const User = require("../User");
+
 /* A mock class for UserDBManager. */
 class MockUserDBManager {
   async createNewUser(token, username) {
@@ -47,9 +49,25 @@ class MockUserDBManager {
       return {
         token: "test-token",
         username: "test-username",
-        rank: 0,
+        rank: 2,
         sessionToken: "test-sessionToken",
       };
+    } else {
+      const userA = new User("token-A", "username-A", 2, "sessionToken-A");
+      const userB = new User("token-B", "username-B", 5, "sessionToken-B");
+      const userC = new User("token-C", "username-C", 2, "sessionToken-C");
+
+      switch (sessionToken) {
+        case userA.sessionToken:
+          return userA;
+        case userB.sessionToken:
+          return userB;
+        case userC.sessionToken:
+          return userC;
+        default:
+          console.log("Invalid session token passed in to test");
+          return undefined;
+      }
     }
   }
 }

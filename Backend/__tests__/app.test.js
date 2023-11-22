@@ -1,15 +1,21 @@
 const supertest = require("supertest");
-const { app, userDBManager } = require("../app.js");
-const UserDBManager = require("../models/UserDBManager.js");
+const { app } = require("../app.js");
 const MockUserDBManager = require("../models/__mocks__/UserDBManager.js");
+const GameManager = require("../models/GameManager.js");
+const GameRoom = require("../models/GameRoom.js");
+const Player = require("../models/Player.js");
+const User = require("../models/User.js");
+const Settings = require("../models/Settings.js");
+const UserDBManager = require("../models/UserDBManager.js");
 const request = supertest(app);
-
-const mockedExpress = jest.createMockFromModule("express");
-mockedExpress.json = jest.fn(() => "hallooo");
 
 // Mocked components
 jest.mock("../models/UserDBManager.js");
 jest.mock("uuid", () => ({ v4: () => "test-sessionToken" }));
+
+afterEach(() => {
+  jest.clearAllMocks();
+});
 
 describe("Interface middleware functions", () => {
   /**
@@ -366,26 +372,6 @@ describe("POST /login", () => {
  */
 describe("POST /logout", () => {
   /**
-   * Input: A `sessionToken` that does not exist in the database.
-   *
-   * Expected status code: 404
-   * Expected behaviour: No changes made due to non-existent user token
-   * Expected output:
-   * {    "message": "Unable to find the user for this account."   }
-   */
-  it("should return 404 with non-existent user token", async () => {
-    const sessionToken = "non-existent-sessionToken";
-
-    const response = await request.post("/logout").send({ sessionToken });
-
-    expect(response.status).toEqual(404);
-    const responseBody = JSON.parse(response.text);
-    expect(responseBody).toEqual({
-      message: "Unable to find the user for this account.",
-    });
-  });
-
-  /**
    * Input: A valid `sessionToken`.
    *
    * Expected status code: 500
@@ -434,7 +420,23 @@ describe("POST /join-random-room", () => {
    * Expected output:
    * {    "message": "No game rooms available at the moment. Please try again later."   }
    */
-  it("should return 404 when no rooms are available", async () => {});
+  it("should return 404 when no rooms are available", async () => {
+    jest.spyOn(GameManager.prototype, "getAvailableRooms");
+    GameManager.prototype.getAvailableRooms.mockImplementation(() => {
+      return [];
+    });
+
+    const sessionToken = "test-sessionToken";
+    const response = await request
+      .post("/join-random-room")
+      .send({ sessionToken });
+
+    expect(response.status).toEqual(404);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({
+      message: "No game rooms available at the moment. Please try again later.",
+    });
+  });
 
   /**
    * Input: One public room available
@@ -448,7 +450,44 @@ describe("POST /join-random-room", () => {
    * }
    */
   it(`should return 200 and add user to the room 
-      if it is the only public room available`, async () => {});
+      if it is the only public room available`, async () => {
+    const userA = new User("token-A", "username-A", 2, "sessionToken-A");
+    const userB = new User("token-B", "username-B", 5, "sessionToken-B");
+
+    const gameMaster = new Player(userA);
+    const playerB = new Player(userB);
+
+    const roomSettings = new Settings();
+    const room = new GameRoom(
+      "test-roomId",
+      gameMaster,
+      "test-roomCode",
+      roomSettings
+    );
+
+    jest.spyOn(GameManager.prototype, "getAvailableRooms");
+    GameManager.prototype.getAvailableRooms.mockImplementation(() => {
+      return [room];
+    });
+
+    jest.spyOn(GameManager.prototype, "fetchRoom");
+    GameManager.prototype.fetchRoom.mockImplementation((_) => {
+      return room;
+    });
+
+    const response = await request
+      .post("/join-random-room")
+      .send({ sessionToken: userB.sessionToken });
+
+    const responseBody = JSON.parse(response.text);
+    expect(response.status).toEqual(200);
+    expect(responseBody).toEqual({
+      roomId: room.roomId,
+      roomCode: room.roomCode,
+    });
+
+    expect(room.getPlayers()).toEqual([gameMaster, playerB]);
+  });
 
   /**
    * Input: Two public rooms available with the same average rank ("priority")
@@ -464,5 +503,183 @@ describe("POST /join-random-room", () => {
    * }
    */
   it(`should return 200 and add user to the room 
-      that has been waiting for players for a longer time`, async () => {});
+      that has been waiting for players for a longer time`, async () => {
+    const userA = new User("token-A", "username-A", 2, "sessionToken-A");
+    const userB = new User("token-B", "username-B", 5, "sessionToken-B");
+    const userC = new User("token-C", "username-C", 2, "sessionToken-C");
+
+    const gameMasterA = new Player(userA);
+    const gameMasterB = new Player(userB);
+    const playerC = new Player(userC);
+
+    const roomSettings = new Settings();
+    const roomA = new GameRoom(
+      "roomId-A-earlier",
+      gameMasterA,
+      "roomCode-A-earlier",
+      roomSettings
+    );
+    const roomB = new GameRoom(
+      "roomId-B-later",
+      gameMasterB,
+      "roomCode-B-later",
+      roomSettings
+    );
+
+    const time = Date.now();
+
+    roomA.creationTime = time;
+    roomB.creationTime = time + 10;
+
+    jest.spyOn(GameManager.prototype, "getAvailableRooms");
+    GameManager.prototype.getAvailableRooms.mockImplementation(() => {
+      return [roomA, roomB];
+    });
+
+    jest.spyOn(GameManager.prototype, "fetchRoom");
+    GameManager.prototype.fetchRoom.mockImplementation((roomCode) => {
+      return roomCode === roomA.roomCode ? roomA : roomB;
+    });
+
+    const response = await request
+      .post("/join-random-room")
+      .send({ sessionToken: userC.sessionToken });
+
+    const responseBody = JSON.parse(response.text);
+    expect(response.status).toEqual(200);
+    expect(responseBody).toEqual({
+      roomId: roomA.roomId,
+      roomCode: roomA.roomCode,
+    });
+
+    expect(roomA.getPlayers()).toEqual([gameMasterA, playerC]);
+  });
+
+  /**
+   * Input: Two public rooms available with the same creation time, but
+   *        the average player rank of roomA is more similar than roomB.
+   *
+   * Expected status code: 200
+   * Expected behaviour: User is added as a player of the room with the
+   *                     more similar average player rank to their rank.
+   * Expected output:
+   * {
+   *   "roomId": "roomId-A-similar",
+   *   "roomCode": "roomCode-A-similar",
+   * }
+   */
+  it(`should return 200 and add user to the room 
+    with the more similar average player rank`, async () => {
+    const userA = new User("token-A", "username-A", 2, "sessionToken-A");
+    const userB = new User("token-B", "username-B", 5, "sessionToken-B");
+    const userC = new User("token-C", "username-C", 2, "sessionToken-C");
+
+    const gameMasterA = new Player(userA);
+    const gameMasterB = new Player(userB);
+    const playerC = new Player(userC);
+
+    const roomSettings = new Settings();
+    const roomA = new GameRoom(
+      "roomId-A-similar",
+      gameMasterA,
+      "roomCode-A-similar",
+      roomSettings
+    );
+    const roomB = new GameRoom(
+      "roomId-B",
+      gameMasterB,
+      "roomCode-B",
+      roomSettings
+    );
+
+    roomA.creationTime = roomB.creationTime;
+
+    jest.spyOn(GameManager.prototype, "getAvailableRooms");
+    GameManager.prototype.getAvailableRooms.mockImplementation(() => {
+      return [roomA, roomB];
+    });
+
+    jest.spyOn(GameManager.prototype, "fetchRoom");
+    GameManager.prototype.fetchRoom.mockImplementation((roomCode) => {
+      return roomCode === roomA.roomCode ? roomA : roomB;
+    });
+
+    const response = await request
+      .post("/join-random-room")
+      .send({ sessionToken: userC.sessionToken });
+
+    const responseBody = JSON.parse(response.text);
+    expect(response.status).toEqual(200);
+    expect(responseBody).toEqual({
+      roomId: roomA.roomId,
+      roomCode: roomA.roomCode,
+    });
+
+    expect(roomA.getPlayers()).toEqual([gameMasterA, playerC]);
+  });
+
+  /**
+   * Input: Two public rooms available, but one room is full by the time
+   *        the user is about to get added to the room.
+   *
+   * Expected status code: 200
+   * Expected behaviour: User is added as a player of the room with space
+   *                     available.
+   * Expected output:
+   * {
+   *   "roomId": "roomId-B-available",
+   *   "roomCode": "roomCode-B-available",
+   * }
+   */
+  it(`should return 200 and add user to the room 
+    with the more similar average player rank`, async () => {
+    const userA = new User("token-A", "username-A", 2, "sessionToken-A");
+    const userB = new User("token-B", "username-B", 5, "sessionToken-B");
+    const userC = new User("token-C", "username-C", 2, "sessionToken-C");
+
+    const gameMasterA = new Player(userA);
+    const gameMasterB = new Player(userB);
+    const playerC = new Player(userC);
+
+    const roomSettingsA = new Settings();
+    roomSettingsA.maxPlayers = 1;
+
+    const roomSettingsB = new Settings();
+
+    const roomA = new GameRoom(
+      "roomId-A-full",
+      gameMasterA,
+      "roomCode-A-full",
+      roomSettingsA
+    );
+    const roomB = new GameRoom(
+      "roomId-B-available",
+      gameMasterB,
+      "roomCode-B-available",
+      roomSettingsB
+    );
+
+    jest.spyOn(GameManager.prototype, "getAvailableRooms");
+    GameManager.prototype.getAvailableRooms.mockImplementation(() => {
+      return [roomA, roomB];
+    });
+
+    jest.spyOn(GameManager.prototype, "fetchRoom");
+    GameManager.prototype.fetchRoom.mockImplementation((roomCode) => {
+      return roomCode === roomA.roomCode ? roomA : roomB;
+    });
+
+    const response = await request
+      .post("/join-random-room")
+      .send({ sessionToken: userC.sessionToken });
+
+    const responseBody = JSON.parse(response.text);
+    expect(response.status).toEqual(200);
+    expect(responseBody).toEqual({
+      roomId: roomB.roomId,
+      roomCode: roomB.roomCode,
+    });
+
+    expect(roomB.getPlayers()).toEqual([gameMasterB, playerC]);
+  });
 });

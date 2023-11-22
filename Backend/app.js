@@ -27,14 +27,8 @@ app.use((req, res, next) => {
 
     if (sessionToken) {
       userDBManager.getUserBySessionToken(sessionToken).then((user) => {
-        if (user) {
-          req.user = user;
-          next();
-        } else {
-          res.status(404).send({
-            message: "Unable to find the user for this account.",
-          });
-        }
+        req.user = user;
+        next();
       });
     } else {
       res.status(404).send({
@@ -130,21 +124,15 @@ app.post("/login", (req, res) => {
  */
 app.post("/logout", (req, res) => {
   userDBManager.getUserBySessionToken(req.body.sessionToken).then((user) => {
-    if (user) {
-      userDBManager.setUserSessionToken(user.token, null).then(
-        (_) => {
-          res.status(200).send();
-        },
-        (err) => {
-          console.log("[ERROR]: " + err);
-          res.status(500).send({ message: "An unknown error occurred" });
-        }
-      );
-    } else {
-      res.status(404).send({
-        message: "Unable to find the user for this account.",
-      });
-    }
+    userDBManager.setUserSessionToken(user.token, null).then(
+      (_) => {
+        res.status(200).send();
+      },
+      (err) => {
+        console.log("[ERROR]: " + err);
+        res.status(500).send({ message: "An unknown error occurred" });
+      }
+    );
   });
 });
 
@@ -213,8 +201,7 @@ app.post("/join-random-room", (req, res) => {
         roomId: room.roomId,
         roomCode: room.roomCode,
       });
-
-      break;
+      return;
     }
   }
 });

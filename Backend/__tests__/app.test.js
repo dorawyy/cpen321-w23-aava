@@ -6,13 +6,13 @@ const GameRoom = require("../models/GameRoom.js");
 const Player = require("../models/Player.js");
 const User = require("../models/User.js");
 const Settings = require("../models/Settings.js");
-const UserDBManager = require("../models/UserDBManager.js");
 const request = supertest(app);
 
 // Mocked components
 jest.mock("../models/UserDBManager.js");
 jest.mock("uuid", () => ({ v4: () => "test-sessionToken" }));
 
+// Define test setup and/or teardown
 afterEach(() => {
   jest.clearAllMocks();
 });

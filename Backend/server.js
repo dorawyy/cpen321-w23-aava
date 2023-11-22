@@ -1,19 +1,12 @@
 // Third-party modules
 const fs = require("fs");
 const https = require("https");
-var assert = require("assert");
 
 // Custom application modules
-const app = require("./app.js");
+const { app, gameManager, userDBManager } = require("./app.js");
 const db = require("./Database/dbSetup.js");
-const GameManager = require("./models/GameManager.js");
-const UserDBManager = require("./models/UserDBManager.js");
 const PlayerAction = require("./models/PlayerAction.js");
 const { Socket } = require("socket.io");
-
-// TODO
-// let gameManager = require("./models");
-// let userDBManager = new UserDBManager(db.getUsersCollection());
 
 // Read the SSL certificate files from the current directory
 const privateKey = fs.readFileSync("./key.pem", "utf8");
@@ -211,7 +204,6 @@ io.on("connection", (socket) => {
 
         // The room should now be empty. Remove the room so that no one
         // can join it.
-        assert(room.getPlayers().length === 0);
         const success = gameManager.removeRoomById(roomId);
 
         if (!success) {
@@ -594,7 +586,6 @@ io.on("connection", (socket) => {
               }
             }
 
-            assert(room.getPlayers().length === 0);
             const success = gameManager.removeRoomById(roomId);
 
             if (!success) {

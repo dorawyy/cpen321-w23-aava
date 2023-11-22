@@ -1,10 +1,10 @@
 // Third-party modules
-var assert = require("assert");
 const express = require("express");
 
 // Custom application modules
 const app = express();
 const db = require("./Database/dbSetup.js");
+const { v4: uuidv4 } = require("uuid");
 const Player = require("./models/Player.js");
 const GameManager = require("./models/GameManager.js");
 const UserDBManager = require("./models/UserDBManager.js");
@@ -130,22 +130,21 @@ app.post("/login", (req, res) => {
  */
 app.post("/logout", (req, res) => {
   userDBManager.getUserBySessionToken(req.body.sessionToken).then((user) => {
-    userDBManager.setUserSessionToken(user.token, null).then(
-      (user) => {
-        if (loggedOutUser) {
-          assert(loggedOutUser.sessionToken === null);
+    if (user) {
+      userDBManager.setUserSessionToken(user.token, null).then(
+        (_) => {
           res.status(200).send();
-        } else {
-          res.status(404).send({
-            message: "Unable to find the user for this account.",
-          });
+        },
+        (err) => {
+          console.log("[ERROR]: " + err);
+          res.status(500).send({ message: "An unknown error occurred" });
         }
-      },
-      (err) => {
-        console.log("[ERROR]: " + err);
-        res.status(500).send({ message: "An unknown error occurred" });
-      }
-    );
+      );
+    } else {
+      res.status(404).send({
+        message: "Unable to find the user for this account.",
+      });
+    }
   });
 });
 

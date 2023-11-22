@@ -1,25 +1,145 @@
 const supertest = require("supertest");
-const app = require("../app.js");
+const { app, userDBManager } = require("../app.js");
+const UserDBManager = require("../models/UserDBManager.js");
+const MockUserDBManager = require("../models/__mocks__/UserDBManager.js");
 const request = supertest(app);
+
+const mockedExpress = jest.createMockFromModule("express");
+mockedExpress.json = jest.fn(() => "hallooo");
 
 // Mocked components
 jest.mock("../models/UserDBManager.js");
-// jest.mock("./Database/dbSetup.js");
-// jest.mock("./models/GameManager.js");
+jest.mock("uuid", () => ({ v4: () => "test-sessionToken" }));
 
-// Global test variables
-let server;
+describe("Interface middleware functions", () => {
+  /**
+   * Input: No sessionToken in request body, but valid parameters
+   *        for /create-account
+   *
+   * Expected status code: 201
+   * Expected behaviour: Proceed with endpoint as normal
+   * Expected output: Not important for this test
+   */
+  it("/create-account should not require a sessionToken", async () => {
+    token = "test-token";
+    username = "test-username";
+    const data = {
+      token,
+      username,
+    };
 
-beforeEach(() => {
-  server = app.listen(4000, (err) => {
-    if (err) return done(err);
+    const response = await request.post("/create-account").send(data);
+
+    expect(response.status).toEqual(201);
+    expect(data).not.toHaveProperty("sessionToken");
+    const spy = jest.spyOn(MockUserDBManager.prototype, "createNewUser");
+    expect(spy).not.toHaveBeenCalled();
   });
-});
 
-afterEach((done) => {
-  server.close((err) => {
-    if (err) return done(err);
-    done();
+  /**
+   * Input: No sessionToken in request body, but valid parameters
+   *        for /login
+   *
+   * Expected status code: 200
+   * Expected behaviour: Proceed with endpoint as normal
+   * Expected output: Not important for this test
+   */
+  it("/login should not require a sessionToken", async () => {
+    const token = "test-token";
+    const data = {
+      token,
+    };
+
+    const response = await request.post("/login").send(data);
+
+    expect(response.status).toEqual(200);
+    expect(data).not.toHaveProperty("sessionToken");
+    const spy = jest.spyOn(MockUserDBManager.prototype, "setUserSessionToken");
+    expect(spy).not.toHaveBeenCalled();
+  });
+
+  /**
+   * Input: No sessionToken in request body for /logout
+   *
+   * Expected status code: 404
+   * Expected behaviour: Do not proceed with the endpoint
+   * Expected output:
+   * {  "message": "Unable to find the user for this account."  }
+   */
+  it("/logout should require a sessionToken", async () => {
+    const data = {};
+    expect(data).not.toHaveProperty("sessionToken");
+
+    const response = await request.post("/logout").send(data);
+
+    expect(response.status).toEqual(404);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({
+      message: "Unable to find the user for this account.",
+    });
+  });
+
+  /**
+   * Input: No sessionToken in request body for /join-random-room
+   *
+   * Expected status code: 404
+   * Expected behaviour: Do not proceed with the endpoint
+   * Expected output:
+   * {  "message": "Unable to find the user for this account."  }
+   */
+  it("/join-random-room should require a sessionToken", async () => {
+    const data = {};
+    expect(data).not.toHaveProperty("sessionToken");
+
+    const response = await request.post("/join-random-room").send(data);
+
+    expect(response.status).toEqual(404);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({
+      message: "Unable to find the user for this account.",
+    });
+  });
+
+  /**
+   * Input: No sessionToken in request body for /join-room-by-code
+   *
+   * Expected status code: 404
+   * Expected behaviour: Do not proceed with the endpoint
+   * Expected output:
+   * {  "message": "Unable to find the user for this account."  }
+   */
+  it("/join-room-by-code should require a sessionToken", async () => {
+    const data = {};
+    expect(data).not.toHaveProperty("sessionToken");
+
+    const response = await request.post("/join-room-by-code").send(data);
+
+    expect(response.status).toEqual(404);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({
+      message: "Unable to find the user for this account.",
+    });
+  });
+
+  /**
+   * Input: No sessionToken in request body for /create-room
+   *
+   * Expected status code: 404
+   * Expected behaviour: Do not proceed with the endpoint
+   * Expected output:
+   * {  "message": "Unable to find the user for this account."  }
+   */
+  it("/create-room should require a sessionToken", async () => {
+    const data = {};
+    expect(data).not.toHaveProperty("sessionToken");
+
+    const response = await request.post("/create-room").send(data);
+
+    expect(response.status).toEqual(404);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({
+      message: "Unable to find the user for this account.",
+    });
   });
 });
 
@@ -298,8 +418,7 @@ describe("POST /logout", () => {
     const response = await request.post("/logout").send({ sessionToken });
 
     expect(response.status).toEqual(200);
-    const responseBody = JSON.parse(response.text);
-    expect(responseBody).toEqual({});
+    expect(response.text).toEqual("");
   });
 });
 
@@ -347,7 +466,3 @@ describe("POST /join-random-room", () => {
   it(`should return 200 and add user to the room 
       that has been waiting for players for a longer time`, async () => {});
 });
-
-/**
- * Interface middleware
- */

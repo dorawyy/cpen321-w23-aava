@@ -199,6 +199,7 @@ class GameRoom {
         return p;
       }
     }
+    return undefined;
   }
 
   /**

@@ -3,6 +3,7 @@ const Player = require("../models/Player");
 const Question = require("../models/Question");
 const Settings = require("../models/Settings");
 const User = require("../models/User");
+const PlayerAction = require("../models/PlayerAction");
 
 describe("GameRoom", () => {
   const roomId = "room123";
@@ -67,17 +68,27 @@ describe("GameRoom", () => {
     expect(gameRoom.actionsArray).toEqual([]);
   });
 
-  // it('updateScores should update player scores and return new totals', () => {
-  //   const scores = new Map(/* provide player scores */);
-  //   const newTotals = gameRoom.updateScores(scores);
-  //   expect(newTotals.length).toBe(gameRoom.roomPlayers.length);
-  // });
+  it('updateScores should update player scores and return new totals', () => {
+    const user2 = new User("test-token2", "username2", 2, "test-sessionToken2");
+    const player2 = new Player(user2);
+    gameRoom.roomPlayers.push(player2);
+
+    const scores = new Map();
+    scores.set(user.username, 100);
+    scores.set(user2.username, 200);
+
+    const newTotals = gameRoom.updateScores(scores);
+    expect(newTotals).toEqual([{username: user.username, finalScore: 100}, {username: user2.username, finalScore: 200}]);
+  });
 
   // Test cases for Room Interaction
   it("updateGameQuestions should update the list of questions", () => {
-    const questions = [questionA, questionB];
-    gameRoom.updateGameQuestions(questions);
-    expect(gameRoom.gameQuestions).toEqual(questions);
+    let expectedQuestionArr = []
+    expectedQuestionArr.push(new Question("What's 1+1?", "2", ["0", "11", "1"], "easy"));
+    expectedQuestionArr.push(new Question("What's 2+2?", "4", ["0", "22", "2"], "easy"));
+
+    gameRoom.updateGameQuestions(expectedQuestionArr);
+    expect(gameRoom.gameQuestions).toEqual(expectedQuestionArr);
   });
 
   it("getCode should return the room code", () => {
@@ -99,22 +110,32 @@ describe("GameRoom", () => {
     expect(players).toEqual(gameRoom.roomPlayers);
   });
 
-  it("getPlayer should return the player with the given username", () => {
+  it("getPlayer called with real username should return the player with the given username", () => {
     const username = gameRoom.roomPlayers[0].user.username;
     const player = gameRoom.getPlayer(username);
     expect(player).toEqual(gameRoom.roomPlayers[0]);
   });
 
+  it("getPlayer called with fake username should return undefined", () => {
+    const username = "fake";
+    const player = gameRoom.getPlayer(username);
+    expect(player).toBeUndefined();
+  });
+
+  // To Do Fix
   it("addPlayer should add a player to the game room if there is space", () => {
-    const newPlayer = gameMaster;
+    const user3 = new User("test-token3", "username3", 2, "test-sessionToken3");
+    const newPlayer = new Player(user3);
     const playerAdded = gameRoom.addPlayer(newPlayer);
     expect(playerAdded).toBe(true);
     expect(gameRoom.roomPlayers).toContain(newPlayer);
   });
 
   it("addPlayer should not add a player if there is no space", () => {
-    gameRoom.roomSettings.maxPlayers = 1;
-    const newPlayer = gameMaster;
+    gameRoom.roomSettings.maxPlayers = 3;
+    const user4 = new User("test-token4", "username4", 2, "test-sessionToken4");
+    const newPlayer = new Player(user4);
+
     const playerAdded = gameRoom.addPlayer(newPlayer);
     expect(playerAdded).toBe(false);
     expect(gameRoom.roomPlayers).not.toContain(newPlayer);
@@ -140,15 +161,54 @@ describe("GameRoom", () => {
 
   // Test cases for Setting Interaction
 
-  it("updateSetting should update the specified setting", () => {
+  it("updateSetting of isPublic should make it public", () => {
+    gameRoom.updateSetting("isPublic", true);
+    expect(gameRoom.roomSettings.roomIsPublic).toBe(true);
+  });
+
+  it("updateSettings of categories should add a category", () => {
+    const category = "Entertainment: Books";
+    gameRoom.updateSetting("add-category", category);
+    expect(gameRoom.roomSettings.questionCategories).toContain(category);
+  });
+
+  it("updateSettings of categories should remove a category", () => {
+    const category = "Entertainment: Books";
+    gameRoom.updateSetting("remove-category", category);
+    expect(gameRoom.roomSettings.questionCategories).not.toContain(category);
+  });
+
+  it("updateSettings of difficulty should update the difficulty", () => {
     const originalDifficulty = gameRoom.roomSettings.questionDifficulty;
     const newDifficulty = "hard";
     gameRoom.updateSetting("difficulty", newDifficulty);
     expect(gameRoom.roomSettings.questionDifficulty).toBe(newDifficulty);
-    expect(gameRoom.roomSettings.questionDifficulty).not.toBe(
-      originalDifficulty
-    );
+    expect(gameRoom.roomSettings.questionDifficulty).not.toBe(originalDifficulty);
   });
+
+  it("updateSettings of maxPlayers should update the maxPlayers", () => {
+    const originalMaxPlayers = gameRoom.roomSettings.maxPlayers;
+    const newMaxPlayers = 5;
+    gameRoom.updateSetting("maxPlayers", newMaxPlayers);
+    expect(gameRoom.roomSettings.maxPlayers).toBe(newMaxPlayers);
+    expect(gameRoom.roomSettings.maxPlayers).not.toBe(originalMaxPlayers);
+  });
+
+  it("updateSettings of questionTime should update the questionTime", () => {
+    const originalQuestionTime = gameRoom.roomSettings.questionTime;
+    const newQuestionTime = 10;
+    gameRoom.updateSetting("time", newQuestionTime);
+    expect(gameRoom.roomSettings.questionTime).toBe(newQuestionTime);
+    expect(gameRoom.roomSettings.questionTime).not.toBe(originalQuestionTime);
+  })
+
+  it("updateSettings of question total should update the totalQuestions", () => {
+    const originalTotalQuestions = gameRoom.roomSettings.totalQuestions;
+    const newTotalQuestions = 15;
+    gameRoom.updateSetting("total", newTotalQuestions);
+    expect(gameRoom.roomSettings.totalQuestions).toBe(newTotalQuestions);
+    expect(gameRoom.roomSettings.totalQuestions).not.toBe(originalTotalQuestions);
+  })
 
   it("getCategorySetting should return the list of categories from settings", () => {
     const categories = gameRoom.getCategorySetting();

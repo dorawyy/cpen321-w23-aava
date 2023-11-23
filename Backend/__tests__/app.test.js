@@ -1,5 +1,5 @@
 const supertest = require("supertest");
-const { app } = require("../app.js");
+const { app, userDBManager } = require("../app.js");
 const MockUserDBManager = require("../models/__mocks__/UserDBManager.js");
 const GameManager = require("../models/GameManager.js");
 const GameRoom = require("../models/GameRoom.js");
@@ -695,7 +695,7 @@ describe("POST /join-room-by-code", () => {
    * Expected output: Unable to find the user for this account.
    */
   it("should return 401 with empty parameters", async () => {
-    const sessionToken = "test-sessionToken";
+    const sessionToken = "sessionToken-A";
     const response = await request.post("/join-room-by-code").send({sessionToken});
 
     expect(response.status).toEqual(401);
@@ -714,7 +714,7 @@ describe("POST /join-room-by-code", () => {
    * Expected output: Unable to find the user for this account.
    */
   it("should return 404 when wrong roomCode added", async () => {
-    const sessionToken = "test-sessionToken";
+    const sessionToken = "sessionToken-A";
 
     jest.spyOn(GameManager.prototype, "fetchRoom");
     GameManager.prototype.fetchRoom.mockImplementation((roomCode) => {
@@ -738,7 +738,7 @@ describe("POST /join-room-by-code", () => {
    * Expected output: { roomId: room.roomId, roomCode: room.roomCode}
    */
   it("should return 200 with good code", async () => {
-    const sessionToken = "test-sessionToken";
+    const sessionToken = "sessionToken-A";
 
     // Defining Room for Function 
     const room = new GameRoom(
@@ -747,18 +747,6 @@ describe("POST /join-room-by-code", () => {
       "test-roomCode",
       new Settings()
     );
-
-    // Emulating isUsrBanned for the room
-    jest.spyOn(GameRoom.prototype, "isUserBanned");
-    GameRoom.prototype.isUserBanned.mockImplementation( (user) => {
-      return false
-    });   
-    
-    // Emulate Addition of player
-    jest.spyOn(GameRoom.prototype, "addPlayer");
-    GameRoom.prototype.addPlayer.mockImplementation( (user) => {
-      return true
-    }); 
 
     // Emulate the Fetching of a Room
     jest.spyOn(GameManager.prototype, "fetchRoom");
@@ -781,7 +769,7 @@ describe("POST /join-room-by-code", () => {
    * Expected output:  You are banned from this game room 
    */
   it("should return 403 with good code if user banned", async () => {
-    const sessionToken = "test-sessionToken";
+    const sessionToken = "sessionToken-A";
 
     // Defining Room for Function 
     const room = new GameRoom(
@@ -791,12 +779,12 @@ describe("POST /join-room-by-code", () => {
       new Settings()
     );
 
-    // Emulating isUsrBanned for the room
+     // Emulating isUsrBanned for the room
     jest.spyOn(GameRoom.prototype, "isUserBanned");
     GameRoom.prototype.isUserBanned.mockImplementation( (user) => {
       return true
     });   
-    
+
     // Emulate the Fetching of a Room
     jest.spyOn(GameManager.prototype, "fetchRoom");
     GameManager.prototype.fetchRoom.mockImplementation((roomCode) => {
@@ -810,8 +798,7 @@ describe("POST /join-room-by-code", () => {
     expect(responseBody).toEqual({ message: "You are banned from this game room." });
   });
 
-    // TODO: 409 Room Full
-    /**
+  /**
    * Input: Good Parameters, but room full
    *
    * Expected status code: 409
@@ -819,7 +806,7 @@ describe("POST /join-room-by-code", () => {
    * Expected output: {message: "The game room is currently full. Please try again later."}
    */
   it("should return 409 with good code and full room", async () => {
-    const sessionToken = "test-sessionToken";
+    const sessionToken = "sessionToken-A";
 
     // Defining Room for Function 
     const room = new GameRoom(
@@ -829,23 +816,23 @@ describe("POST /join-room-by-code", () => {
       new Settings()
     );
 
-    // Emulating isUsrBanned for the room
-    jest.spyOn(GameRoom.prototype, "isUserBanned");
-    GameRoom.prototype.isUserBanned.mockImplementation( (user) => {
-      return false
-    });   
-    
-    // Emulate Addition of player
-    jest.spyOn(GameRoom.prototype, "addPlayer");
-    GameRoom.prototype.addPlayer.mockImplementation( (user) => {
-      return false
-    }); 
-
     // Emulate the Fetching of a Room
     jest.spyOn(GameManager.prototype, "fetchRoom");
     GameManager.prototype.fetchRoom.mockImplementation((roomCode) => {
         return room;
     });   
+
+    // Emulating isUsrBanned for the room
+    jest.spyOn(GameRoom.prototype, "isUserBanned");
+    GameRoom.prototype.isUserBanned.mockImplementation( (user) => {
+      return false
+    });   
+
+    // Emulate Addition of player
+    jest.spyOn(GameRoom.prototype, "addPlayer");
+    GameRoom.prototype.addPlayer.mockImplementation( (user) => {
+      return false
+    }); 
 
     const response = await request.post("/join-room-by-code").send({sessionToken, roomCode: "good-roomCode"});
 
@@ -855,7 +842,7 @@ describe("POST /join-room-by-code", () => {
   });
 
   /**
-   * Input: Good Parameters
+   * Input: Good Parameters but code errors out
    *
    * Expected status code: 500
    * Expected behaviour: an error happened that would have caused server to crash, but error code occured
@@ -863,7 +850,7 @@ describe("POST /join-room-by-code", () => {
    * Expected output: { roomId: room.roomId, roomCode: room.roomCode}
    */
   it("should return 500 if errors happen throughout running code", async () => {
-    const sessionToken = "test-sessionToken";
+    const sessionToken = "sessionToken-A";
 
     const fakeRoom = {roomCode : "code"};
 
@@ -878,4 +865,53 @@ describe("POST /join-room-by-code", () => {
     expect(response.status).toEqual(500);
   });
 
+})
+
+/**
+ * Interface POST /create-room
+ */
+describe("POST /create-room", () => {
+  /**
+   * Input: Valid Session token
+   *
+   * Expected status code: 200
+   * Expected behaviour: creates room
+   * Expected output: { roomId: room.roomId }
+   */
+  it("should return 200 when valid sessionToken passed", async () => {
+    const sessionToken = "sessionToken-A";
+
+    jest.spyOn(GameManager.prototype, "createGameRoom");
+    GameManager.prototype.createGameRoom.mockImplementation( master => {
+      return {roomId : "test-roomId"}
+    }); 
+
+    const response = await request.post("/create-room").send({sessionToken});
+
+    expect(response.status).toEqual(200);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({roomId: "test-roomId"});
+  });
+
+  /**
+   * Input: InValid Session token
+   *
+   * Expected status code: 500
+   * Expected behaviour: error code
+   * Expected output: error
+   */
+  it("should return 500 when invalid sessionToken passed", async () => {
+    const sessionToken = "non-existent-sessionToken";
+    
+    jest.spyOn(MockUserDBManager.prototype, "getUserBySessionToken");
+    MockUserDBManager.prototype.getUserBySessionToken.mockImplementation( sessionToken => {
+      
+    }); 
+
+    const response = await request.post("/create-room").send({sessionToken});
+
+    expect(response.status).toEqual(500);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({message: "Invalid Session Token"});
+  });
 })

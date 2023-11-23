@@ -8,6 +8,7 @@ const { v4: uuidv4 } = require("uuid");
 const Player = require("./models/Player.js");
 const GameManager = require("./models/GameManager.js");
 const UserDBManager = require("./models/UserDBManager.js");
+const User = require("./models/User.js")
 
 let gameManager = new GameManager();
 let userDBManager = new UserDBManager(db.getUsersCollection());

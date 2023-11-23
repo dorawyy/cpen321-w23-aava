@@ -73,7 +73,7 @@ class QuestionGenerator {
    * @param {String} [difficulty]: The difficulty of the questions 
    * @param {Number} [quantity]: The number of questions to be generated 
    * @returns {Object} An object with
-   *                   Response code: (0 for success, 1 refresh Token)
+   *                   Response code: (0 for success, 1 Bad API Call)
    *                   Question Array: an array of Question objects
    * 
    * ChatGPT usage: No
@@ -135,7 +135,7 @@ class QuestionGenerator {
       } else if (response_code == ApiCode.INVALID_PARAMETER) {
         // If we used invalid paramters, just return empty array
         res_code = 0;
-      } else if ( response_code == ApiCode.TOKEN_NOT_FOUND || response_code == ApiCode.TOKEN_EMPTY) {
+      } else {
         res_code = 1;
       }
     } catch (err) {
@@ -188,15 +188,6 @@ class ApiCode {
 
   /** Invalid parameters were passed in to the query */
   static INVALID_PARAMETER = 2;
-
-  /** The session token does not exist. */
-  static TOKEN_NOT_FOUND = 3;
-
-  /**
-   * The session token has returned all possible questions
-   * for the query.
-   */
-  static TOKEN_EMPTY = 4;
 }
 
 /**

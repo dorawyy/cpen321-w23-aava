@@ -7,6 +7,7 @@ const Player = require("../models/Player.js");
 const User = require("../models/User.js");
 const Settings = require("../models/Settings.js");
 const request = supertest(app);
+ 
 
 // Mocked components
 jest.mock("../models/UserDBManager.js");
@@ -683,3 +684,198 @@ describe("POST /join-random-room", () => {
     expect(roomB.getPlayers()).toEqual([gameMasterB, playerC]);
   });
 });
+
+describe("POST /join-room-by-code", () => {
+  
+  /**
+   * Input: Empty parameters
+   *
+   * Expected status code: 404
+   * Expected behaviour: 
+   * Expected output: Unable to find the user for this account.
+   */
+  it("should return 401 with empty parameters", async () => {
+    const sessionToken = "test-sessionToken";
+    const response = await request.post("/join-room-by-code").send({sessionToken});
+
+    expect(response.status).toEqual(401);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({
+      message: "No Room COde Provided",
+    });
+  });
+
+
+  /**
+   * Input: Wrong Room Parameters
+   *
+   * Expected status code: 404
+   * Expected behaviour: Cannot find room
+   * Expected output: Unable to find the user for this account.
+   */
+  it("should return 404 when wrong roomCode added", async () => {
+    const sessionToken = "test-sessionToken";
+
+    jest.spyOn(GameManager.prototype, "fetchRoom");
+    GameManager.prototype.fetchRoom.mockImplementation((roomCode) => {
+      return undefined;
+    });    
+
+    const response = await request.post("/join-room-by-code").send({sessionToken, roomCode: "wrong-roomCode"});
+
+    expect(response.status).toEqual(404);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({
+      message: "The game room could not be found.",
+    });
+  });
+
+  /**
+   * Input: Good Parameters
+   *
+   * Expected status code: 200
+   * Expected behaviour: user not banned, user added and we sent good output so join room
+   * Expected output: { roomId: room.roomId, roomCode: room.roomCode}
+   */
+  it("should return 200 with good code", async () => {
+    const sessionToken = "test-sessionToken";
+
+    // Defining Room for Function 
+    const room = new GameRoom(
+      "test-roomId",
+      undefined,
+      "test-roomCode",
+      new Settings()
+    );
+
+    // Emulating isUsrBanned for the room
+    jest.spyOn(GameRoom.prototype, "isUserBanned");
+    GameRoom.prototype.isUserBanned.mockImplementation( (user) => {
+      return false
+    });   
+    
+    // Emulate Addition of player
+    jest.spyOn(GameRoom.prototype, "addPlayer");
+    GameRoom.prototype.addPlayer.mockImplementation( (user) => {
+      return true
+    }); 
+
+    // Emulate the Fetching of a Room
+    jest.spyOn(GameManager.prototype, "fetchRoom");
+    GameManager.prototype.fetchRoom.mockImplementation((roomCode) => {
+        return room;
+    });   
+
+    const response = await request.post("/join-room-by-code").send({sessionToken, roomCode: "good-roomCode"});
+
+    expect(response.status).toEqual(200);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({roomId: "test-roomId", roomCode: "test-roomCode"});
+  });
+
+  /**
+   * Input: Good Parameters But banned user
+   *
+   * Expected status code: 403
+   * Expected behaviour: user cannot join room as user banned errors out
+   * Expected output:  You are banned from this game room 
+   */
+  it("should return 403 with good code if user banned", async () => {
+    const sessionToken = "test-sessionToken";
+
+    // Defining Room for Function 
+    const room = new GameRoom(
+      "test-roomId",
+      undefined,
+      "test-roomCode",
+      new Settings()
+    );
+
+    // Emulating isUsrBanned for the room
+    jest.spyOn(GameRoom.prototype, "isUserBanned");
+    GameRoom.prototype.isUserBanned.mockImplementation( (user) => {
+      return true
+    });   
+    
+    // Emulate the Fetching of a Room
+    jest.spyOn(GameManager.prototype, "fetchRoom");
+    GameManager.prototype.fetchRoom.mockImplementation((roomCode) => {
+        return room;
+    });   
+
+    const response = await request.post("/join-room-by-code").send({sessionToken, roomCode: "good-roomCode"});
+
+    expect(response.status).toEqual(403);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({ message: "You are banned from this game room." });
+  });
+
+    // TODO: 409 Room Full
+    /**
+   * Input: Good Parameters, but room full
+   *
+   * Expected status code: 409
+   * Expected behaviour: user cannot join room as its full
+   * Expected output: {message: "The game room is currently full. Please try again later."}
+   */
+  it("should return 409 with good code and full room", async () => {
+    const sessionToken = "test-sessionToken";
+
+    // Defining Room for Function 
+    const room = new GameRoom(
+      "test-roomId",
+      undefined,
+      "test-roomCode",
+      new Settings()
+    );
+
+    // Emulating isUsrBanned for the room
+    jest.spyOn(GameRoom.prototype, "isUserBanned");
+    GameRoom.prototype.isUserBanned.mockImplementation( (user) => {
+      return false
+    });   
+    
+    // Emulate Addition of player
+    jest.spyOn(GameRoom.prototype, "addPlayer");
+    GameRoom.prototype.addPlayer.mockImplementation( (user) => {
+      return false
+    }); 
+
+    // Emulate the Fetching of a Room
+    jest.spyOn(GameManager.prototype, "fetchRoom");
+    GameManager.prototype.fetchRoom.mockImplementation((roomCode) => {
+        return room;
+    });   
+
+    const response = await request.post("/join-room-by-code").send({sessionToken, roomCode: "good-roomCode"});
+
+    expect(response.status).toEqual(409);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({message: "The game room is currently full. Please try again later."});
+  });
+
+  /**
+   * Input: Good Parameters
+   *
+   * Expected status code: 500
+   * Expected behaviour: an error happened that would have caused server to crash, but error code occured
+   *                     (for example a function is not defined)
+   * Expected output: { roomId: room.roomId, roomCode: room.roomCode}
+   */
+  it("should return 500 if errors happen throughout running code", async () => {
+    const sessionToken = "test-sessionToken";
+
+    const fakeRoom = {roomCode : "code"};
+
+    // Emulate the Fetching of a Room
+    jest.spyOn(GameManager.prototype, "fetchRoom");
+    GameManager.prototype.fetchRoom.mockImplementation((roomCode) => {
+        return fakeRoom;
+    });   
+
+    const response = await request.post("/join-room-by-code").send({sessionToken, roomCode: "good-roomCode"});
+
+    expect(response.status).toEqual(500);
+  });
+
+})

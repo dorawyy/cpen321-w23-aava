@@ -902,16 +902,11 @@ describe("POST /create-room", () => {
    */
   it("should return 500 when invalid sessionToken passed", async () => {
     const sessionToken = "non-existent-sessionToken";
-    
-    jest.spyOn(MockUserDBManager.prototype, "getUserBySessionToken");
-    MockUserDBManager.prototype.getUserBySessionToken.mockImplementation( sessionToken => {
-      
-    }); 
 
     const response = await request.post("/create-room").send({sessionToken});
 
     expect(response.status).toEqual(500);
     const responseBody = JSON.parse(response.text);
-    expect(responseBody).toEqual({message: "Invalid Session Token"});
+    expect(responseBody).toEqual({ message: "Invalid Session Token" });
   });
 })

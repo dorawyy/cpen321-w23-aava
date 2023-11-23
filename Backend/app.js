@@ -259,24 +259,25 @@ app.post("/create-room", (req, res) => {
   const sessionToken = req.body.sessionToken;
 
   userDBManager.getUserBySessionToken(sessionToken).then(
+
     (dbUser) => {
-      const user = new User(
-        dbUser.token,
-        dbUser.username,
-        dbUser.rank,
-        sessionToken
-      );
-      const gameMaster = new Player(user);
-
-      const room = gameManager.createGameRoom(gameMaster);
-
-      res.status(200).send({ roomId: room.roomId });
-    },
-    (err) => {
-      console.log(err);
-      res.status(500).send({ message: err });
-    }
-  );
+      if (dbUser == undefined){
+        res.status(500).send({ message: "Invalid Session Token" });
+      }
+      else {
+        const user = new User(
+          dbUser.token,
+          dbUser.username,
+          dbUser.rank,
+          sessionToken
+        );
+        const gameMaster = new Player(user);
+  
+        const room = gameManager.createGameRoom(gameMaster);
+  
+        res.status(200).send({ roomId: room.roomId });
+      }
+    });
 });
 
 module.exports = { app, gameManager, userDBManager };

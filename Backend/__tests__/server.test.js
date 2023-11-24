@@ -678,4 +678,61 @@ describe("Server", () => {
     })
 
   })
+
+  describe("readyToStartGame", () => {
+    it("clientB sends readyToStartGame, everyone should receuve it", (done) => {
+      // Message
+      const message = {
+        roomId: "roomId-A-earlier",
+        username: "username-B",
+      };
+
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      jest.spyOn(GameRoom.prototype, "getPlayers").mockReturnValue([{user : {username: "username-A"}}, {user : {username: "username-B"}}]);
+
+      clientB.emit("readyToStartGame", message);
+
+      // make sure all players receive the message
+      let receieve = 0
+      clientA.on("playerReadyToStartGame", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({playerUsername: "username-B"});
+        if(++receieve === 2) done();
+      });
+      clientB.on("playerReadyToStartGame", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({playerUsername: "username-B"});
+        if(++receieve === 2) done();
+      });
+      
+    })
+
+    it("clientB sends readyToStartGame, everyone should receuve it", (done) => {
+      // Message
+      const message = {
+        roomId: "roomId-A-earlier",
+        username: "username-B",
+      };
+
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(undefined);
+
+      jest.spyOn(GameRoom.prototype, "getPlayers").mockReturnValue([{user : {username: "username-A"}}, {user : {username: "username-B"}}]);
+
+      clientA.emit("readyToStartGame", message);
+
+      // make sure all players receive the message
+      clientA.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({ message: "Invalid roomId" });
+        done();
+      });
+      
+    })
+  })
+
 });

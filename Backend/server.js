@@ -415,7 +415,7 @@ io.on("connection", (socket) => {
     } catch (err) {
       console.log(err);
 
-      socket.emit("error", { message: err });
+      socket.emit("error", { message: "Invalid roomId" });
     }
   });
 

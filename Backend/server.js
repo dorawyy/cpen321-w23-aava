@@ -302,15 +302,8 @@ io.on("connection", (socket) => {
     const settingOption = message.settingOption;
     const optionValue = message.optionValue;
 
-    if (
-      room === undefined ||
-      settingOption === undefined ||
-      optionValue === undefined
-    ) {
-      socket.emit("error", {
-        message: "You have passed in invalid parameters.",
-      });
-
+    if (room === undefined ||settingOption === undefined ||optionValue === undefined) {
+      socket.emit("error", { message: "You have passed in invalid parameters."});
       return;
     }
 
@@ -330,7 +323,7 @@ io.on("connection", (socket) => {
           error = true;
         } else {
           const categoryName = settingOption.split("-")[1];
-          if (!gameManager.possibleCategories.includes(categoryName)) {
+          if (!gameManager.isACategory(categoryName)) {
             error = true;
           } else {
             if (optionValue) {
@@ -343,7 +336,7 @@ io.on("connection", (socket) => {
         break;
 
       case settingOption === "difficulty":
-        if (!gameManager.possibleDifficulties.includes(optionValue)) {
+        if (!gameManager.isADifficulty(optionValue)) {
           error = true;
         } else {
           room.updateSetting("difficulty", optionValue);
@@ -351,7 +344,7 @@ io.on("connection", (socket) => {
         break;
 
       case settingOption === "maxPlayers":
-        if (!gameManager.possibleMaxPlayers.includes(optionValue)) {
+        if (!gameManager.isAMaxPlayers(optionValue)) {
           error = true;
         } else {
           room.updateSetting("maxPlayers", optionValue);
@@ -359,7 +352,7 @@ io.on("connection", (socket) => {
         break;
 
       case settingOption === "timeLimit":
-        if (!gameManager.possibleAnswerTimeSeconds.includes(optionValue)) {
+        if (!gameManager.isAnAnswerTime(optionValue)) {
           error = true;
         } else {
           room.updateSetting("time", optionValue);
@@ -367,7 +360,7 @@ io.on("connection", (socket) => {
         break;
 
       case settingOption === "total":
-        if (!gameManager.possibleNumberOfQuestions.includes(optionValue)) {
+        if (!gameManager.isANumberOfQuestions(optionValue)) {
           error = true;
         } else {
           room.updateSetting("total", optionValue);

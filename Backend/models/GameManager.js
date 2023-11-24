@@ -357,6 +357,56 @@ class GameManager {
     this.roomCodeToGameRoom.set(roomCode, room);
     return newScores;
   };
+
+  /**
+   * Purpose: Checks if Category is valid
+   * @param {String} category
+   * @returns {Boolean} if category is valid
+   * ChatGPT usage: No
+   */
+  isACategory(category) {
+    return this.possibleCategories.includes(category);
+  }
+
+  /**
+   * Purpose: Checks if Difficulty is valid
+   * @param {String} difficulty
+   * @returns {Boolean} if difficulty is valid
+   * ChatGPT usage: No
+   */
+  isADifficulty(difficulty) {
+    return this.possibleDifficulties.includes(difficulty);
+  }
+
+  /**
+   * Purpose: Checks if Answer Time is valid
+   * @param {Number} answerTime
+   * @returns {Boolean} if answerTime is valid
+   * ChatGPT usage: No
+   */
+  isAnAnswerTime(answerTime) {
+    return this.possibleAnswerTimeSeconds.includes(answerTime);
+  }
+
+  /**
+   * Purpose: Checks if Number of Questions is valid
+   * @param {Number} numQuestions
+   * @returns {Boolean} if numQuestions is valid
+   * ChatGPT usage: No
+   */
+  isANumberOfQuestions(numQuestions) {
+    return this.possibleNumberOfQuestions.includes(numQuestions);
+  }
+
+  /**
+   * Purpose: Checks if Max Players is valid
+   * @param {Number} maxPlayers
+   * @returns {Boolean} if maxPlayers is valid
+   * ChatGPT usage: No
+   */
+  isAMaxPlayers(maxPlayers) {
+    return this.possibleMaxPlayers.includes(maxPlayers);
+  }
 }
 
 module.exports = GameManager;

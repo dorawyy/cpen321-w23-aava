@@ -10,6 +10,8 @@ const GameManager = require("../models/GameManager.js");
 
 jest.mock("../models/UserDBManager.js");
 
+jest.mock("../models/GameManager.js");
+
 describe("Server", () => {
   const userA = new User("token-A", "username-A", 2, "sessionToken-A");
   const userB = new User("token-B", "username-B", 5, "sessionToken-B");
@@ -186,7 +188,7 @@ describe("Server", () => {
   describe("joinRoom event", () => {
     it("joinRoom event", (done) => {
       const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
-      spy.mockImplementation(() => undefined);
+      spy.mockReturnValue(undefined);
 
       const message = {
         username: userA.sessionToken,
@@ -203,4 +205,32 @@ describe("Server", () => {
       });
     });
   });
+
+  // leaveRoom event
+
+  // banPlayer event
+
+  describe("change Setting event", () => {
+
+    it("change Setting should return error for invalid room", (done) => {
+      const message = {
+        roomId: "badRoom",
+        settingOption: "isPublic",
+        optionValue: true
+      };
+
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(undefined);
+
+      clientA.emit("changeSetting", message);
+
+      clientA.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({message: "You have passed in invalid parameters."});
+        done();
+      });
+      
+    })
+
+  })
 });

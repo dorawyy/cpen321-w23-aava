@@ -10,14 +10,6 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-// jest.SpyOn(questionGenerator, 'getNumArr').mockImplementation( (n1, n2) => {
-//     return [n1]
-// })
-
-// jest.SpyOn(questionGenerator, 'getQuestions').mockImplementation( (_, _, _, _, quantity) => {
-//     return Array(quantity).fill(0);
-// })
-
 describe("GameManager", () => {
     const gameManager = new GameManager();
     let room;

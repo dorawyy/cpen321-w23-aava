@@ -3,12 +3,12 @@ const express = require("express");
 
 // Custom application modules
 const app = express();
-const db = require("./Database/dbSetup.js");
+const db = require("./database/dbSetup.js");
 const { v4: uuidv4 } = require("uuid");
 const Player = require("./models/Player.js");
 const GameManager = require("./models/GameManager.js");
 const UserDBManager = require("./models/UserDBManager.js");
-const User = require("./models/User.js")
+const User = require("./models/User.js");
 
 let gameManager = new GameManager();
 let userDBManager = new UserDBManager(db.getUsersCollection());
@@ -258,26 +258,23 @@ app.post("/join-room-by-code", (req, res) => {
 app.post("/create-room", (req, res) => {
   const sessionToken = req.body.sessionToken;
 
-  userDBManager.getUserBySessionToken(sessionToken).then(
+  userDBManager.getUserBySessionToken(sessionToken).then((dbUser) => {
+    if (dbUser == undefined) {
+      res.status(500).send({ message: "Invalid Session Token" });
+    } else {
+      const user = new User(
+        dbUser.token,
+        dbUser.username,
+        dbUser.rank,
+        sessionToken
+      );
+      const gameMaster = new Player(user);
 
-    (dbUser) => {
-      if (dbUser == undefined){
-        res.status(500).send({ message: "Invalid Session Token" });
-      }
-      else {
-        const user = new User(
-          dbUser.token,
-          dbUser.username,
-          dbUser.rank,
-          sessionToken
-        );
-        const gameMaster = new Player(user);
-  
-        const room = gameManager.createGameRoom(gameMaster);
-  
-        res.status(200).send({ roomId: room.roomId });
-      }
-    });
+      const room = gameManager.createGameRoom(gameMaster);
+
+      res.status(200).send({ roomId: room.roomId });
+    }
+  });
 });
 
 module.exports = { app, gameManager, userDBManager };

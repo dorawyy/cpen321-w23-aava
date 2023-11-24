@@ -9,7 +9,7 @@ const database = client.db(databaseName);
  * Purpose: Attempts to connect to the database.
  * @param None
  * @returns {boolean} True if successful, otherwise false.
- * 
+ *
  * ChatGPT usage: No
  */
 async function connect() {
@@ -18,7 +18,7 @@ async function connect() {
     console.log("Successfully connected to the database");
     return true;
   } catch (err) {
-    console.log(err);
+    console.log("Connection to database failed: " + err);
     await client.close();
     return false;
   }
@@ -28,11 +28,11 @@ async function connect() {
  * Purpose: Get User Collection from Database
  * @param None
  * @returns {Collection} The users collection from the database.
- * 
+ *
  * ChatGPT usage: No
  */
 function getUsersCollection() {
   return database.collection("users");
 }
 
-module.exports = { connect, getUsersCollection };
+module.exports = { uri, databaseName, connect, getUsersCollection };

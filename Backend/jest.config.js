@@ -12,6 +12,7 @@ const config = {
     "!**/jest.config.js",
   ],
   coverageDirectory: "coverage",
+  preset: "@shelf/jest-mongodb",
 };
 
 module.exports = config;

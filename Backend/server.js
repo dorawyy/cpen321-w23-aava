@@ -4,7 +4,7 @@ const https = require("https");
 
 // Custom application modules
 const { app, gameManager, userDBManager } = require("./app.js");
-const db = require("./Database/dbSetup.js");
+const db = require("./database/dbSetup.js");
 const PlayerAction = require("./models/PlayerAction.js");
 const { Socket } = require("socket.io");
 
@@ -25,12 +25,6 @@ const server = httpsServer.listen(8081, "0.0.0.0", async () => {
 
   if (await db.connect()) {
     gameManager.updateCategories();
-  }
-
-  // TODO: delete after. This is used for testing
-  if (gameManager.fetchRoom("ABC123") === undefined) {
-    gameManager.testing();
-    console.log("test room added!");
   }
 });
 
@@ -614,3 +608,5 @@ io.on("connection", (socket) => {
     socket.to(roomId).emit("emoteReceived", { username, emoteCode });
   });
 });
+
+module.exports = { server, io };

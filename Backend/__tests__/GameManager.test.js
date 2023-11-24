@@ -3,7 +3,10 @@ const QuestionGenerator = require('../models/QuestionGenerator.js')
 
 jest.mock("uuid", () => ({ v4: () => "randCode" }));
 
-
+jest.spyOn(QuestionGenerator.prototype, 'getCategories')
+    .mockImplementation(() => {
+        return ["Science"]
+    })
 
 // jest.SpyOn(questionGenerator, 'getNumArr').mockImplementation( (n1, n2) => {
 //     return [n1]
@@ -28,10 +31,7 @@ describe('GameManager', () => {
     });
 
     it("updateCategories should change possibleCategories", () => {
-        jest.spyOn(QuestionGenerator.prototype, 'getCategories')
-        QuestionGenerator.prototype.getCategories.mockImplementation(() => {
-            return ["Science"]
-        })
+        
         
         gameManager.possibleCategories = ["PE", "time"];
         gameManager.updateCategories();

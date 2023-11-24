@@ -97,6 +97,7 @@ describe("GameRoom", () => {
   });
 
   it("isIdle should return true if the room is waiting", () => {
+    gameRoom.roomState = roomStateEnum.WAITING;
     expect(gameRoom.isIdle()).toBe(true);
   });
 

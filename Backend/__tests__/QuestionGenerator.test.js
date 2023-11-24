@@ -25,7 +25,7 @@ describe("QuestionGenerator", () => {
 
     it("getCategories API request fails and error is thrown", async () => {
         questionGenerator.possibleCategories = {};
-        axios.get.mockRejectedValue(new Error("Error"));
+        axios.get.mockRejectedValue("Error");
 
         const categories = await questionGenerator.getCategories();
         expect(categories).toEqual([]);
@@ -44,7 +44,7 @@ describe("QuestionGenerator", () => {
 
     it("getQuestionQuantity API request fails and error is thrown", async () => {
         questionGenerator.possibleCategories = {"General Knowledge" : 9};
-        axios.get.mockRejectedValue(new Error("Error"));
+        axios.get.mockRejectedValue("Error");
 
         const quantity = await questionGenerator.getQuestionQuantity("General Knowledge", "easy");
         expect(quantity).toEqual(-1);
@@ -137,7 +137,7 @@ describe("QuestionGenerator", () => {
 
     it("getQuestions API request fails and error is thrown", async () => {
         questionGenerator.possibleCategories = {"General Knowledge" : 9};
-        axios.get.mockRejectedValue(new Error("Error"));
+        axios.get.mockRejectedValue("Error");
 
         const response = await questionGenerator.getQuestions(false, true, "General Knowledge", "easy", 1);
         expect(response.res_code).toBe(-1);

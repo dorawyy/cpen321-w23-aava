@@ -26,12 +26,6 @@ const server = httpsServer.listen(8081, "0.0.0.0", async () => {
   if (await db.connect()) {
     gameManager.updateCategories();
   }
-
-  // TODO: delete after. This is used for testing
-  if (gameManager.fetchRoom("ABC123") === undefined) {
-    gameManager.testing();
-    console.log("test room added!");
-  }
 });
 
 // Delay between start of game and question
@@ -614,3 +608,5 @@ io.on("connection", (socket) => {
     socket.to(roomId).emit("emoteReceived", { username, emoteCode });
   });
 });
+
+module.exports = { server, io };

@@ -1,5 +1,5 @@
 const supertest = require("supertest");
-const { app, userDBManager } = require("../app.js");
+const { app } = require("../app.js");
 const MockUserDBManager = require("../models/__mocks__/UserDBManager.js");
 const GameManager = require("../models/GameManager.js");
 const GameRoom = require("../models/GameRoom.js");
@@ -7,7 +7,6 @@ const Player = require("../models/Player.js");
 const User = require("../models/User.js");
 const Settings = require("../models/Settings.js");
 const request = supertest(app);
- 
 
 // Mocked components
 jest.mock("../models/UserDBManager.js");
@@ -686,17 +685,18 @@ describe("POST /join-random-room", () => {
 });
 
 describe("POST /join-room-by-code", () => {
-  
   /**
    * Input: Empty parameters
    *
    * Expected status code: 404
-   * Expected behaviour: 
+   * Expected behaviour:
    * Expected output: Unable to find the user for this account.
    */
   it("should return 401 with empty parameters", async () => {
     const sessionToken = "sessionToken-A";
-    const response = await request.post("/join-room-by-code").send({sessionToken});
+    const response = await request
+      .post("/join-room-by-code")
+      .send({ sessionToken });
 
     expect(response.status).toEqual(401);
     const responseBody = JSON.parse(response.text);
@@ -704,7 +704,6 @@ describe("POST /join-room-by-code", () => {
       message: "No Room COde Provided",
     });
   });
-
 
   /**
    * Input: Wrong Room Parameters
@@ -719,9 +718,11 @@ describe("POST /join-room-by-code", () => {
     jest.spyOn(GameManager.prototype, "fetchRoom");
     GameManager.prototype.fetchRoom.mockImplementation((roomCode) => {
       return undefined;
-    });    
+    });
 
-    const response = await request.post("/join-room-by-code").send({sessionToken, roomCode: "wrong-roomCode"});
+    const response = await request
+      .post("/join-room-by-code")
+      .send({ sessionToken, roomCode: "wrong-roomCode" });
 
     expect(response.status).toEqual(404);
     const responseBody = JSON.parse(response.text);
@@ -740,7 +741,7 @@ describe("POST /join-room-by-code", () => {
   it("should return 200 with good code", async () => {
     const sessionToken = "sessionToken-A";
 
-    // Defining Room for Function 
+    // Defining Room for Function
     const room = new GameRoom(
       "test-roomId",
       undefined,
@@ -751,14 +752,19 @@ describe("POST /join-room-by-code", () => {
     // Emulate the Fetching of a Room
     jest.spyOn(GameManager.prototype, "fetchRoom");
     GameManager.prototype.fetchRoom.mockImplementation((roomCode) => {
-        return room;
-    });   
+      return room;
+    });
 
-    const response = await request.post("/join-room-by-code").send({sessionToken, roomCode: "good-roomCode"});
+    const response = await request
+      .post("/join-room-by-code")
+      .send({ sessionToken, roomCode: "good-roomCode" });
 
     expect(response.status).toEqual(200);
     const responseBody = JSON.parse(response.text);
-    expect(responseBody).toEqual({roomId: "test-roomId", roomCode: "test-roomCode"});
+    expect(responseBody).toEqual({
+      roomId: "test-roomId",
+      roomCode: "test-roomCode",
+    });
   });
 
   /**
@@ -766,12 +772,12 @@ describe("POST /join-room-by-code", () => {
    *
    * Expected status code: 403
    * Expected behaviour: user cannot join room as user banned errors out
-   * Expected output:  You are banned from this game room 
+   * Expected output:  You are banned from this game room
    */
   it("should return 403 with good code if user banned", async () => {
     const sessionToken = "sessionToken-A";
 
-    // Defining Room for Function 
+    // Defining Room for Function
     const room = new GameRoom(
       "test-roomId",
       undefined,
@@ -779,23 +785,27 @@ describe("POST /join-room-by-code", () => {
       new Settings()
     );
 
-     // Emulating isUsrBanned for the room
+    // Emulating isUsrBanned for the room
     jest.spyOn(GameRoom.prototype, "isUserBanned");
-    GameRoom.prototype.isUserBanned.mockImplementation( (user) => {
-      return true
-    });   
+    GameRoom.prototype.isUserBanned.mockImplementation((user) => {
+      return true;
+    });
 
     // Emulate the Fetching of a Room
     jest.spyOn(GameManager.prototype, "fetchRoom");
     GameManager.prototype.fetchRoom.mockImplementation((roomCode) => {
-        return room;
-    });   
+      return room;
+    });
 
-    const response = await request.post("/join-room-by-code").send({sessionToken, roomCode: "good-roomCode"});
+    const response = await request
+      .post("/join-room-by-code")
+      .send({ sessionToken, roomCode: "good-roomCode" });
 
     expect(response.status).toEqual(403);
     const responseBody = JSON.parse(response.text);
-    expect(responseBody).toEqual({ message: "You are banned from this game room." });
+    expect(responseBody).toEqual({
+      message: "You are banned from this game room.",
+    });
   });
 
   /**
@@ -808,7 +818,7 @@ describe("POST /join-room-by-code", () => {
   it("should return 409 with good code and full room", async () => {
     const sessionToken = "sessionToken-A";
 
-    // Defining Room for Function 
+    // Defining Room for Function
     const room = new GameRoom(
       "test-roomId",
       undefined,
@@ -819,26 +829,30 @@ describe("POST /join-room-by-code", () => {
     // Emulate the Fetching of a Room
     jest.spyOn(GameManager.prototype, "fetchRoom");
     GameManager.prototype.fetchRoom.mockImplementation((roomCode) => {
-        return room;
-    });   
+      return room;
+    });
 
     // Emulating isUsrBanned for the room
     jest.spyOn(GameRoom.prototype, "isUserBanned");
-    GameRoom.prototype.isUserBanned.mockImplementation( (user) => {
-      return false
-    });   
+    GameRoom.prototype.isUserBanned.mockImplementation((user) => {
+      return false;
+    });
 
     // Emulate Addition of player
     jest.spyOn(GameRoom.prototype, "addPlayer");
-    GameRoom.prototype.addPlayer.mockImplementation( (user) => {
-      return false
-    }); 
+    GameRoom.prototype.addPlayer.mockImplementation((user) => {
+      return false;
+    });
 
-    const response = await request.post("/join-room-by-code").send({sessionToken, roomCode: "good-roomCode"});
+    const response = await request
+      .post("/join-room-by-code")
+      .send({ sessionToken, roomCode: "good-roomCode" });
 
     expect(response.status).toEqual(409);
     const responseBody = JSON.parse(response.text);
-    expect(responseBody).toEqual({message: "The game room is currently full. Please try again later."});
+    expect(responseBody).toEqual({
+      message: "The game room is currently full. Please try again later.",
+    });
   });
 
   /**
@@ -852,20 +866,21 @@ describe("POST /join-room-by-code", () => {
   it("should return 500 if errors happen throughout running code", async () => {
     const sessionToken = "sessionToken-A";
 
-    const fakeRoom = {roomCode : "code"};
+    const fakeRoom = { roomCode: "code" };
 
     // Emulate the Fetching of a Room
     jest.spyOn(GameManager.prototype, "fetchRoom");
     GameManager.prototype.fetchRoom.mockImplementation((roomCode) => {
-        return fakeRoom;
-    });   
+      return fakeRoom;
+    });
 
-    const response = await request.post("/join-room-by-code").send({sessionToken, roomCode: "good-roomCode"});
+    const response = await request
+      .post("/join-room-by-code")
+      .send({ sessionToken, roomCode: "good-roomCode" });
 
     expect(response.status).toEqual(500);
   });
-
-})
+});
 
 /**
  * Interface POST /create-room
@@ -882,15 +897,15 @@ describe("POST /create-room", () => {
     const sessionToken = "sessionToken-A";
 
     jest.spyOn(GameManager.prototype, "createGameRoom");
-    GameManager.prototype.createGameRoom.mockImplementation( master => {
-      return {roomId : "test-roomId"}
-    }); 
+    GameManager.prototype.createGameRoom.mockImplementation((master) => {
+      return { roomId: "test-roomId" };
+    });
 
-    const response = await request.post("/create-room").send({sessionToken});
+    const response = await request.post("/create-room").send({ sessionToken });
 
     expect(response.status).toEqual(200);
     const responseBody = JSON.parse(response.text);
-    expect(responseBody).toEqual({roomId: "test-roomId"});
+    expect(responseBody).toEqual({ roomId: "test-roomId" });
   });
 
   /**
@@ -903,10 +918,10 @@ describe("POST /create-room", () => {
   it("should return 500 when invalid sessionToken passed", async () => {
     const sessionToken = "non-existent-sessionToken";
 
-    const response = await request.post("/create-room").send({sessionToken});
+    const response = await request.post("/create-room").send({ sessionToken });
 
     expect(response.status).toEqual(500);
     const responseBody = JSON.parse(response.text);
     expect(responseBody).toEqual({ message: "Invalid Session Token" });
   });
-})
+});

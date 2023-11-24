@@ -27,9 +27,9 @@ class GameManager {
    *
    * ChatGPT usage: No
    */
-  updateCategories = async () => {
-    this.possibleCategories = await this.questionGenerator.getCategories();
-  };
+  updateCategories() {
+    this.possibleCategories = this.questionGenerator.getCategories();
+  }
 
   /**
    * Purpose: Creates a new game room with a unique identifer (6 character HEX)

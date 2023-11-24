@@ -37,14 +37,8 @@ class UserDBManager {
     const rank = 0;
     const newUser = new User(token, username, rank, null);
 
-    try {
-      await this.usersCollection.insertOne(newUser);
-      return newUser;
-    } catch (err) {
-      // If an error occurred while adding the new user, return undefined.
-      console.error("Error inserting the new user:", err);
-      return;
-    }
+    await this.usersCollection.insertOne(newUser);
+    return newUser;
   }
 
   /**
@@ -58,24 +52,20 @@ class UserDBManager {
    * ChatGPT usage: Yes
    */
   async setUserSessionToken(token, sessionToken) {
-    try {
-      const result = await this.usersCollection.updateOne(
-        { token },
-        { $set: { sessionToken } }
-      );
+    const result = await this.usersCollection.updateOne(
+      { token },
+      { $set: { sessionToken } }
+    );
 
-      // Return undefined if no user could be found
-      if (result["matchedCount"] < 1) {
-        return;
-      } else {
-        const user = await this.usersCollection.findOne({
-          token,
-        });
+    // Return undefined if no user could be found
+    if (result["matchedCount"] < 1) {
+      return;
+    } else {
+      const user = await this.usersCollection.findOne({
+        token,
+      });
 
-        return user;
-      }
-    } catch (e) {
-      throw new Error("An unknown error occurred.");
+      return user;
     }
   }
 
@@ -89,7 +79,7 @@ class UserDBManager {
    */
   async getUserBySessionToken(sessionToken) {
     const user = await this.usersCollection.findOne({
-      sessionToken
+      sessionToken,
     });
 
     if (user) {
@@ -132,12 +122,10 @@ class UserDBManager {
     return this.usersCollection
       .updateOne({ username }, { $inc: { rank: value } })
       .then((_) => {
-        if (value < 0) {
-          return this.usersCollection.updateOne(
-            { username, rank: { $lt: 0 } },
-            { $set: { rank: 0 } }
-          );
-        }
+        return this.usersCollection.updateOne(
+          { username, rank: { $lt: 0 } },
+          { $set: { rank: 0 } }
+        );
       });
   }
 }

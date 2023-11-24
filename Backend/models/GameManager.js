@@ -56,46 +56,6 @@ class GameManager {
     return room;
   }
 
-  // TODO: DELETE THIS FUNCTION AFTER TESTING IS DONE
-  testing() {
-    const gameMaster = new Player(
-      new User(
-        "token-1",
-        "username-1",
-        3,
-        "0aae56ce-3788-4c3d-81fc-c1fe397c0cd9"
-      )
-    );
-    const roomCode = "ABC123";
-    const room = new GameRoom("roomId-1", gameMaster, roomCode, new Settings());
-    // room.roomSettings.roomIsPublic = true;
-
-    this.roomCodeToGameRoom.set(roomCode, room);
-
-    const gameMaster_2 = new Player(
-      new User(
-        "token-1",
-        "username-1",
-        1,
-        "0aae56ce-3788-4c3d-81fc-c1fe397c0cd9"
-      )
-    );
-    const roomCode_2 = "XYZ123";
-
-    const room_2 = new GameRoom(
-      "roomId-2",
-      gameMaster_2,
-      roomCode_2,
-      new Settings()
-    );
-
-    // room_2.roomSettings.roomIsPublic = true;k
-
-    this.roomCodeToGameRoom.set(roomCode_2, room_2);
-
-    return room;
-  }
-
   /**
    * Purpose: Fetches the game room with the given room code
    * @param {String} [roomCode]: the room code of the game room
@@ -232,7 +192,7 @@ class GameManager {
    */
   calculateScore(roomCode) {
     // Max Score per difficulty
-    const scorePerDifficulty = { easy: 100, medium: 200, hard: 300 };
+    const maxScore = 100;
     //  Fetch room, if room not found, return error code 1
     const room = this.fetchRoom(roomCode);
     if (room === undefined) return { returnCode: 1, scores: [] };
@@ -250,7 +210,6 @@ class GameManager {
     });
 
     // Calculate the score for each player based on time delay and correctness (and 2x powerup)
-    const maxScore = scorePerDifficulty[room.getDifficultySetting()];
     const maxTime = room.getTimeSetting() * 1000;
     actions.forEach((action) => {
       if (
@@ -388,7 +347,7 @@ class GameManager {
    * Purpose: updates player scores and returns new totals
    * @param {String} roomCode
    * @param {Map} scores Map of username --> points gained
-   * @returns {Map} The new scores of all players
+   * @returns {Array} The new scores of all players
    *
    * ChatGPT usage: No
    */

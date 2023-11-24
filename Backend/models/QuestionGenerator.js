@@ -171,7 +171,7 @@ class QuestionGenerator {
    *
    * ChatGPT usage: No
    */
-  async getNumArr(toalQuestions, numberCategories) {
+  getNumArr(toalQuestions, numberCategories) {
     // Calculates the mimimum number of questions per category
     const baseQuantity = Math.floor(toalQuestions / numberCategories);
 

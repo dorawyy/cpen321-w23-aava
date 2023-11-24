@@ -78,19 +78,19 @@ io.on("connection", (socket) => {
   console.log("Checking their session token: " + sessionToken);
 
   if (sessionToken === undefined) {
+    console.log("Invalid sessionToken. Disconnecting client...");
     socket.disconnect();
-    console.log("Client disconnected");
+  } else {
+    userDBManager.getUserBySessionToken(sessionToken).then((user) => {
+      if (user === undefined) {
+        // Disconnect this client. They do not have a valid sessionToken
+        socket.disconnect();
+        console.log("Client disconnected");
+      } else {
+        console.log("Client has a valid sessionToken");
+      }
+    });
   }
-
-  userDBManager.getUserBySessionToken(sessionToken).then((user) => {
-    if (user === undefined) {
-      // Disconnect this client. They do not have a valid sessionToken
-      socket.disconnect();
-      console.log("Client disconnected");
-    } else {
-      console.log("Client has a valid sessionToken");
-    }
-  });
 
   /**
    * Purpose: Attaches client's socket connection to a socket room
@@ -609,4 +609,4 @@ io.on("connection", (socket) => {
   });
 });
 
-module.exports = { server, io };
+module.exports = { server, db };

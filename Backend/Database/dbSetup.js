@@ -25,6 +25,19 @@ async function connect() {
 }
 
 /**
+ * Purpose: Disconnects from the database.
+ * @param None
+ * @returns {boolean} True if successful, otherwise false.
+ *
+ * ChatGPT usage: No
+ */
+async function disconnect() {
+  await client.close();
+  console.log("Successfully disconnected from the database");
+  return true;
+}
+
+/**
  * Purpose: Get User Collection from Database
  * @param None
  * @returns {Collection} The users collection from the database.
@@ -35,4 +48,4 @@ function getUsersCollection() {
   return database.collection("users");
 }
 
-module.exports = { uri, databaseName, connect, getUsersCollection };
+module.exports = { uri, databaseName, connect, disconnect, getUsersCollection };

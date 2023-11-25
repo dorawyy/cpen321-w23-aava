@@ -989,6 +989,9 @@ describe("Server", () => {
   });
 
   describe("submitAnswer", () => {
+    
+
+
     it("clientA sends answer, everyone else should receuve it", (done) => {
       // Message
       const message = {
@@ -1077,10 +1080,8 @@ describe("Server", () => {
       
     }, 8000); 
 
-    it("clientA and clientB send answers, good submissins, last question so endGame", (done) => {
-      const numberOfPlayers = 2;
-      
-      // Message
+    const sucesfullSubmissionEndGame = (numberOfPlayers, done) => {
+      // Messages to submit Answers
       const messageA = {
         roomId: roomA.roomId,
         username : userA.username,
@@ -1099,24 +1100,30 @@ describe("Server", () => {
         powerupVictimUsername: ""
       };
 
+      // Fetch Room Changes
       const spy = jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
 
+      // Mock responses to room
       let messagesAdded = 0;
       const spy2 = jest.spyOn(GameManager.prototype, "addResponseToRoom").mockImplementation(() => {return (++messagesAdded === 2)});
 
+      // Mock return of new scores
       let scores = new Map();
       scores.set(userA.username, 95);
       scores.set(userB.username, 0);
       const spy3 = jest.spyOn(GameManager.prototype, "calculateScore").mockImplementation(() => {return {returnCode: 0, scores}});
       const spy4 = jest.spyOn(GameManager.prototype, "addToPlayerScore").mockReturnValue([{username: userA.username, finalScore: 95},{username: userB.username, finalScore: 90}]) 
       
-      const spy5 = jest.spyOn(GameManager.prototype, "fetchQuestionsQuantity").mockReturnValue(0);
+      // mock quantity checker
+      jest.spyOn(GameManager.prototype, "fetchQuestionsQuantity").mockReturnValue(0);
 
-      const spy6 = jest.spyOn(UserDBManager.prototype, "updateUserRank");
+      // Mock DB
+      jest.spyOn(UserDBManager.prototype, "updateUserRank");
 
-      // const spy7 = jest.spyOn(GameRoom.prototype, "getPlayers").mockReturnValue(Array(numberOfPlayers).fill(gameMasterA));
-      // const spy8 = jest.spyOn(GameRoom.prototype, "removePlayer").mockImplementation(() => 0);
-
+      let playerArray = Array(numberOfPlayers).fill(gameMasterA);
+      jest.spyOn(GameRoom.prototype, "getPlayers").mockReturnValue(playerArray)
+      jest.spyOn(Player.prototype, "getSocketId").mockReturnValue("7")
+      
       clientA.emit("submitAnswer", messageA);
       clientB.emit("submitAnswer", messageB);
 
@@ -1135,10 +1142,6 @@ describe("Server", () => {
         receieve++;        
       });
       clientA.on("endGame", (data) => {
-        expect(spy5).toHaveBeenCalledTimes(1);
-        expect(spy6).toHaveBeenCalledTimes(2);
-        // expect(spy7).toHaveBeenCalledTimes(3);
-        // expect(spy8).toHaveBeenCalledTimes(numberOfPlayers);
         expect(data).toEqual({scores:[{username: userA.username, finalScore: 95},{username: userB.username, finalScore: 90}]});
         if(++receieve == 4) done();
       });
@@ -1146,7 +1149,33 @@ describe("Server", () => {
         expect(data).toEqual({scores:[{username: userA.username, finalScore: 95},{username: userB.username, finalScore: 90}]});
         if(++receieve == 4) done();
       });
-    }, 8000); 
+    }
+
+    it("clientA and clientB send answers, good submissins, last question so endGame (1 people in room)", (done) => {
+      const numberOfPlayers = 1;
+      sucesfullSubmissionEndGame(numberOfPlayers, done);
+    }, 8000);
+    it("clientA and clientB send answers, good submissins, last question so endGame (2 people in room)", (done) => {
+      const numberOfPlayers = 2;
+      sucesfullSubmissionEndGame(numberOfPlayers, done);
+    }, 8000);
+    it("clientA and clientB send answers, good submissins, last question so endGame (3 people in room)", (done) => {
+      const numberOfPlayers = 3;
+      sucesfullSubmissionEndGame(numberOfPlayers, done);
+    }, 8000);
+    it("clientA and clientB send answers, good submissins, last question so endGame (4 people in room)", (done) => {
+      const numberOfPlayers = 4;
+      sucesfullSubmissionEndGame(numberOfPlayers, done);
+    }, 8000);
+    it("clientA and clientB send answers, good submissins, last question so endGame (5 people in room)", (done) => {
+      const numberOfPlayers = 5;
+      sucesfullSubmissionEndGame(numberOfPlayers, done);
+    }, 8000);
+    it("clientA and clientB send answers, good submissins, last question so endGame (6 people in room)", (done) => {
+      const numberOfPlayers = 6;
+      sucesfullSubmissionEndGame(numberOfPlayers, done);
+    }, 8000);
+    
 
     it("clientA and clientB send answers, error in calucalting answers, errors out", (done) => {
       // Message

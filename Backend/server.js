@@ -518,7 +518,7 @@ io.on("connection", (socket) => {
             let rankValues = [];
 
             // Sort the array of room players from highest to lowest points
-            roomPlayers.sort((a, b) => b.points - a.points);
+            roomPlayers.filter(e => e != undefined).sort((a, b) => b.points - a.points);
 
             switch (numPlayers) {
               case 2:
@@ -552,26 +552,13 @@ io.on("connection", (socket) => {
             for (let i = 0; i < numPlayers; i++) {
               let player = roomPlayers[i];
               let value = rankValues[i];
-
-              userDBManager.updateUserRank(player.user.username, value);
-            }
-
-            // Now remove all players from room and delete the room.
-            for (let player of room.getPlayers()) {
               const playerUsername = player.user.username;
+              userDBManager.updateUserRank(player.user.username, value);
               room.removePlayer(playerUsername);
 
-              if (player === undefined) {
-                continue;
-              }
-
               let socketId = player.getSocketId();
-              if (socketId != undefined) {
-                let playerSocket = io.sockets.sockets.get(socketId);
-                if (playerSocket) {
-                  playerSocket.leave(roomId);
-                }
-              }
+              let playerSocket = io.sockets.sockets.get(socketId);
+              playerSocket.leave(roomId);  
             }
 
             const success = gameManager.removeRoomById(roomId);

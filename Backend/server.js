@@ -23,9 +23,8 @@ const server = httpsServer.listen(8081, "0.0.0.0", async () => {
     server.address().port
   );
 
-  if (await db.connect()) {
-    gameManager.updateCategories();
-  }
+  await db.connect();
+  gameManager.updateCategories();
 });
 
 // Delay between start of game and question
@@ -143,7 +142,6 @@ io.on("connection", (socket) => {
       // Player Joins Room
       socket.join(room.roomId);
 
-      console.log(gameManager.possibleCategories);
       // Send Room Data to Player
       socket.emit("welcomeNewPlayer", {
         roomPlayers: playersJson,
@@ -158,8 +156,7 @@ io.on("connection", (socket) => {
         newPlayerRank,
       });
     } catch (err) {
-      console.log(err);
-      socket.emit("error", { message });
+      socket.emit("error", { message: err.message });
     }
   });
 
@@ -169,7 +166,6 @@ io.on("connection", (socket) => {
    */
   socket.on("leaveRoom", (message) => {
     console.log("Leaving room...");
-
     const username = message.username;
     const roomId = message.roomId;
 
@@ -179,22 +175,18 @@ io.on("connection", (socket) => {
       if (room != undefined && room.isGameMaster(username)) {
         // Now remove all players from room.
         for (let player of room.getPlayers()) {
-          const playerUsername = player.user.username;
-          room.removePlayer(playerUsername);
-
           if (player === undefined) {
             continue;
           }
 
+          const playerUsername = player.user.username;
+          room.removePlayer(playerUsername);
+
           // Be sure to also remove them from this socket room
           let socketId = player.getSocketId();
-          if (socketId != undefined) {
-            let playerSocket = io.sockets.sockets.get(socketId);
-            if (playerSocket) {
-              playerSocket.leave(roomId);
-              playerSocket.emit("roomClosed");
-            }
-          }
+          let playerSocket = io.sockets.sockets.get(socketId);
+          playerSocket.leave(roomId);
+          playerSocket.emit("roomClosed");
         }
 
         // The room should now be empty. Remove the room so that no one
@@ -203,6 +195,9 @@ io.on("connection", (socket) => {
 
         if (!success) {
           console.log("Could not remove room with id " + room.roomId);
+          socket.emit("error", {
+            message: "Could not remove room with id " + room.roomId,
+          });
         }
 
         console.log("Room was removed successfully");
@@ -210,19 +205,10 @@ io.on("connection", (socket) => {
         const player = room.getPlayer(username);
         room.removePlayer(username);
 
-        // Be sure to also remove them from this socket room
-        if (player === undefined) {
-          return;
-        }
-
         let socketId = player.getSocketId();
-        if (socketId != undefined) {
-          let playerSocket = io.sockets.sockets.get(socketId);
-          if (playerSocket) {
-            playerSocket.leave(roomId);
-            playerSocket.emit("roomClosed");
-          }
-        }
+        let playerSocket = io.sockets.sockets.get(socketId);
+        playerSocket.leave(roomId);
+        playerSocket.emit("roomClosed");
 
         // Notify other players still in the room that a player
         // has left
@@ -236,8 +222,7 @@ io.on("connection", (socket) => {
         });
       }
     } catch (err) {
-      console.log(err);
-      socket.emit("error", { message });
+      socket.emit("error", { message: err.message });
     }
   });
 
@@ -267,12 +252,10 @@ io.on("connection", (socket) => {
       room.banPlayer(bannedUsername);
 
       // Notify other players that a player has been banned from the room
-      socket
-        .to(roomId)
-        .emit(
-          "playerLeft",
-          express.json({ playerUsername: bannedUsername, reason: "banned" })
-        );
+      socket.to(roomId).emit("playerLeft", {
+        playerUsername: bannedUsername,
+        reason: "banned",
+      });
 
       // Notify the banned player that they have been banned
       const bannedPlayer = room.getPlayer(bannedUsername);
@@ -284,6 +267,8 @@ io.on("connection", (socket) => {
         bannedPlayerSocket.emit("removedFromRoom", {
           reason: "banned",
         });
+      } else {
+        socket.emit("error", { message: "Player socket id is undefined" });
       }
     } catch (err) {
       console.log(err);

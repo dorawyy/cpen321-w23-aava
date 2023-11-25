@@ -424,4 +424,44 @@ describe("GameManager", () => {
         expect(result).toEqual([90,80,8]);
         expect(spy).toHaveBeenCalledTimes(1);
     })
+
+    it("isACategory should return true", () => {
+        expect(gameManager.isACategory("Science")).toEqual(true);
+    })
+
+    it("isACategory should return false", () => {
+        expect(gameManager.isACategory("Art")).toEqual(false);
+    })
+
+    it("isADifficulty should return true", () => {
+        expect(gameManager.isADifficulty("easy")).toEqual(true);
+    })
+
+    it("isADifficulty should return false", () => {
+        expect(gameManager.isADifficulty("extreeme")).toEqual(false);
+    })
+
+    it("isAnAnswerTime should return true", () => {
+        expect(gameManager.isAnAnswerTime(10)).toEqual(true);
+    })
+
+    it("isAnAnswerTime should return false", () => {
+        expect(gameManager.isAnAnswerTime(11)).toEqual(false);
+    })
+
+    it("isANumberOfQuestions should return true", () => {
+        expect(gameManager.isANumberOfQuestions(5)).toEqual(true);
+    })
+
+    it("isANumberOfQuestions should return false", () => {
+        expect(gameManager.isANumberOfQuestions(6)).toEqual(false);
+    })
+
+    it("isAMaxPlayers should return true", () => {
+        expect(gameManager.isAMaxPlayers(2)).toEqual(true);
+    })
+
+    it("isAMaxPlayers should return false", () => {
+        expect(gameManager.isAMaxPlayers(7)).toEqual(false);
+    })
 });

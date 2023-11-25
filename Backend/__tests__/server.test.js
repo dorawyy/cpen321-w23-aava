@@ -1563,7 +1563,7 @@ describe("Server", () => {
       // Mock DB
       jest.spyOn(UserDBManager.prototype, "updateUserRank");
 
-      let playerArray = Array(numberOfPlayers).fill(gameMasterA);
+      let playerArray = Array(numberOfPlayers).fill(playerA);
       jest.spyOn(GameRoom.prototype, "getPlayers").mockReturnValue(playerArray)
       jest.spyOn(Player.prototype, "getSocketId").mockReturnValue("7")
       jest.spyOn(GameManager.prototype, "removeRoomById").mockImplementation(() => {return true})

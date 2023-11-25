@@ -351,7 +351,7 @@ class GameManager {
    *
    * ChatGPT usage: No
    */
-  addToPlayerScore = (roomCode, scores) => {
+  addToPlayerScore (roomCode, scores) {
     let room = this.fetchRoom(roomCode);
     let newScores = room.updateScores(scores);
     this.roomCodeToGameRoom.set(roomCode, room);

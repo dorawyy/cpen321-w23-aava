@@ -988,6 +988,237 @@ describe("Server", () => {
     });
   });
 
+  describe("submitAnswer", () => {
+    it("clientA sends answer, everyone else should receuve it", (done) => {
+      // Message
+      const message = {
+        roomId: roomA.roomId,
+        username: userA.username,
+        answer: "answer-A",
+      };
+
+      clientA.emit("submitAnswer", message);
+
+      // make sure all players receive the message
+      clientB.on("answerReceived", (data) => {
+        expect(data).toEqual({playerUsername: userA.username});
+        done();
+      });
+    }); 
+    
+    it("clientA and clientB send answers, good submissins, next question gets sent", (done) => {
+      // Message
+      const messageA = {
+        roomId: roomA.roomId,
+        username : userA.username,
+        timeDelay : 1000,
+        isCorrect : true,
+        powerupCode : -1,
+        powerupVictimUsername: ""
+      };
+
+      const messageB = {
+        roomId: roomA.roomId,
+        username : userB.username,
+        timeDelay : 1000,
+        isCorrect : false,
+        powerupCode : -1,
+        powerupVictimUsername: ""
+      };
+
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
+
+      let messagesAdded = 0;
+      const spy2 = jest.spyOn(GameManager.prototype, "addResponseToRoom").mockImplementation(() => {return (++messagesAdded === 2)});
+
+      let scores = new Map();
+      scores.set(userA.username, 95);
+      scores.set(userB.username, 0);
+      const spy3 = jest.spyOn(GameManager.prototype, "calculateScore").mockImplementation(() => {return {returnCode: 0, scores}});
+      const spy4 = jest.spyOn(GameManager.prototype, "addToPlayerScore").mockReturnValue([{username: userA.username, finalScore: 95},{username: userB.username, finalScore: 90}]) 
+      
+      const spy5 = jest.spyOn(GameManager.prototype, "fetchQuestionsQuantity").mockReturnValue(3);
+      const spy6 = jest.spyOn(GameManager.prototype, "fetchNextQuestion").mockReturnValue(new Question("What's 2+2?", "4", ["0", "11", "1"], "easy"));
+
+      clientA.emit("submitAnswer", messageA);
+      clientB.emit("submitAnswer", messageB);
+
+      // make sure all players receive the message
+      let receieve = 0;
+      clientA.on("showScoreboard", (data) => {
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(spy2).toHaveBeenCalledTimes(2);
+        expect(spy3).toHaveBeenCalledTimes(1);
+        expect(spy4).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({scores: [{username: userA.username, pointsEarned: 95, updatedTotalPoints: 95},{username: userB.username, pointsEarned: 0, updatedTotalPoints: 90}]});
+        receieve++;
+      });
+      clientB.on("showScoreboard", (data) => {
+        expect(data).toEqual({scores: [{username: userA.username, pointsEarned: 95, updatedTotalPoints: 95},{username: userB.username, pointsEarned: 0, updatedTotalPoints: 90}]});
+        receieve++;        
+      });
+      clientA.on("startQuestion", (data) => {
+        expect(spy5).toHaveBeenCalledTimes(1);
+        expect(spy6).toHaveBeenCalledTimes(1);
+        expect(data.question).toEqual("What's 2+2?");
+        expect(data.answers.slice().sort()).toEqual(["0", "4", "11", "1"].slice().sort());
+        expect(data.answers[data.correctIndex]).toEqual("4");
+        if(++receieve == 4) done();
+      });
+      clientB.on("startQuestion", (data) => {
+        expect(spy5).toHaveBeenCalledTimes(1);
+        expect(spy6).toHaveBeenCalledTimes(1);
+        expect(data.question).toEqual("What's 2+2?");
+        expect(data.answers.slice().sort()).toEqual(["0", "4", "11", "1"].slice().sort());
+        expect(data.answers[data.correctIndex]).toEqual("4");
+        if(++receieve == 4) done();
+      });
+
+      
+    }, 8000); 
+
+    it("clientA and clientB send answers, good submissins, last question so endGame", (done) => {
+      const numberOfPlayers = 2;
+      
+      // Message
+      const messageA = {
+        roomId: roomA.roomId,
+        username : userA.username,
+        timeDelay : 1000,
+        isCorrect : true,
+        powerupCode : -1,
+        powerupVictimUsername: ""
+      };
+
+      const messageB = {
+        roomId: roomA.roomId,
+        username : userB.username,
+        timeDelay : 1000,
+        isCorrect : false,
+        powerupCode : -1,
+        powerupVictimUsername: ""
+      };
+
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
+
+      let messagesAdded = 0;
+      const spy2 = jest.spyOn(GameManager.prototype, "addResponseToRoom").mockImplementation(() => {return (++messagesAdded === 2)});
+
+      let scores = new Map();
+      scores.set(userA.username, 95);
+      scores.set(userB.username, 0);
+      const spy3 = jest.spyOn(GameManager.prototype, "calculateScore").mockImplementation(() => {return {returnCode: 0, scores}});
+      const spy4 = jest.spyOn(GameManager.prototype, "addToPlayerScore").mockReturnValue([{username: userA.username, finalScore: 95},{username: userB.username, finalScore: 90}]) 
+      
+      const spy5 = jest.spyOn(GameManager.prototype, "fetchQuestionsQuantity").mockReturnValue(0);
+
+      const spy6 = jest.spyOn(UserDBManager.prototype, "updateUserRank");
+
+      // const spy7 = jest.spyOn(GameRoom.prototype, "getPlayers").mockReturnValue(Array(numberOfPlayers).fill(gameMasterA));
+      // const spy8 = jest.spyOn(GameRoom.prototype, "removePlayer").mockImplementation(() => 0);
+
+      clientA.emit("submitAnswer", messageA);
+      clientB.emit("submitAnswer", messageB);
+
+      // make sure all players receive the message
+      let receieve = 0;
+      clientA.on("showScoreboard", (data) => {
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(spy2).toHaveBeenCalledTimes(2);
+        expect(spy3).toHaveBeenCalledTimes(1);
+        expect(spy4).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({scores: [{username: userA.username, pointsEarned: 95, updatedTotalPoints: 95},{username: userB.username, pointsEarned: 0, updatedTotalPoints: 90}]});
+        receieve++;
+      });
+      clientB.on("showScoreboard", (data) => {
+        expect(data).toEqual({scores: [{username: userA.username, pointsEarned: 95, updatedTotalPoints: 95},{username: userB.username, pointsEarned: 0, updatedTotalPoints: 90}]});
+        receieve++;        
+      });
+      clientA.on("endGame", (data) => {
+        expect(spy5).toHaveBeenCalledTimes(1);
+        expect(spy6).toHaveBeenCalledTimes(2);
+        // expect(spy7).toHaveBeenCalledTimes(3);
+        // expect(spy8).toHaveBeenCalledTimes(numberOfPlayers);
+        expect(data).toEqual({scores:[{username: userA.username, finalScore: 95},{username: userB.username, finalScore: 90}]});
+        if(++receieve == 4) done();
+      });
+      clientB.on("endGame", (data) => {
+        expect(data).toEqual({scores:[{username: userA.username, finalScore: 95},{username: userB.username, finalScore: 90}]});
+        if(++receieve == 4) done();
+      });
+    }, 8000); 
+
+    it("clientA and clientB send answers, error in calucalting answers, errors out", (done) => {
+      // Message
+      const messageA = {
+        roomId: roomA.roomId,
+        username : userA.username,
+        timeDelay : 1000,
+        isCorrect : true,
+        powerupCode : -1,
+        powerupVictimUsername: ""
+      };
+
+      const messageB = {
+        roomId: roomA.roomId,
+        username : userB.username,
+        timeDelay : 1000,
+        isCorrect : false,
+        powerupCode : -1,
+        powerupVictimUsername: ""
+      };
+
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
+      let messagesAdded = 0;
+      const spy2 = jest.spyOn(GameManager.prototype, "addResponseToRoom").mockImplementation(() => {return (++messagesAdded === 2)});
+      const spy3 = calculateScoreSpy = jest.spyOn(GameManager.prototype, "calculateScore").mockImplementation(() => {return {returnCode: 1}});
+
+
+      clientA.emit("submitAnswer", messageA);
+      clientB.emit("submitAnswer", messageB);
+
+      // make sure all players receive the message
+      let receieve = 0;
+      clientA.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(spy2).toHaveBeenCalledTimes(2);
+        expect(spy3).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({message: "Error in calculating scores"});
+        if (++receieve == 2) done();
+      });
+      clientB.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(spy2).toHaveBeenCalledTimes(2);
+        expect(spy3).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({message: "Error in calculating scores"});
+        if (++receieve == 2) done();
+      });
+    }); 
+
+    it("clientA sends bad message, errors out", (done) => {
+      // Message
+      const messageA = {
+        roomId: "WEEEE",
+        username : userA.username,
+        timeDelay : 1000,
+        isCorrect : true,
+        powerupCode : -1,
+        powerupVictimUsername: ""
+      };
+
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(undefined);
+
+      clientA.emit("submitAnswer", messageA);
+
+      // make sure all players receive the message
+      clientA.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({message: "Bad Answer Submission"});
+        done();
+      });
+    }); 
+  })
+
   describe("submitEmote", () => {
     it("clientA sends emote, everyone else should receuve it", (done) => {
       // Message

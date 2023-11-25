@@ -70,6 +70,10 @@ class MockUserDBManager {
       }
     }
   }
+
+  updateUserRank(username, value){
+    return 0;
+  }
 }
 
 module.exports = MockUserDBManager;

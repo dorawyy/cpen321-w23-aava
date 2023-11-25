@@ -580,11 +580,14 @@ io.on("connection", (socket) => {
               console.log("Could not remove room with id " + room.roomId);
             }
           }
+        } 
+        else {
+          io.in(roomId).emit("error", { message: "Error in calculating scores" });
         }
       }
     } catch (err) {
       console.log(err);
-      socket.emit("error", { message });
+      socket.emit("error", {message: "Bad Answer Submission"});
     }
   });
 

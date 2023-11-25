@@ -1,18 +1,12 @@
 // Third-party modules
 const fs = require("fs");
 const https = require("https");
-var assert = require("assert");
 
 // Custom application modules
-const app = require("./app.js");
-const db = require("./Database/dbSetup.js");
-const GameManager = require("./models/GameManager.js");
-const UserDBManager = require("./models/UserDBManager.js");
+const { app, gameManager, userDBManager } = require("./app.js");
+const db = require("./database/dbSetup.js");
 const PlayerAction = require("./models/PlayerAction.js");
 const { Socket } = require("socket.io");
-
-let gameManager = new GameManager();
-let userDBManager = new UserDBManager(db.getUsersCollection());
 
 // Read the SSL certificate files from the current directory
 const privateKey = fs.readFileSync("./key.pem", "utf8");
@@ -29,15 +23,8 @@ const server = httpsServer.listen(8081, "0.0.0.0", async () => {
     server.address().port
   );
 
-  if (await db.connect()) {
-    gameManager.updateCategories();
-  }
-
-  // TODO: delete after. This is used for testing
-  if (gameManager.fetchRoom("ABC123") === undefined) {
-    gameManager.testing();
-    console.log("test room added!");
-  }
+  await db.connect();
+  gameManager.updateCategories();
 });
 
 // Delay between start of game and question
@@ -90,19 +77,19 @@ io.on("connection", (socket) => {
   console.log("Checking their session token: " + sessionToken);
 
   if (sessionToken === undefined) {
+    console.log("Invalid sessionToken. Disconnecting client...");
     socket.disconnect();
-    console.log("Client disconnected");
+  } else {
+    userDBManager.getUserBySessionToken(sessionToken).then((user) => {
+      if (user === undefined) {
+        // Disconnect this client. They do not have a valid sessionToken
+        socket.disconnect();
+        console.log("Client disconnected");
+      } else {
+        console.log("Client has a valid sessionToken");
+      }
+    });
   }
-
-  userDBManager.getUserBySessionToken(sessionToken).then((user) => {
-    if (user === undefined) {
-      // Disconnect this client. They do not have a valid sessionToken
-      socket.disconnect();
-      console.log("Client disconnected");
-    } else {
-      console.log("Client has a valid sessionToken");
-    }
-  });
 
   /**
    * Purpose: Attaches client's socket connection to a socket room
@@ -169,8 +156,7 @@ io.on("connection", (socket) => {
         newPlayerRank,
       });
     } catch (err) {
-      console.log(err);
-      socket.emit("error", { message });
+      socket.emit("error", { message: err.message });
     }
   });
 
@@ -180,7 +166,6 @@ io.on("connection", (socket) => {
    */
   socket.on("leaveRoom", (message) => {
     console.log("Leaving room...");
-
     const username = message.username;
     const roomId = message.roomId;
 
@@ -190,31 +175,29 @@ io.on("connection", (socket) => {
       if (room != undefined && room.isGameMaster(username)) {
         // Now remove all players from room.
         for (let player of room.getPlayers()) {
-          const playerUsername = player.user.username;
-          room.removePlayer(playerUsername);
-
           if (player === undefined) {
             continue;
           }
 
+          const playerUsername = player.user.username;
+          room.removePlayer(playerUsername);
+
           // Be sure to also remove them from this socket room
           let socketId = player.getSocketId();
-          if (socketId != undefined) {
-            let playerSocket = io.sockets.sockets.get(socketId);
-            if (playerSocket) {
-              playerSocket.leave(roomId);
-              playerSocket.emit("roomClosed");
-            }
-          }
+          let playerSocket = io.sockets.sockets.get(socketId);
+          playerSocket.leave(roomId);
+          playerSocket.emit("roomClosed");
         }
 
         // The room should now be empty. Remove the room so that no one
         // can join it.
-        assert(room.getPlayers().length === 0);
         const success = gameManager.removeRoomById(roomId);
 
         if (!success) {
           console.log("Could not remove room with id " + room.roomId);
+          socket.emit("error", {
+            message: "Could not remove room with id " + room.roomId,
+          });
         }
 
         console.log("Room was removed successfully");
@@ -222,19 +205,10 @@ io.on("connection", (socket) => {
         const player = room.getPlayer(username);
         room.removePlayer(username);
 
-        // Be sure to also remove them from this socket room
-        if (player === undefined) {
-          return;
-        }
-
         let socketId = player.getSocketId();
-        if (socketId != undefined) {
-          let playerSocket = io.sockets.sockets.get(socketId);
-          if (playerSocket) {
-            playerSocket.leave(roomId);
-            playerSocket.emit("roomClosed");
-          }
-        }
+        let playerSocket = io.sockets.sockets.get(socketId);
+        playerSocket.leave(roomId);
+        playerSocket.emit("roomClosed");
 
         // Notify other players still in the room that a player
         // has left
@@ -248,8 +222,7 @@ io.on("connection", (socket) => {
         });
       }
     } catch (err) {
-      console.log(err);
-      socket.emit("error", { message });
+      socket.emit("error", { message: err.message });
     }
   });
 
@@ -279,12 +252,10 @@ io.on("connection", (socket) => {
       room.banPlayer(bannedUsername);
 
       // Notify other players that a player has been banned from the room
-      socket
-        .to(roomId)
-        .emit(
-          "playerLeft",
-          express.json({ playerUsername: bannedUsername, reason: "banned" })
-        );
+      socket.to(roomId).emit("playerLeft", {
+        playerUsername: bannedUsername,
+        reason: "banned",
+      });
 
       // Notify the banned player that they have been banned
       const bannedPlayer = room.getPlayer(bannedUsername);
@@ -296,6 +267,8 @@ io.on("connection", (socket) => {
         bannedPlayerSocket.emit("removedFromRoom", {
           reason: "banned",
         });
+      } else {
+        socket.emit("error", { message: "Player socket id is undefined" });
       }
     } catch (err) {
       console.log(err);
@@ -323,7 +296,6 @@ io.on("connection", (socket) => {
       socket.emit("error", {
         message: "You have passed in invalid parameters.",
       });
-
       return;
     }
 
@@ -343,7 +315,7 @@ io.on("connection", (socket) => {
           error = true;
         } else {
           const categoryName = settingOption.split("-")[1];
-          if (!gameManager.possibleCategories.includes(categoryName)) {
+          if (!gameManager.isACategory(categoryName)) {
             error = true;
           } else {
             if (optionValue) {
@@ -356,7 +328,7 @@ io.on("connection", (socket) => {
         break;
 
       case settingOption === "difficulty":
-        if (!gameManager.possibleDifficulties.includes(optionValue)) {
+        if (!gameManager.isADifficulty(optionValue)) {
           error = true;
         } else {
           room.updateSetting("difficulty", optionValue);
@@ -364,7 +336,7 @@ io.on("connection", (socket) => {
         break;
 
       case settingOption === "maxPlayers":
-        if (!gameManager.possibleMaxPlayers.includes(optionValue)) {
+        if (!gameManager.isAMaxPlayers(optionValue)) {
           error = true;
         } else {
           room.updateSetting("maxPlayers", optionValue);
@@ -372,7 +344,7 @@ io.on("connection", (socket) => {
         break;
 
       case settingOption === "timeLimit":
-        if (!gameManager.possibleAnswerTimeSeconds.includes(optionValue)) {
+        if (!gameManager.isAnAnswerTime(optionValue)) {
           error = true;
         } else {
           room.updateSetting("time", optionValue);
@@ -380,7 +352,7 @@ io.on("connection", (socket) => {
         break;
 
       case settingOption === "total":
-        if (!gameManager.possibleNumberOfQuestions.includes(optionValue)) {
+        if (!gameManager.isANumberOfQuestions(optionValue)) {
           error = true;
         } else {
           room.updateSetting("total", optionValue);
@@ -435,7 +407,7 @@ io.on("connection", (socket) => {
     } catch (err) {
       console.log(err);
 
-      socket.emit("error", { message: err });
+      socket.emit("error", { message: "Invalid roomId" });
     }
   });
 
@@ -455,13 +427,7 @@ io.on("connection", (socket) => {
         sendQuestion(socket, roomCode, roomId);
       })
       .catch((errCode) => {
-        let message = "";
-        if (errCode === 1) {
-          message = "Invalid RoomId";
-        } else if (errCode === 2) {
-          message = "No Categories Selected";
-        }
-        socket.emit("error", { message });
+        socket.emit("error", { message: "No Categories Selected" });
       });
   });
 
@@ -537,7 +503,7 @@ io.on("connection", (socket) => {
             let rankValues = [];
 
             // Sort the array of room players from highest to lowest points
-            roomPlayers.sort((a, b) => b.points - a.points);
+            roomPlayers.filter(e => e != undefined).sort((a, b) => b.points - a.points);
 
             switch (numPlayers) {
               case 2:
@@ -568,43 +534,30 @@ io.on("connection", (socket) => {
                 break;
             }
 
+            gameManager.removeRoomById(roomId);
+     
             for (let i = 0; i < numPlayers; i++) {
               let player = roomPlayers[i];
               let value = rankValues[i];
-
-              userDBManager.updateUserRank(player.user.username, value);
-            }
-
-            // Now remove all players from room and delete the room.
-            for (let player of room.getPlayers()) {
               const playerUsername = player.user.username;
+              userDBManager.updateUserRank(player.user.username, value);
               room.removePlayer(playerUsername);
 
-              if (player === undefined) {
-                continue;
-              }
-
               let socketId = player.getSocketId();
-              if (socketId != undefined) {
-                let playerSocket = io.sockets.sockets.get(socketId);
-                if (playerSocket) {
-                  playerSocket.leave(roomId);
-                }
-              }
+              let playerSocket = io.sockets.sockets.get(socketId);
+              playerSocket.leave(roomId);  
             }
 
-            assert(room.getPlayers().length === 0);
-            const success = gameManager.removeRoomById(roomId);
-
-            if (!success) {
-              console.log("Could not remove room with id " + room.roomId);
-            }
+    
           }
+        } 
+        else {
+          io.in(roomId).emit("error", { message: "Error in calculating scores" });
         }
       }
     } catch (err) {
       console.log(err);
-      socket.emit("error", { message });
+      socket.emit("error", {message: "Bad Answer Submission"});
     }
   });
 
@@ -622,3 +575,5 @@ io.on("connection", (socket) => {
     socket.to(roomId).emit("emoteReceived", { username, emoteCode });
   });
 });
+
+module.exports = { server, db };

@@ -1,12 +1,14 @@
 // Third-party modules
-var assert = require("assert");
 const express = require("express");
 
 // Custom application modules
 const app = express();
-const db = require("./Database/dbSetup.js");
+const db = require("./database/dbSetup.js");
+const { v4: uuidv4 } = require("uuid");
+const Player = require("./models/Player.js");
 const GameManager = require("./models/GameManager.js");
 const UserDBManager = require("./models/UserDBManager.js");
+const User = require("./models/User.js");
 
 let gameManager = new GameManager();
 let userDBManager = new UserDBManager(db.getUsersCollection());
@@ -26,14 +28,8 @@ app.use((req, res, next) => {
 
     if (sessionToken) {
       userDBManager.getUserBySessionToken(sessionToken).then((user) => {
-        if (user) {
-          req.user = user;
-          next();
-        } else {
-          res.status(404).send({
-            message: "Unable to find the user for this account.",
-          });
-        }
+        req.user = user;
+        next();
       });
     } else {
       res.status(404).send({
@@ -110,7 +106,7 @@ app.post("/login", (req, res) => {
           sessionToken: user.sessionToken,
         });
       } else {
-        res.status(400).send({
+        res.status(404).send({
           message: "Unable to find the user for this account.",
         });
       }
@@ -128,10 +124,9 @@ app.post("/login", (req, res) => {
  * ChatGPT usage: No
  */
 app.post("/logout", (req, res) => {
-  userDBManager.getUserBySessionToken(req.sessionToken).then((loggedInUser) => {
-    userDBManager.setUserSessionToken(loggedInUser.token, null).then(
-      (loggedOutUser) => {
-        assert(loggedOutUser.sessionToken === null);
+  userDBManager.getUserBySessionToken(req.body.sessionToken).then((user) => {
+    userDBManager.setUserSessionToken(user.token, null).then(
+      (_) => {
         res.status(200).send();
       },
       (err) => {
@@ -154,71 +149,61 @@ app.post("/join-random-room", (req, res) => {
   // Fetch all the public game rooms with space remaining for new players
   const availableRooms = gameManager.getAvailableRooms();
 
-  try {
-    if (availableRooms.length == 0) {
-      res.status(404).send({
-        message:
-          "No game rooms available at the moment. Please try again later.",
+  if (availableRooms.length == 0) {
+    res.status(404).send({
+      message: "No game rooms available at the moment. Please try again later.",
+    });
+    return;
+  }
+
+  // Prioritize rooms that have been waiting for a long time
+  availableRooms.sort(
+    (roomA, roomB) => roomA.getRoomCreationTime() - roomB.getRoomCreationTime()
+  );
+
+  // Prioritize rooms with the rank of players that are closest to the user's rank
+  const roomPriorities = [];
+
+  for (let i = 0; i < availableRooms.length; i++) {
+    const room = availableRooms[i];
+
+    let players = room.getPlayers();
+
+    // Calculate the average rank
+    let totalRank = players.reduce((sum, player) => sum + player.rank, 0);
+    let averageRank = totalRank / players.length;
+
+    // This priority is a weighted value that considers how long the room has been
+    // waiting and how similar the ranks of other players in that room are compared
+    // to the user.
+    //
+    // Rooms that have been waiting for a long time will have a lower priority value.
+    // Rooms with average player ranks that are similar to the user will also have
+    // a lower priority value.
+    //
+    // The lower the priority value, the more suitable the room is for the user.
+    const priority = i + Math.abs(user.rank - averageRank);
+
+    roomPriorities.push({ roomCode: room.roomCode, priority: priority });
+  }
+
+  roomPriorities.sort((roomA, roomB) => roomA["priority"] - roomB["priority"]);
+
+  const player = new Player(user);
+
+  for (var roomPriority of roomPriorities) {
+    let roomCode = roomPriority.roomCode;
+    let room = gameManager.fetchRoom(roomCode);
+
+    let joinSuccess = room.addPlayer(player);
+
+    if (joinSuccess) {
+      res.status(200).send({
+        roomId: room.roomId,
+        roomCode: room.roomCode,
       });
       return;
     }
-
-    // Prioritize rooms that have been waiting for a long time
-    availableRooms.sort(
-      (roomA, roomB) =>
-        roomA.getRoomCreationTime() - roomB.getRoomCreationTime()
-    );
-
-    // Prioritize rooms with the rank of players that are closest to the user's rank
-    const roomPriorities = [];
-
-    for (let i = 0; i < availableRooms.length; i++) {
-      const room = availableRooms[i];
-
-      let players = room.getPlayers();
-
-      // Calculate the average rank
-      let totalRank = players.reduce((sum, player) => sum + player.rank, 0);
-      let averageRank = totalRank / players.length;
-
-      // This priority is a weighted value that considers how long the room has been
-      // waiting and how similar the ranks of other players in that room are compared
-      // to the user.
-      //
-      // Rooms that have been waiting for a long time will have a lower priority value.
-      // Rooms with average player ranks that are similar to the user will also have
-      // a lower priority value.
-      //
-      // The lower the priority value, the more suitable the room is for the user.
-      const priority = i + Math.abs(user.rank - averageRank);
-
-      roomPriorities.push({ roomCode: room.roomCode, priority: priority });
-    }
-
-    roomPriorities.sort(
-      (roomA, roomB) => roomA["priority"] - roomB["priority"]
-    );
-
-    const player = new Player(user);
-
-    for (var roomPriority of roomPriorities) {
-      let roomCode = roomPriority.roomCode;
-      let room = gameManager.fetchRoom(roomCode);
-
-      let joinSuccess = room.addPlayer(player);
-
-      if (joinSuccess) {
-        res.status(200).send({
-          roomId: room.roomId,
-          roomCode: room.roomCode,
-        });
-
-        break;
-      }
-    }
-  } catch (err) {
-    console.log(err);
-    res.status(500).send({ message: err });
   }
 });
 
@@ -273,8 +258,10 @@ app.post("/join-room-by-code", (req, res) => {
 app.post("/create-room", (req, res) => {
   const sessionToken = req.body.sessionToken;
 
-  userDBManager.getUserBySessionToken(sessionToken).then(
-    (dbUser) => {
+  userDBManager.getUserBySessionToken(sessionToken).then((dbUser) => {
+    if (dbUser == undefined) {
+      res.status(500).send({ message: "Invalid Session Token" });
+    } else {
       const user = new User(
         dbUser.token,
         dbUser.username,
@@ -286,12 +273,8 @@ app.post("/create-room", (req, res) => {
       const room = gameManager.createGameRoom(gameMaster);
 
       res.status(200).send({ roomId: room.roomId });
-    },
-    (err) => {
-      console.log(err);
-      res.status(500).send({ message: err });
     }
-  );
+  });
 });
 
-module.exports = app;
+module.exports = { app, gameManager, userDBManager };

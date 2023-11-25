@@ -143,6 +143,7 @@ io.on("connection", (socket) => {
       // Player Joins Room
       socket.join(room.roomId);
 
+      console.log(gameManager.possibleCategories);
       // Send Room Data to Player
       socket.emit("welcomeNewPlayer", {
         roomPlayers: playersJson,

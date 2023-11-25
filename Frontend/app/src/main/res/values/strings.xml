@@ -10,4 +10,6 @@
     <string name="gameHeaderQuestion">Q%1$d</string>
     <string name="gameTimer">%1$.1f</string>
     <string name="scoreboardPoints">+%1$d</string>
+
+    <string name="editMaxPlayersTitle">Select Max Players</string>
 </resources>

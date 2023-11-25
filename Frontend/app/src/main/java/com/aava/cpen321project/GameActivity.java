@@ -698,7 +698,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
             } else if (v == lobbyEditPlayersImage) {
                 // Change max players and emit changeSetting event
                 new AlertDialog.Builder(this)
-                        .setTitle("Select Max Players")
+                        .setTitle(R.string.editMaxPlayersTitle)
                         .setSingleChoiceItems(MAX_PLAYER_OPTIONS, 0, null)
                         .setPositiveButton("OK", (dialogInterface, i) -> {
                             dialogInterface.dismiss();

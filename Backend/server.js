@@ -435,13 +435,7 @@ io.on("connection", (socket) => {
         sendQuestion(socket, roomCode, roomId);
       })
       .catch((errCode) => {
-        let message = "";
-        if (errCode === 1) {
-          message = "Invalid RoomId";
-        } else if (errCode === 2) {
-          message = "No Categories Selected";
-        }
-        socket.emit("error", { message });
+        socket.emit("error", { message: "No Categories Selected" });
       });
   });
 

@@ -7,6 +7,7 @@ const User = require("../models/User.js");
 const GameRoom = require("../models/GameRoom.js");
 const Settings = require("../models/Settings.js");
 const GameManager = require("../models/GameManager.js");
+const Question = require("../models/Question.js");
 
 jest.mock("../models/UserDBManager.js");
 
@@ -733,6 +734,142 @@ describe("Server", () => {
       });
       
     })
+  })
+
+  describe("startGame", () => {
+
+    it("startGame should initialize the room and send first question to all players" , (done) => {
+      // Message
+      const message = {
+        roomId: "roomId-A-earlier"
+      };
+
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      // Make sure it passes successfuly from the question generator stage
+      jest.spyOn(GameManager.prototype, "generateQuestions").mockResolvedValue(0);
+      const spy2 = jest.spyOn(GameManager.prototype, "updateRoomState").mockImplementation();
+      jest.spyOn(GameManager.prototype, "fetchNextQuestion").mockReturnValue(new Question("What's 1+1?", "2", ["0", "11", "1"], "easy"));
+
+      clientA.emit("startGame", message);
+
+      // make sure all players receive the message
+      let receieve = 0
+      clientA.on("startQuestion", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy2).toHaveBeenCalledTimes(1);
+
+        expect(data.question).toEqual("What's 1+1?");
+        expect(data.answers.slice().sort()).toEqual(["0", "2", "11", "1"].slice().sort());
+        expect(data.answers[data.correctIndex]).toEqual("2");
+        if(++receieve === 2) done();
+      });
+      clientB.on("startQuestion", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy2).toHaveBeenCalledTimes(1);
+
+        expect(data.question).toEqual("What's 1+1?");
+        expect(data.answers.slice().sort()).toEqual(["0", "2", "11", "1"].slice().sort());
+        expect(data.answers[data.correctIndex]).toEqual("2");
+        if(++receieve === 2) done();
+      });
+
+    })
+
+    it("startGame invalid roomId; error to player" , (done) => {
+      // Message
+      const message = {
+        roomId: "badRoom"
+      };
+
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(undefined);
+
+      // Make sure it passes successfuly from the question generator stage
+      jest.spyOn(GameManager.prototype, "generateQuestions").mockRejectedValue(1);
+
+      clientA.emit("startGame", message);
+
+      // make sure all players receive the message
+      clientA.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({message : "Invalid RoomId"});
+        done();
+      });
+
+    })
+
+    it("startGame room had no categories selected; error to player" , (done) => {
+      // Message
+      const message = {
+        roomId: "roomId-A-earlier"
+      };
+
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      // Make sure it passes successfuly from the question generator stage
+      jest.spyOn(GameManager.prototype, "generateQuestions").mockRejectedValue(2);
+
+      clientA.emit("startGame", message);
+
+      // make sure all players receive the message
+      clientA.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({message : "No Categories Selected"});
+        done();
+      });
+
+    })
+
+    it("startGame room had no categories selected; error to player" , (done) => {
+      // Message
+      const message = {
+        roomId: "roomId-A-earlier"
+      };
+
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      // Make sure it passes successfuly from the question generator stage
+      jest.spyOn(GameManager.prototype, "generateQuestions").mockRejectedValue(2);
+
+      clientA.emit("startGame", message);
+
+      // make sure all players receive the message
+      clientA.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({message : "No Categories Selected"});
+        done();
+      });
+
+    })
+  })
+
+  describe("submitEmote", () => {
+    it("clientA sends emote, everyone else should receuve it", (done) => {
+      // Message
+      const message = {
+        roomId: "roomId-A-earlier",
+        username: "username-A",
+        emoteCode: "emote-A"
+      };
+
+      clientA.emit("submitEmote", message);
+
+      // make sure all players receive the message
+      clientB.on("emoteReceived", (data) => {
+        expect(data).toEqual({username: "username-A", emoteCode: "emote-A"})
+        done();
+      });
+      
+    })
+
   })
 
 });

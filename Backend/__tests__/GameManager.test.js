@@ -464,4 +464,4 @@ describe("GameManager", () => {
     it("isAMaxPlayers should return false", () => {
         expect(gameManager.isAMaxPlayers(7)).toEqual(false);
     })
-});
+}); 

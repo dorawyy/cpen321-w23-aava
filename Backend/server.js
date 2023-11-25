@@ -549,6 +549,8 @@ io.on("connection", (socket) => {
                 break;
             }
 
+            gameManager.removeRoomById(roomId);
+     
             for (let i = 0; i < numPlayers; i++) {
               let player = roomPlayers[i];
               let value = rankValues[i];
@@ -561,11 +563,7 @@ io.on("connection", (socket) => {
               playerSocket.leave(roomId);  
             }
 
-            const success = gameManager.removeRoomById(roomId);
-
-            if (!success) {
-              console.log("Could not remove room with id " + room.roomId);
-            }
+    
           }
         } 
         else {

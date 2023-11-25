@@ -1123,6 +1123,7 @@ describe("Server", () => {
       let playerArray = Array(numberOfPlayers).fill(gameMasterA);
       jest.spyOn(GameRoom.prototype, "getPlayers").mockReturnValue(playerArray)
       jest.spyOn(Player.prototype, "getSocketId").mockReturnValue("7")
+      jest.spyOn(GameManager.prototype, "removeRoomById").mockImplementation(() => {return true})
       
       clientA.emit("submitAnswer", messageA);
       clientB.emit("submitAnswer", messageB);

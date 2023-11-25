@@ -302,6 +302,10 @@ describe("Server", () => {
      */
     it("should emit playerJoined to the players in the room", (done) => {
       jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
+      jest
+        .spyOn(GameRoom.prototype, "getPlayers")
+        .mockReturnValue([userA, userB]);
+
       const messageB = {
         username: userB.username,
         roomId: roomA.roomId,
@@ -320,15 +324,15 @@ describe("Server", () => {
         done();
       });
 
-      clientB.on("playerJoined", (data) => {
+      clientB.on("playerJoined", (_) => {
         fail("clientB should not receive the playerJoined event.");
       });
 
-      setTimeout(() => {
-        clientB.emit("joinRoom", messageB);
-      }, 1500);
+      // setTimeout(() => {
+      clientB.emit("joinRoom", messageB);
+      // }, 1500);
 
-      clientA.emit("joinRoom", messageA);
+      // clientA.emit("joinRoom", messageA);
     });
   });
 

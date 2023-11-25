@@ -303,8 +303,14 @@ io.on("connection", (socket) => {
     const settingOption = message.settingOption;
     const optionValue = message.optionValue;
 
-    if (room === undefined ||settingOption === undefined ||optionValue === undefined) {
-      socket.emit("error", { message: "You have passed in invalid parameters."});
+    if (
+      room === undefined ||
+      settingOption === undefined ||
+      optionValue === undefined
+    ) {
+      socket.emit("error", {
+        message: "You have passed in invalid parameters.",
+      });
       return;
     }
 

@@ -588,6 +588,10 @@ describe("Server", () => {
     it("should emit playerLeft to the players in the room", (done) => {
       jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
       jest.spyOn(GameRoom.prototype, "isGameMaster").mockReturnValue(true);
+      jest
+        .spyOn(GameRoom.prototype, "getPlayer")
+        .mockImplementation(() => playerB);
+
       const removePlayerSpy = jest
         .spyOn(GameRoom.prototype, "removePlayer")
         .mockReturnValue();
@@ -644,6 +648,10 @@ describe("Server", () => {
     it("should emit removedFromRoom to the player that was banned", (done) => {
       jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
       jest.spyOn(GameRoom.prototype, "isGameMaster").mockReturnValue(true);
+      jest
+        .spyOn(GameRoom.prototype, "getPlayer")
+        .mockImplementation(() => playerB);
+
       const removePlayerSpy = jest
         .spyOn(GameRoom.prototype, "removePlayer")
         .mockReturnValue();
@@ -681,6 +689,66 @@ describe("Server", () => {
           roomId: roomA.roomId,
           username: userA.username,
           playerToBanUsername: userB.username,
+          test: "removedFromRoomTest",
+        });
+      }, 1000);
+    });
+
+    /**
+     * Input: The banned player's socket id is undefined
+     *
+     * Expected behaviour: Emit an error event with the appropriate message
+     *                     and do not emit a removedFromRoom event to the player.
+     * Expected output:
+     * 
+     * error event
+        {
+          "message":  "Player socket id is undefined"
+        }
+     *  
+     */
+    it("should emit an error event when banned player's socket id is undefined", (done) => {
+      jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
+      jest.spyOn(GameRoom.prototype, "isGameMaster").mockReturnValue(true);
+      jest.spyOn(GameRoom.prototype, "getPlayer").mockImplementation(() => {
+        playerB.socketId = undefined;
+        return playerB;
+      });
+
+      const removePlayerSpy = jest
+        .spyOn(GameRoom.prototype, "removePlayer")
+        .mockReturnValue();
+      const banPlayerSpy = jest
+        .spyOn(GameRoom.prototype, "banPlayer")
+        .mockReturnValue();
+
+      clientA.on("error", (data) => {
+        expect(data).toEqual({
+          message: "Player socket id is undefined",
+        });
+        done();
+      });
+
+      const messageA = {
+        username: userA.username,
+        roomId: roomA.roomId,
+      };
+
+      const messageB = {
+        username: userB.username,
+        roomId: roomB.roomId,
+      };
+
+      // Make sure the players are in the room before banning
+      clientA.emit("joinRoom", messageA);
+      clientB.emit("joinRoom", messageB);
+
+      setTimeout(() => {
+        clientA.emit("banPlayer", {
+          roomId: roomA.roomId,
+          username: userA.username,
+          playerToBanUsername: userB.username,
+          test: "undefinedSocketID",
         });
       }, 1000);
     });
@@ -820,7 +888,7 @@ describe("Server", () => {
       });
     });
 
-    it("clientB sends readyToStartGame, everyone should receuve it", (done) => {
+    it("clientB sends readyToStartGame, everyone should receive it", (done) => {
       // Message
       const message = {
         roomId: roomA.roomId,

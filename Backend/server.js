@@ -252,12 +252,10 @@ io.on("connection", (socket) => {
       room.banPlayer(bannedUsername);
 
       // Notify other players that a player has been banned from the room
-      socket
-        .to(roomId)
-        .emit(
-          "playerLeft",
-          express.json({ playerUsername: bannedUsername, reason: "banned" })
-        );
+      socket.to(roomId).emit("playerLeft", {
+        playerUsername: bannedUsername,
+        reason: "banned",
+      });
 
       // Notify the banned player that they have been banned
       const bannedPlayer = room.getPlayer(bannedUsername);
@@ -269,6 +267,8 @@ io.on("connection", (socket) => {
         bannedPlayerSocket.emit("removedFromRoom", {
           reason: "banned",
         });
+      } else {
+        socket.emit("error", { message: "Player socket id is undefined" });
       }
     } catch (err) {
       console.log(err);

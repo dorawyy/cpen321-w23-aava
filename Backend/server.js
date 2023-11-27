@@ -468,6 +468,7 @@ io.on("connection", (socket) => {
         if (results.returnCode === 0) {
           //Calculate new totals
           const scoreGain = results.scores;
+          const stolenPoints = results.stolenPoints;
           let totalScores = gameManager.addToPlayerScore(roomCode, scoreGain);
 
           // Format Points per round response and send
@@ -478,6 +479,7 @@ io.on("connection", (socket) => {
               username: score.username,
               pointsEarned,
               updatedTotalPoints: score.finalScore,
+              stolenPoints: stolenPoints.get(score.username)
             });
           });
 

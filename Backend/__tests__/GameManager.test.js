@@ -164,6 +164,8 @@ describe("GameManager", () => {
         expect(result.returnCode).toEqual(0);
         expect(result.scores.get("user1")).toBe(90);
         expect(result.scores.get("user2")).toBe(0);
+        expect(result.stolenPoints.get("user1")).toBe(false);
+        expect(result.stolenPoints.get("user2")).toBe(false);
     })
 
     it("calculateScore Double Points ", () => {
@@ -175,6 +177,8 @@ describe("GameManager", () => {
         expect(result.returnCode).toEqual(0);
         expect(result.scores.get("user1")).toBe(180);
         expect(result.scores.get("user2")).toBe(0);
+        expect(result.stolenPoints.get("user1")).toBe(false);
+        expect(result.stolenPoints.get("user2")).toBe(false);
     })
 
     it("calculateScore Fifty Fifty", () => {
@@ -187,6 +191,8 @@ describe("GameManager", () => {
         expect(result.returnCode).toEqual(0);
         expect(result.scores.get("user1")).toBe(90);
         expect(result.scores.get("user2")).toBe(0);
+        expect(result.stolenPoints.get("user1")).toBe(false);
+        expect(result.stolenPoints.get("user2")).toBe(false);
     })
 
     it("calculateScore Second Life", () => {
@@ -199,6 +205,8 @@ describe("GameManager", () => {
         expect(result.returnCode).toEqual(0);
         expect(result.scores.get("user1")).toBe(90);
         expect(result.scores.get("user2")).toBe(0);
+        expect(result.stolenPoints.get("user1")).toBe(false);
+        expect(result.stolenPoints.get("user2")).toBe(false);
     })
 
     it("calculateScore Free Lunch - Correct Answers", () => {
@@ -213,6 +221,8 @@ describe("GameManager", () => {
         expect(result.scores.get("user1")).toBe(90);
         expect(result.scores.get("user2")).toBe(160);
         expect(result.scores.get("user3")).toBe(90);
+        expect(result.stolenPoints.get("user1")).toBe(false);
+        expect(result.stolenPoints.get("user2")).toBe(false);
     })
 
     it("calculateScore Free Lunch - Incorrect Answers", () => {
@@ -227,6 +237,8 @@ describe("GameManager", () => {
         expect(result.scores.get("user1")).toBe(0);
         expect(result.scores.get("user2")).toBe(0);
         expect(result.scores.get("user3")).toBe(0);
+        expect(result.stolenPoints.get("user1")).toBe(false);
+        expect(result.stolenPoints.get("user2")).toBe(false);
     })
 
     it("calculateScore Free Lunch - All Players", () => {
@@ -241,6 +253,8 @@ describe("GameManager", () => {
         expect(result.scores.get("user1")).toBe(0);
         expect(result.scores.get("user2")).toBe(0);
         expect(result.scores.get("user3")).toBe(0);
+        expect(result.stolenPoints.get("user1")).toBe(false);
+        expect(result.stolenPoints.get("user2")).toBe(false);
     })
 
     it("calculateScore user1 steals user2; both are correct", () => {
@@ -253,6 +267,8 @@ describe("GameManager", () => {
         expect(result.returnCode).toEqual(0);
         expect(result.scores.get("user1")).toBe(170);
         expect(result.scores.get("user2")).toBe(0);
+        expect(result.stolenPoints.get("user1")).toBe(false);
+        expect(result.stolenPoints.get("user2")).toBe(true);
     })
 
     it("calculateScore user1 steals user2; user1 is correct", () => {
@@ -265,6 +281,8 @@ describe("GameManager", () => {
         expect(result.returnCode).toEqual(0);
         expect(result.scores.get("user1")).toBe(90);
         expect(result.scores.get("user2")).toBe(0);
+        expect(result.stolenPoints.get("user1")).toBe(false);
+        expect(result.stolenPoints.get("user2")).toBe(true);
     })
 
     it("calculateScore user1 steals user2; user2 is correct", () => {
@@ -277,6 +295,8 @@ describe("GameManager", () => {
         expect(result.returnCode).toEqual(0);
         expect(result.scores.get("user1")).toBe(160);
         expect(result.scores.get("user2")).toBe(0);
+        expect(result.stolenPoints.get("user1")).toBe(false);
+        expect(result.stolenPoints.get("user2")).toBe(true);
     })
 
     it("calculateScore user1 steals user2; both are incorrect", () => {
@@ -289,6 +309,8 @@ describe("GameManager", () => {
         expect(result.returnCode).toEqual(0);
         expect(result.scores.get("user1")).toBe(0);
         expect(result.scores.get("user2")).toBe(0);
+        expect(result.stolenPoints.get("user1")).toBe(false);
+        expect(result.stolenPoints.get("user2")).toBe(true);
     })
 
     it("calculateScore user1 & user2 steal from user3; user3 is correct", () => {
@@ -303,6 +325,9 @@ describe("GameManager", () => {
         expect(result.scores.get("user1")).toBe(160);
         expect(result.scores.get("user2")).toBe(70);
         expect(result.scores.get("user3")).toBe(0);
+        expect(result.stolenPoints.get("user1")).toBe(false);
+        expect(result.stolenPoints.get("user2")).toBe(false);
+        expect(result.stolenPoints.get("user3")).toBe(true);
     })
 
     it("calculateScore user1 & user2 steal from user3; user3 is incorrect", () => {
@@ -317,6 +342,9 @@ describe("GameManager", () => {
         expect(result.scores.get("user1")).toBe(90);
         expect(result.scores.get("user2")).toBe(0);
         expect(result.scores.get("user3")).toBe(0);
+        expect(result.stolenPoints.get("user1")).toBe(false);
+        expect(result.stolenPoints.get("user2")).toBe(false);
+        expect(result.stolenPoints.get("user3")).toBe(true);
     })
 
     it("calculateScore user1 & user2 steal from user3; user3 steals from user1; user3 is correct", () => {
@@ -331,6 +359,9 @@ describe("GameManager", () => {
         expect(result.scores.get("user1")).toBe(35);
         expect(result.scores.get("user2")).toBe(35);
         expect(result.scores.get("user3")).toBe(0);
+        expect(result.stolenPoints.get("user1")).toBe(true);
+        expect(result.stolenPoints.get("user2")).toBe(false);
+        expect(result.stolenPoints.get("user3")).toBe(true);
     })
 
     it("calculateScore user sends time too larger", () => {
@@ -341,7 +372,9 @@ describe("GameManager", () => {
         let result = gameManager.calculateScore("R1");
         expect(result.returnCode).toEqual(0);
         expect(result.scores.get("user1")).toBe(0);
-        expect(result.scores.get("user2")).toBe(0);   
+        expect(result.scores.get("user2")).toBe(0);
+        expect(result.stolenPoints.get("user1")).toBe(false);
+        expect(result.stolenPoints.get("user2")).toBe(false);   
     })
 
     it("calculateScore badd room code", () => {

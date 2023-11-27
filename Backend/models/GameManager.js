@@ -195,18 +195,20 @@ class GameManager {
     const maxScore = 100;
     //  Fetch room, if room not found, return error code 1
     const room = this.fetchRoom(roomCode);
-    if (room === undefined) return { returnCode: 1, scores: [] };
+    if (room === undefined) return { returnCode: 1, scores: [], stolenPoints: [] };
 
     const actions = room.actionsArray;
     //  Initialize the scores for each player in actions
     let totalScores = new Map();
     let stolenScores = new Map();
     let victimToThieves = new Map();
+    let stolenPoints = new Map();
 
     actions.forEach((action) => {
       totalScores.set(action.getPlayer(), 0);
       stolenScores.set(action.getPlayer(), 0);
       victimToThieves.set(action.getPlayer(), []);
+      stolenPoints.set(action.getPlayer(), false);
     });
 
     // Calculate the score for each player based on time delay and correctness (and 2x powerup)
@@ -261,7 +263,10 @@ class GameManager {
           stolenScores.set(thief, stolenScores.get(thief) + scoreGain);
         });
         stolenScores.set(victim, stolenScores.get(victim) - stolenScore);
+
+        stolenPoints.set(victim, true);
       }
+
     });
 
     // Add the stolen scores to the total scores
@@ -269,9 +274,12 @@ class GameManager {
       totalScores.set(username, score + stolenScores.get(username));
     });
 
-    const result = { returnCode: 0, scores: totalScores };
+
+
+    const result = { returnCode: 0, scores: totalScores, stolenPoints };
     return result;
   }
+
 
   /* Room Interaction Stuff */
 

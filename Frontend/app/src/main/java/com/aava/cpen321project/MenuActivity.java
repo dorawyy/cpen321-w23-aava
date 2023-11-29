@@ -446,7 +446,8 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
                         if (!TextUtils.isEmpty(newUsername)) {
                             // Handle the new username here
                             changeUsername(sessionToken, newUsername);
-                            tvUserName.setText(newUsername); // Update TextView with new username
+                            tvUserName.setText(String.format(Locale.getDefault(), "Wow! %s,", newUsername)); // Update TextView with new username
+                            userName = newUsername;
                             // Also save the new username in backend
                         } else {
                             // Username was not entered
@@ -471,7 +472,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
 
         String nameText = String.format(Locale.getDefault(), "Wow! %s,", userName);
 
-        String rankText = String.format(Locale.getDefault(), "you're now a %s!",  userRank);
+        String rankText = String.format(Locale.getDefault(), "you're level %s!",  userRank);
         tvUserName.setText(nameText);
         tvGameRank.setText((rankText));
 

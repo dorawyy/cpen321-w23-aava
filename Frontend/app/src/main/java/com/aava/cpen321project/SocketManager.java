@@ -124,6 +124,10 @@ public class SocketManager {
 
     // ChatGPT usage: No
     public void disconnect() {
+        sendSocketJSON("leaveRoom", new HashMap<String, Object>() {{
+            put("roomId", gameConstants.roomId);
+            put("username", gameConstants.username);
+        }});
         mSocket.disconnect();
     }
 

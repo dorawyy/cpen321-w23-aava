@@ -266,12 +266,9 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     // Overridden for functionality upon exiting GameActivity.
     // ChatGPT usage: No
     @Override
-    public void onPause() {
-        super.onPause();
-        if (isFinishing()) {
-            // Emit a leaveRoom event, to notify the server that the player has left.
-            gameState.leaveRoom();
-        }
+    public void onBackPressed() {
+        super.onBackPressed();
+        gameState.leaveRoom();
     }
 
     // Get and set the parameters passed from MenuActivity.

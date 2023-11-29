@@ -71,7 +71,20 @@ class MockUserDBManager {
     }
   }
 
-  updateUserRank(username, value){
+  async setUsername(sessionToken, username) {
+    console.log(username);
+
+    if (sessionToken === "test-sessionToken") {
+      return {
+        token: "test-token",
+        username: "test-username",
+        rank: 2,
+        sessionToken: "test-sessionToken",
+      };
+    }
+  }
+
+  updateUserRank(username, value) {
     return 0;
   }
 }

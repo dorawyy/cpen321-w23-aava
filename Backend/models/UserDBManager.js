@@ -90,6 +90,39 @@ class UserDBManager {
   }
 
   /**
+   * Purpose: Sets a User's username.
+   * @param {String} sessionToken: The current sessionToken of the user
+   * @param {String} username: The new username for the user
+   * @returns {User} The user as a User object if successful
+   *                Undefined if user with 'sessionToken' is not found
+   *
+   * ChatGPT usage: No
+   */
+  async setUsername(sessionToken, username) {
+    // Check if the new username is already taken
+    const existingUser = await this.usersCollection.findOne({
+      username,
+    });
+
+    if (existingUser) {
+      // Username is already taken, handle accordingly (e.g., throw an error)
+      throw new Error("Username is already taken by another user");
+    }
+
+    const result = await this.usersCollection.updateOne(
+      { sessionToken },
+      { $set: { username } }
+    );
+
+    // Return undefined if no user could be found
+    const updatedUser = await this.usersCollection.findOne({
+      sessionToken,
+    });
+
+    return updatedUser;
+  }
+
+  /**
    * Purpose: Finds a User using username
    * @param {String} username: The username for the user
    * @returns {User} The user as a User object if successful

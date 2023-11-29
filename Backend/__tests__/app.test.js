@@ -86,6 +86,27 @@ describe("Interface middleware functions", () => {
   });
 
   /**
+   * Input: No sessionToken in request body for /change-username
+   *
+   * Expected status code: 404
+   * Expected behaviour: Do not proceed with the endpoint
+   * Expected output:
+   * {  "message": "Unable to find the user for this account."  }
+   */
+  it("/change-username should require a sessionToken", async () => {
+    const data = {};
+    expect(data).not.toHaveProperty("sessionToken");
+
+    const response = await request.post("/change-username").send(data);
+
+    expect(response.status).toEqual(404);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({
+      message: "Unable to find the user for this account.",
+    });
+  });
+
+  /**
    * Input: No sessionToken in request body for /join-random-room
    *
    * Expected status code: 404
@@ -409,6 +430,64 @@ describe("POST /logout", () => {
 });
 
 /**
+ * Interface POST /change-username
+ */
+describe("POST /change-username", () => {
+  /**
+   * Input: A valid `sessionToken`, but a username that exists for some other
+   *        user in the database.
+   *
+   * Expected status code: 400
+   * Expected behaviour: No changes made in the database. Returns error message.
+   * Expected output:
+   * {    "message": "Username is already taken by another user"   }
+   */
+  it("should return 400 when username is already taken", async () => {
+    const sessionToken = "test-sessionToken";
+    const username = "test-username";
+
+    const response = await request
+      .post("/change-username")
+      .send({ sessionToken, username });
+
+    expect(response.status).toEqual(400);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({
+      message: "Username is already taken by another user",
+    });
+  });
+
+  /**
+   * Input: A valid `sessionToken`.
+   * {
+   *   "sessionToken": "test-sessionToken",
+   *   "username": "myCoolNewName"
+   * }
+   *
+   * Expected status code: 200
+   * Expected behaviour: Returns a session token and updates the database
+   * Expected output:
+   * {
+   *   "username": "myCoolNewName",
+   * }
+   */
+  it("should return 200 and new username on successful username change", async () => {
+    const sessionToken = "test-sessionToken";
+    const username = "myCoolNewName";
+
+    const response = await request
+      .post("/change-username")
+      .send({ sessionToken, username });
+
+    expect(response.status).toEqual(200);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({
+      username,
+    });
+  });
+});
+
+/**
  * Interface POST /join-random-room
  */
 describe("POST /join-random-room", () => {
@@ -700,7 +779,9 @@ describe("POST /join-room-by-code", () => {
 
     expect(response.status).toEqual(401);
     const responseBody = JSON.parse(response.text);
-    expect(responseBody).toEqual({ message: "Empty parameters were passed in."});
+    expect(responseBody).toEqual({
+      message: "Empty parameters were passed in.",
+    });
   });
 
   /**
@@ -922,5 +1003,4 @@ describe("POST /create-room", () => {
     const responseBody = JSON.parse(response.text);
     expect(responseBody).toEqual({ message: "Invalid Session Token" });
   });
-
 });

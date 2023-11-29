@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/tvUserName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Username"
+        android:fontFamily="@font/quantico_regular"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp" />
+
+
+    <TextView
+        android:id="@+id/tvGameRank"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Game Rank"
+        android:fontFamily="@font/quantico_regular"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:layout_marginBottom="16dp"/>
+
+    <ImageView
+        android:id="@+id/btnLogout"
+        android:layout_width="128dp"
+        android:layout_height="86dp"
+        android:clickable="true"
+        android:contentDescription="Logout"
+        android:focusable="true"
+        android:onClick="onClick"
+        android:src="@drawable/menu_logout_icon" />
+
+    <ImageView
+        android:id="@+id/btnUpdateUsername"
+        android:layout_width="98dp"
+        android:layout_height="62dp"
+        android:clickable="true"
+        android:contentDescription="Name"
+        android:focusable="true"
+        android:onClick="onClick"
+        android:src="@drawable/menu_name_icon" />
+
+</LinearLayout>

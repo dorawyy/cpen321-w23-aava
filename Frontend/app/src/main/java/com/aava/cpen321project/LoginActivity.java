@@ -153,7 +153,8 @@ public class LoginActivity extends AppCompatActivity {
             Log.d(TAG, "Given Name: " + account.getGivenName());
             Log.d(TAG, "id: " + account.getId());
 
-            userToken = account.getIdToken();
+            userToken = account.getId();
+            //use unique getId
             //sendTokenToBackend(token);
             Log.d(TAG,"userToken from google" + userToken);
 
@@ -277,7 +278,9 @@ public class LoginActivity extends AppCompatActivity {
                                 String username = responseObject.getString("username");
                                 //before get the value always check if the field exist
                                 String sessionToken = responseObject.getString("sessionToken");
-                                navigateToMenuActivity(username, userToken, sessionToken);
+                                int rank = responseObject.getInt("rank");
+                                Log.d(TAG,"get Rank" + String.valueOf(rank));
+                                navigateToMenuActivity(username, userToken, sessionToken,rank);
                                 // Handle success, update UI, store session token, etc.
                             } else if (responseObject.has("message")) {
                                 // Handle error
@@ -302,11 +305,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     //ChatGPT usage: No
-    private void navigateToMenuActivity(String userName, String userToken, String sessionToken) {
+    private void navigateToMenuActivity(String userName, String userToken, String sessionToken, int rank) {
         Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
         intent.putExtra("userName", userName);
         intent.putExtra("userToken", userToken);
         intent.putExtra("sessionToken", sessionToken);
+        intent.putExtra("userRank", rank);
         startActivity(intent);
     }
 
@@ -358,6 +362,11 @@ public class LoginActivity extends AppCompatActivity {
         public InsecureOkHttpClientException(Throwable cause) {
             super(cause);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        // super.onBackPressed();   // Comment this line to disable back button
     }
 
 

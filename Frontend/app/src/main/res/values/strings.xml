@@ -12,4 +12,22 @@
     <string name="scoreboardPoints">+%1$d</string>
 
     <string name="editMaxPlayersTitle">Select Max Players</string>
+
+    <string name="fifty_fifty">Description for Fifty-fifty feature...</string>
+    <string name="desc_fifty_fifty">Fifty-fifty: Removes two incorrect answers.</string>
+
+    <string name="double_points">Description for Double Points feature...</string>
+    <string name="desc_double_points">Double Points: Doubles the points for a question.</string>
+
+    <string name="steal_points">Description for Steal Points feature...</string>
+    <string name="desc_steal_points">Steal Points: Steal points from another player.</string>
+
+    <string name="free_lunch">Description for Free Lunch feature...</string>
+    <string name="desc_free_lunch">Free Lunch: Advance without answering.</string>
+
+    <string name="second_life">Description for 2nd Life feature...</string>
+    <string name="desc_second_life">2nd Life: A second chance on a wrong answer.</string>
+
+    <string name="score_calculation_rules">"Score Calculation Rules:\n\n1. Scores are calculated based on messages.\n2. For correct answers, scores decrease over time. Incorrect answers yield zero points.\n3. Using Free Lunch leaves the score undetermined until all answer. If all choose 'Free Lunch', everyone gets zero.\n4. If one player uses 'Free Lunch' and another 'Steal Points', the 'stolen' points are those gained by 'Free Lunch'."</string>
+
 </resources>

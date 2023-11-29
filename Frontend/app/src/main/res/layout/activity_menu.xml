@@ -203,6 +203,22 @@
         <!--            android:textColor="#FFFFFF" />-->
 
         <ImageView
+            android:id="@+id/infoButton"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_below="@id/playText"
+            android:layout_marginStart="62dp"
+            android:layout_marginLeft="70dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginEnd="62dp"
+            android:layout_marginBottom="62dp"
+            android:clickable="true"
+            android:contentDescription="Info"
+            android:focusable="true"
+            android:onClick="onInfoButtonClick"
+            android:src="@drawable/menu_info_icon" />
+
+        <ImageView
             android:id="@+id/logoImage"
             android:layout_width="60dp"
             android:layout_height="60dp"

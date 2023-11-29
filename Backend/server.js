@@ -252,7 +252,7 @@ io.on("connection", (socket) => {
       room.banPlayer(bannedUsername);
 
       // Notify other players that a player has been banned from the room
-      socket.to(roomId).emit("playerLeft", {
+      io.in(roomId).emit("playerLeft", {
         playerUsername: bannedUsername,
         reason: "banned",
       });
@@ -418,9 +418,15 @@ io.on("connection", (socket) => {
   socket.on("startGame", (message) => {
     console.log("starting game...");
     const roomId = message.roomId;
-    const roomCode = gameManager.fetchRoomById(roomId).roomCode;
+    const room = gameManager.fetchRoomById(roomId)
 
-    gameManager
+    if (room === undefined) {
+      socket.emit("error", { message: "Invalid roomId" });
+      return;
+    }
+    else{
+      roomCode = room.roomCode;
+      gameManager
       .generateQuestions(roomCode)
       .then(() => {
         gameManager.updateRoomState(roomCode);
@@ -429,6 +435,7 @@ io.on("connection", (socket) => {
       .catch((errCode) => {
         socket.emit("error", { message: "No Categories Selected" });
       });
+    }
   });
 
   /**

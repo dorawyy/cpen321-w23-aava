@@ -604,8 +604,6 @@ describe("Server", () => {
   });
 
   describe("change Setting event", () => {
-    
-
     it("change Setting should return error for invalid room", (done) => {
       const message = {
         roomId: "badRoom",
@@ -1191,7 +1189,7 @@ describe("Server", () => {
       // make sure all players receive the message
       clientA.on("error", (data) => {
         expect(spy).toHaveBeenCalledTimes(1);
-        expect(data).toEqual({ message: "Invalid RoomId" });
+        expect(data).toEqual({ message: "Invalid roomId" });
         done();
       });
     });

@@ -114,6 +114,7 @@ describe("Server", () => {
   });
 
   afterEach(() => {
+    jest.restoreAllMocks();
     jest.clearAllMocks();
     clientA.off();
     clientB.off();
@@ -358,929 +359,1081 @@ describe("Server", () => {
     });
   });
 
-  // describe("change Setting event", () => {
-  //   it("change Setting should return error for invalid room", (done) => {
-  //     const message = {
-  //       roomId: "badRoom",
-  //       settingOption: undefined,
-  //       optionValue: undefined
-  //     };
-
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
-  //     spy.mockReturnValue(undefined);
-
-  //     clientA.emit("changeSetting", message);
-
-  //     clientA.on("error", (data) => {
-  //       // expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({message: "You have passed in invalid parameters."});
-  //       done();
-  //     });
-
-  //   })
-
-  //   it("change Setting should return error for undefined setting Parameter", (done) => {
-  //     const message = {
-  //       roomId: "goodRoom",
-  //       settingOption: undefined,
-  //       optionValue: undefined
-  //     };
-
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
-  //     spy.mockReturnValue(roomA);
-
-  //     clientA.emit("changeSetting", message);
-
-  //     clientA.on("error", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({message: "You have passed in invalid parameters."});
-  //       done();
-  //     });
-
-  //   })
-
-  //   it("change Setting should return error for undefined option Parameter", (done) => {
-  //     const message = {
-  //       roomId: "goodRoom",
-  //       settingOption: "isPublic",
-  //       optionValue: undefined
-  //     };
-
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
-  //     spy.mockReturnValue(roomA);
-
-  //     clientA.emit("changeSetting", message);
-
-  //     clientA.on("error", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({message: "You have passed in invalid parameters."});
-  //       done();
-  //     });
-
-  //   })
-
-  //   it("change Setting (isPublic) should return success message for client A and B", (done) => {
-  //     const message = {
-  //       roomId: roomA.roomId,
-  //       settingOption: "isPublic",
-  //       optionValue: true
-  //     };
-
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
-  //     spy.mockReturnValue(roomA);
-
-  //     clientA.emit("changeSetting", message);
-
-  //     let receieve = 0
-  //     clientA.on("changedSetting", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({settingOption: "isPublic", optionValue: true});
-  //       if(++receieve === 2) done();
-  //     });
-  //     clientB.on("changedSetting", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({settingOption: "isPublic", optionValue: true});
-  //       if(++receieve === 2) done();
-  //     });
-  //   })
-
-  //   it("change Setting (isPublic) should return error for client A, bad value", (done) => {
-  //     const message = {
-  //       roomId: roomA.roomId,
-  //       settingOption: "isPublic",
-  //       optionValue: "1"
-  //     };
-
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
-  //     spy.mockReturnValue(roomA);
-
-  //     clientA.emit("changeSetting", message);
-
-  //     clientA.on("error", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({message: "You have passed in an invalid settings configuration."});
-  //       done();
-  //     });
-  //   })
-
-  //   it("change Setting (add: category) should return success message for client A and B", (done) => {
-  //     // Message
-  //     const message = {
-  //       roomId: roomA.roomId,
-  //       settingOption: "category-General",
-  //       optionValue: true
-  //     };
-
-  //     // Mock the room
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
-  //     spy.mockReturnValue(roomA);
-
-  //     // Mock checker so cat we send is always valid
-  //     jest.spyOn(GameManager.prototype, "isACategory").mockReturnValue(true);
-  //     clientA.emit("changeSetting", message);
-
-  //     // make sure all players receive the message
-  //     let receieve = 0
-  //     clientA.on("changedSetting", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({settingOption: "category-General", optionValue: true});
-  //       if(++receieve === 2) done();
-  //     });
-  //     clientB.on("changedSetting", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({settingOption: "category-General", optionValue: true});
-  //       if(++receieve === 2) done();
-  //     });
-  //   })
-
-  //   it("change Setting (remove: category) should return success message for client A and B", (done) => {
-  //     // Message
-  //     const message = {
-  //       roomId: roomA.roomId,
-  //       settingOption: "category-General",
-  //       optionValue: false
-  //     };
-
-  //     // Mock the room
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
-  //     spy.mockReturnValue(roomA);
-
-  //     // Mock checker so cat we send is always valid
-  //     jest.spyOn(GameManager.prototype, "isACategory").mockReturnValue(true);
-  //     clientA.emit("changeSetting", message);
-
-  //     // make sure all players receive the message
-  //     let receieve = 0
-  //     clientA.on("changedSetting", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({settingOption: "category-General", optionValue: false});
-  //       if(++receieve === 2) done();
-  //     });
-  //     clientB.on("changedSetting", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({settingOption: "category-General", optionValue: false});
-  //       if(++receieve === 2) done();
-  //     });
-  //   })
-
-  //   it("change Setting (category) should return error for client A, bad optionValue", (done) => {
-  //     // Message
-  //     const message = {
-  //       roomId: roomA.roomId,
-  //       settingOption: "category-General",
-  //       optionValue: "ss"
-  //     };
-
-  //     // Mock the room
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
-  //     spy.mockReturnValue(roomA);
-
-  //     // Mock checker so cat we send is always valid
-  //     jest.spyOn(GameManager.prototype, "isACategory").mockReturnValue(true);
-  //     clientA.emit("changeSetting", message);
-
-  //     clientA.on("error", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({message: "You have passed in an invalid settings configuration."});
-  //       done();
-  //     });
-  //   })
-
-  //   it("change Setting (category) should return error for client A, bad category", (done) => {
-  //     // Message
-  //     const message = {
-  //       roomId: roomA.roomId,
-  //       settingOption: "category-General",
-  //       optionValue: true
-  //     };
-
-  //     // Mock the room
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
-  //     spy.mockReturnValue(roomA);
-
-  //     // Mock checker so cat we send is always valid
-  //     jest.spyOn(GameManager.prototype, "isACategory").mockReturnValue(false);
-  //     clientA.emit("changeSetting", message);
-
-  //     clientA.on("error", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({message: "You have passed in an invalid settings configuration."});
-  //       done();
-  //     });
-  //   })
-
-  //   it("change Setting (difficulty) should return success message for client A and B", (done) => {
-  //     // Message
-  //     const message = {
-  //       roomId: roomA.roomId,
-  //       settingOption: "difficulty",
-  //       optionValue: "easy"
-  //     };
-
-  //     // Mock the room
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
-  //     spy.mockReturnValue(roomA);
-
-  //     // Mock checker so cat we send is always valid
-  //     jest.spyOn(GameManager.prototype, "isADifficulty").mockReturnValue(true);
-  //     clientA.emit("changeSetting", message);
-
-  //     // make sure all players receive the message
-  //     let receieve = 0
-  //     clientA.on("changedSetting", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({settingOption: "difficulty", optionValue: "easy"});
-  //       if(++receieve === 2) done();
-  //     });
-  //     clientB.on("changedSetting", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({settingOption: "difficulty", optionValue: "easy"});
-  //       if(++receieve === 2) done();
-  //     });
-  //   })
-
-  //   it("change Setting (difficulty) should return error for client A, bad difficulty", (done) => {
-  //     // Message
-  //     const message = {
-  //       roomId: roomA.roomId,
-  //       settingOption: "difficulty",
-  //       optionValue: "easy"
-  //     };
-
-  //     // Mock the room
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
-  //     spy.mockReturnValue(roomA);
-
-  //     // Mock checker so cat we send is always valid
-  //     jest.spyOn(GameManager.prototype, "isADifficulty").mockReturnValue(false);
-  //     clientA.emit("changeSetting", message);
-
-  //     // make sure all players receive the message
-  //     clientA.on("error", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({message: "You have passed in an invalid settings configuration."});
-  //       done();
-  //     });
-  //   })
-
-  //   it("change Setting (maxPlayers) should return success message for client A and B", (done) => {
-  //     // Message
-  //     const message = {
-  //       roomId: roomA.roomId,
-  //       settingOption: "maxPlayers",
-  //       optionValue: 3
-  //     };
-
-  //     // Mock the room
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
-  //     spy.mockReturnValue(roomA);
-
-  //     // Mock checker so cat we send is always valid
-  //     jest.spyOn(GameManager.prototype, "isAMaxPlayers").mockReturnValue(true);
-  //     clientA.emit("changeSetting", message);
-
-  //     // make sure all players receive the message
-  //     let receieve = 0
-  //     clientA.on("changedSetting", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({settingOption: "maxPlayers", optionValue: 3});
-  //       if(++receieve === 2) done();
-  //     });
-  //     clientB.on("changedSetting", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({settingOption: "maxPlayers", optionValue: 3});
-  //       if(++receieve === 2) done();
-  //     });
-  //   })
-
-  //   it("change Setting (max player) should return error for client A, bad max player", (done) => {
-  //     // Message
-  //     const message = {
-  //       roomId: roomA.roomId,
-  //       settingOption: "maxPlayers",
-  //       optionValue: 3
-  //     };
-
-  //     // Mock the room
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
-  //     spy.mockReturnValue(roomA);
-
-  //     // Mock checker so cat we send is always valid
-  //     jest.spyOn(GameManager.prototype, "isAMaxPlayers").mockReturnValue(false);
-  //     clientA.emit("changeSetting", message);
-
-  //     // make sure all players receive the message
-  //     clientA.on("error", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({message: "You have passed in an invalid settings configuration."});
-  //       done();
-  //     });
-  //   })
-
-  //   it("change Setting (timeLimit) should return success message for client A and B", (done) => {
-  //     // Message
-  //     const message = {
-  //       roomId: roomA.roomId,
-  //       settingOption: "timeLimit",
-  //       optionValue: 3
-  //     };
-
-  //     // Mock the room
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
-  //     spy.mockReturnValue(roomA);
-
-  //     // Mock checker so cat we send is always valid
-  //     jest.spyOn(GameManager.prototype, "isAnAnswerTime").mockReturnValue(true);
-  //     clientA.emit("changeSetting", message);
-
-  //     // make sure all players receive the message
-  //     let receieve = 0
-  //     clientA.on("changedSetting", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({settingOption: "timeLimit", optionValue: 3});
-  //       if(++receieve === 2) done();
-  //     });
-  //     clientB.on("changedSetting", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({settingOption: "timeLimit", optionValue: 3});
-  //       if(++receieve === 2) done();
-  //     });
-  //   })
-
-  //   it("change Setting (timeLimit) should return error for client A, bad time", (done) => {
-  //     /// Message
-  //     const message = {
-  //       roomId: roomA.roomId,
-  //       settingOption: "timeLimit",
-  //       optionValue: 3
-  //     };
-
-  //     // Mock the room
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
-  //     spy.mockReturnValue(roomA);
-
-  //     // Mock checker so cat we send is always valid
-  //     jest.spyOn(GameManager.prototype, "isAnAnswerTime").mockReturnValue(false);
-  //     clientA.emit("changeSetting", message);
-
-  //     // make sure all players receive the message
-  //     clientA.on("error", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({message: "You have passed in an invalid settings configuration."});
-  //       done();
-  //     });
-  //   })
-
-  //   it("change Setting (totalQ) should return success message for client A and B", (done) => {
-  //     // Message
-  //     const message = {
-  //       roomId: roomA.roomId,
-  //       settingOption: "total",
-  //       optionValue: 3
-  //     };
-
-  //     // Mock the room
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
-  //     spy.mockReturnValue(roomA);
-
-  //     // Mock checker so cat we send is always valid
-  //     jest.spyOn(GameManager.prototype, "isANumberOfQuestions").mockReturnValue(true);
-  //     clientA.emit("changeSetting", message);
-
-  //     // make sure all players receive the message
-  //     let receieve = 0
-  //     clientA.on("changedSetting", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({settingOption: "total", optionValue: 3});
-  //       if(++receieve === 2) done();
-  //     });
-  //     clientB.on("changedSetting", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({settingOption: "total", optionValue: 3});
-  //       if(++receieve === 2) done();
-  //     });
-  //   })
-
-  //   it("change Setting (totalQ) should return error for client A, bad total", (done) => {
-  //     // Message
-  //     const message = {
-  //       roomId: roomA.roomId,
-  //       settingOption: "total",
-  //       optionValue: 3
-  //     };
-
-  //     // Mock the room
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
-  //     spy.mockReturnValue(roomA);
-
-  //     // Mock checker so cat we send is always valid
-  //     jest.spyOn(GameManager.prototype, "isANumberOfQuestions").mockReturnValue(false);
-  //     clientA.emit("changeSetting", message);
-
-  //     // make sure all players receive the message
-  //     clientA.on("error", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({message: "You have passed in an invalid settings configuration."});
-  //       done();
-  //     });
-  //   })
-
-  //   it("change Setting Invalid option return errror", (done) => {
-  //     // Message
-  //     const message = {
-  //       roomId: roomA.roomId,
-  //       settingOption: "booboo",
-  //       optionValue: 3
-  //     };
-
-  //     // Mock the room
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
-  //     spy.mockReturnValue(roomA);
-
-  //     clientA.emit("changeSetting", message);
-
-  //     // make sure all players receive the message
-  //     clientA.on("error", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({message: "You have passed in an invalid settings configuration."});
-  //       done();
-  //     });
-  //   })
-
-  // })
-
-  // describe("readyToStartGame", () => {
-  //   it("clientB sends readyToStartGame, everyone should receuve it", (done) => {
-  //     // Message
-  //     const message = {
-  //       roomId: roomA.roomId,
-  //       username: "username-B",
-  //     };
-
-  //     // Mock the room
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
-  //     spy.mockReturnValue(roomA);
-
-  //     jest
-  //       .spyOn(GameRoom.prototype, "getPlayers")
-  //       .mockReturnValue([
-  //         { user: { username: userA.username } },
-  //         { user: { username: "username-B" } },
-  //       ]);
-
-  //     clientB.emit("readyToStartGame", message);
-
-  //     // make sure all players receive the message
-  //     let receieve = 0;
-  //     clientA.on("playerReadyToStartGame", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({ playerUsername: "username-B" });
-  //       if (++receieve === 2) done();
-  //     });
-  //     clientB.on("playerReadyToStartGame", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({ playerUsername: "username-B" });
-  //       if (++receieve === 2) done();
-  //     });
-  //   });
-
-  //   it("clientB sends readyToStartGame, everyone should receive it", (done) => {
-  //     // Message
-  //     const message = {
-  //       roomId: roomA.roomId,
-  //       username: "username-B",
-  //     };
-
-  //     // Mock the room
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
-  //     spy.mockReturnValue(undefined);
-
-  //     jest
-  //       .spyOn(GameRoom.prototype, "getPlayers")
-  //       .mockReturnValue([
-  //         { user: { username: userA.username } },
-  //         { user: { username: "username-B" } },
-  //       ]);
-
-  //     clientA.emit("readyToStartGame", message);
-
-  //     // make sure all players receive the message
-  //     clientA.on("error", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({ message: "Invalid roomId" });
-  //       done();
-  //     });
-  //   });
-  // });
-
-  // describe("startGame", () => {
-  //   it("startGame should initialize the room and send first question to all players", (done) => {
-  //     // Message
-  //     const message = {
-  //       roomId: roomA.roomId,
-  //     };
-
-  //     roomA.gameQuestions = [1,2]
-  //     // Mock the room
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
-  //     spy.mockReturnValue(roomA);
-
-  //     // Make sure it passes successfuly from the question generator stage
-  //     jest
-  //       .spyOn(GameManager.prototype, "generateQuestions")
-  //       .mockImplementation(() => {return new Promise((resolve, reject) => {resolve(0)})});
-  //     const spy2 = jest
-  //       .spyOn(GameManager.prototype, "updateRoomState")
-  //       .mockImplementation();
-  //     jest
-  //       .spyOn(GameManager.prototype, "fetchNextQuestion")
-  //       .mockReturnValue(
-  //         new Question("What's 1+1?", "2", ["0", "11", "1"], "easy")
-  //       );
-
-  //     clientA.emit("startGame", message);
-
-  //     // make sure all players receive the message
-  //     let receieve = 0;
-  //     clientA.on("startQuestion", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(spy2).toHaveBeenCalledTimes(1);
-
-  //       expect(data.question).toEqual("What's 1+1?");
-  //       expect(data.answers.slice().sort()).toEqual(
-  //         ["0", "2", "11", "1"].slice().sort()
-  //       );
-  //       expect(data.answers[data.correctIndex]).toEqual("2");
-  //       if (++receieve === 2) done();
-  //     });
-  //     clientB.on("startQuestion", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(spy2).toHaveBeenCalledTimes(1);
-
-  //       expect(data.question).toEqual("What's 1+1?");
-  //       expect(data.answers.slice().sort()).toEqual(
-  //         ["0", "2", "11", "1"].slice().sort()
-  //       );
-  //       expect(data.answers[data.correctIndex]).toEqual("2");
-  //       if (++receieve === 2) done();
-  //     });
-  //   });
-
-  //   it("startGame invalid roomId; error to player", (done) => {
-  //     // Message
-  //     const message = {
-  //       roomId: "badRoom",
-  //     };
-  //     // Mock the room
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
-  //     spy.mockReturnValue(undefined);
-  //     // Make sure it passes successfuly from the question generator stage
-  //     jest
-  //       .spyOn(GameManager.prototype, "generateQuestions")
-  //       .mockRejectedValue(1);
-  //     clientA.emit("startGame", message);
-  //     // make sure all players receive the message
-  //     clientA.on("error", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({ message: "Invalid roomId" });
-  //       done();
-  //     });
-  //   });
-
-  //   it("startGame room had no categories selected; error to player", (done) => {
-  //     // Message
-  //     const message = {
-  //       roomId: roomA.roomId,
-  //     };
-
-  //     // Mock the room
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
-  //     spy.mockReturnValue(roomA);
-
-  //     // Make sure it passes successfuly from the question generator stage
-  //     jest
-  //       .spyOn(GameManager.prototype, "generateQuestions")
-  //       .mockRejectedValue(2);
-
-  //     clientA.emit("startGame", message);
-
-  //     // make sure all players receive the message
-  //     clientA.on("error", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({ message: "No Categories Selected" });
-  //       done();
-  //     });
-  //   });
-
-  //   it("startGame room had no categories selected; error to player", (done) => {
-  //     // Message
-  //     const message = {
-  //       roomId: roomA.roomId,
-  //     };
-
-  //     // Mock the room
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
-  //     spy.mockReturnValue(roomA);
-
-  //     // Make sure it passes successfuly from the question generator stage
-  //     jest
-  //       .spyOn(GameManager.prototype, "generateQuestions")
-  //       .mockRejectedValue(2);
-
-  //     clientA.emit("startGame", message);
-
-  //     // make sure all players receive the message
-  //     clientA.on("error", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({ message: "No Categories Selected" });
-  //       done();
-  //     });
-  //   });
-  // });
-
-  // describe("submitAnswer", () => {
-
-  //   it("clientA sends answer, everyone else should receuve it", (done) => {
-  //     // Message
-  //     const message = {
-  //       roomId: roomA.roomId,
-  //       username: userA.username,
-  //       answer: "answer-A",
-  //     };
-
-  //     clientA.emit("submitAnswer", message);
-
-  //     // make sure all players receive the message
-  //     clientB.on("answerReceived", (data) => {
-  //       expect(data).toEqual({playerUsername: userA.username});
-  //       done();
-  //     });
-  //   });
-
-  //   it("clientA and clientB send answers, good submissins, next question gets sent", (done) => {
-  //     // Message
-  //     const messageA = {
-  //       roomId: roomA.roomId,
-  //       username : userA.username,
-  //       timeDelay : 1000,
-  //       isCorrect : true,
-  //       powerupCode : -1,
-  //       powerupVictimUsername: ""
-  //     };
-
-  //     const messageB = {
-  //       roomId: roomA.roomId,
-  //       username : userB.username,
-  //       timeDelay : 1000,
-  //       isCorrect : false,
-  //       powerupCode : -1,
-  //       powerupVictimUsername: ""
-  //     };
-
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
-
-  //     let messagesAdded = 0;
-  //     const spy2 = jest.spyOn(GameManager.prototype, "addResponseToRoom").mockImplementation(() => {return (++messagesAdded === 2)});
-
-  //     let scores = new Map();
-  //     scores.set(userA.username, 95);
-  //     scores.set(userB.username, 0);
-  //     let stolenPoints = new Map();
-  //     stolenPoints.set(userA.username, false);
-  //     stolenPoints.set(userB.username, false);
-  //     const spy3 = jest.spyOn(GameManager.prototype, "calculateScore").mockImplementation(() => {return {returnCode: 0, scores, stolenPoints}});
-  //     const spy4 = jest.spyOn(GameManager.prototype, "addToPlayerScore").mockReturnValue([{username: userA.username, finalScore: 95},{username: userB.username, finalScore: 90}])
-
-  //     const spy5 = jest.spyOn(GameManager.prototype, "fetchQuestionsQuantity").mockReturnValue(3);
-  //     const spy6 = jest.spyOn(GameManager.prototype, "fetchNextQuestion").mockReturnValue(new Question("What's 2+2?", "4", ["0", "11", "1"], "easy"));
-
-  //     clientA.emit("submitAnswer", messageA);
-  //     clientB.emit("submitAnswer", messageB);
-
-  //     // make sure all players receive the message
-  //     let receieve = 0;
-  //     clientA.on("showScoreboard", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(2);
-  //       expect(spy2).toHaveBeenCalledTimes(2);
-  //       expect(spy3).toHaveBeenCalledTimes(1);
-  //       expect(spy4).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({scores: [{username: userA.username, pointsEarned: 95, updatedTotalPoints: 95, stolenPoints: false},{username: userB.username, pointsEarned: 0, updatedTotalPoints: 90, stolenPoints: false}]});
-  //       receieve++;
-  //     });
-  //     clientB.on("showScoreboard", (data) => {
-  //       expect(data).toEqual({scores: [{username: userA.username, pointsEarned: 95, updatedTotalPoints: 95, stolenPoints: false},{username: userB.username, pointsEarned: 0, updatedTotalPoints: 90, stolenPoints: false}]});
-  //       receieve++;
-  //     });
-  //     clientA.on("startQuestion", (data) => {
-  //       expect(spy5).toHaveBeenCalledTimes(1);
-  //       expect(spy6).toHaveBeenCalledTimes(1);
-  //       expect(data.question).toEqual("What's 2+2?");
-  //       expect(data.answers.slice().sort()).toEqual(["0", "4", "11", "1"].slice().sort());
-  //       expect(data.answers[data.correctIndex]).toEqual("4");
-  //       if(++receieve == 4) done();
-  //     });
-  //     clientB.on("startQuestion", (data) => {
-  //       expect(spy5).toHaveBeenCalledTimes(1);
-  //       expect(spy6).toHaveBeenCalledTimes(1);
-  //       expect(data.question).toEqual("What's 2+2?");
-  //       expect(data.answers.slice().sort()).toEqual(["0", "4", "11", "1"].slice().sort());
-  //       expect(data.answers[data.correctIndex]).toEqual("4");
-  //       if(++receieve == 4) done();
-  //     });
-
-  //   }, 8000);
-
-  //   const sucesfullSubmissionEndGame = (numberOfPlayers, done) => {
-  //     // Messages to submit Answers
-  //     const messageA = {
-  //       roomId: roomA.roomId,
-  //       username : userA.username,
-  //       timeDelay : 1000,
-  //       isCorrect : true,
-  //       powerupCode : -1,
-  //       powerupVictimUsername: ""
-  //     };
-
-  //     const messageB = {
-  //       roomId: roomA.roomId,
-  //       username : userB.username,
-  //       timeDelay : 1000,
-  //       isCorrect : false,
-  //       powerupCode : -1,
-  //       powerupVictimUsername: ""
-  //     };
-
-  //     // Fetch Room Changes
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
-
-  //     // Mock responses to room
-  //     let messagesAdded = 0;
-  //     const spy2 = jest.spyOn(GameManager.prototype, "addResponseToRoom").mockImplementation(() => {return (++messagesAdded === 2)});
-
-  //     // Mock return of new scores
-  //     let scores = new Map();
-  //     scores.set(userA.username, 95);
-  //     scores.set(userB.username, 0);
-  //     let stolenPoints = new Map();
-  //     stolenPoints.set(userA.username, false);
-  //     stolenPoints.set(userB.username, false);
-  //     const spy3 = jest.spyOn(GameManager.prototype, "calculateScore").mockImplementation(() => {return {returnCode: 0, scores, stolenPoints}});
-  //     const spy4 = jest.spyOn(GameManager.prototype, "addToPlayerScore").mockReturnValue([{username: userA.username, finalScore: 95},{username: userB.username, finalScore: 90}])
-
-  //     // mock quantity checker
-  //     jest.spyOn(GameManager.prototype, "fetchQuestionsQuantity").mockReturnValue(0);
-
-  //     // Mock DB
-  //     jest.spyOn(UserDBManager.prototype, "updateUserRank");
-
-  //     let playerArray = Array(numberOfPlayers).fill(playerA);
-  //     jest.spyOn(GameRoom.prototype, "getPlayers").mockReturnValue(playerArray)
-  //     jest.spyOn(Player.prototype, "getSocketId").mockReturnValue("7")
-  //     jest.spyOn(GameManager.prototype, "removeRoomById").mockImplementation(() => {return true})
-
-  //     clientA.emit("submitAnswer", messageA);
-  //     clientB.emit("submitAnswer", messageB);
-
-  //     // make sure all players receive the message
-  //     let receieve = 0;
-  //     clientA.on("showScoreboard", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(2);
-  //       expect(spy2).toHaveBeenCalledTimes(2);
-  //       expect(spy3).toHaveBeenCalledTimes(1);
-  //       expect(spy4).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({scores: [{username: userA.username, pointsEarned: 95, updatedTotalPoints: 95, stolenPoints: false},{username: userB.username, pointsEarned: 0, updatedTotalPoints: 90, stolenPoints: false}]});
-  //       receieve++;
-  //     });
-  //     clientB.on("showScoreboard", (data) => {
-  //       expect(data).toEqual({scores: [{username: userA.username, pointsEarned: 95, updatedTotalPoints: 95, stolenPoints: false},{username: userB.username, pointsEarned: 0, updatedTotalPoints: 90, stolenPoints: false}]});
-  //       receieve++;
-  //     });
-  //     clientA.on("endGame", (data) => {
-  //       expect(data).toEqual({scores:[{username: userA.username, finalScore: 95},{username: userB.username, finalScore: 90}]});
-  //       if(++receieve == 4) done();
-  //     });
-  //     clientB.on("endGame", (data) => {
-  //       expect(data).toEqual({scores:[{username: userA.username, finalScore: 95},{username: userB.username, finalScore: 90}]});
-  //       if(++receieve == 4) done();
-  //     });
-  //   }
-
-  //   it("clientA and clientB send answers, good submissins, last question so endGame (1 people in room)", (done) => {
-  //     const numberOfPlayers = 1;
-  //     sucesfullSubmissionEndGame(numberOfPlayers, done);
-  //   }, 8000);
-  //   it("clientA and clientB send answers, good submissins, last question so endGame (2 people in room)", (done) => {
-  //     const numberOfPlayers = 2;
-  //     sucesfullSubmissionEndGame(numberOfPlayers, done);
-  //   }, 8000);
-  //   it("clientA and clientB send answers, good submissins, last question so endGame (3 people in room)", (done) => {
-  //     const numberOfPlayers = 3;
-  //     sucesfullSubmissionEndGame(numberOfPlayers, done);
-  //   }, 8000);
-  //   it("clientA and clientB send answers, good submissins, last question so endGame (4 people in room)", (done) => {
-  //     const numberOfPlayers = 4;
-  //     sucesfullSubmissionEndGame(numberOfPlayers, done);
-  //   }, 8000);
-  //   it("clientA and clientB send answers, good submissins, last question so endGame (5 people in room)", (done) => {
-  //     const numberOfPlayers = 5;
-  //     sucesfullSubmissionEndGame(numberOfPlayers, done);
-  //   }, 8000);
-  //   it("clientA and clientB send answers, good submissins, last question so endGame (6 people in room)", (done) => {
-  //     const numberOfPlayers = 6;
-  //     sucesfullSubmissionEndGame(numberOfPlayers, done);
-  //   }, 8000);
-
-  //   it("clientA and clientB send answers, error in calucalting answers, errors out", (done) => {
-  //     // Message
-  //     const messageA = {
-  //       roomId: roomA.roomId,
-  //       username : userA.username,
-  //       timeDelay : 1000,
-  //       isCorrect : true,
-  //       powerupCode : -1,
-  //       powerupVictimUsername: ""
-  //     };
-
-  //     const messageB = {
-  //       roomId: roomA.roomId,
-  //       username : userB.username,
-  //       timeDelay : 1000,
-  //       isCorrect : false,
-  //       powerupCode : -1,
-  //       powerupVictimUsername: ""
-  //     };
-
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
-  //     let messagesAdded = 0;
-  //     const spy2 = jest.spyOn(GameManager.prototype, "addResponseToRoom").mockImplementation(() => {return (++messagesAdded === 2)});
-  //     const spy3 = calculateScoreSpy = jest.spyOn(GameManager.prototype, "calculateScore").mockImplementation(() => {return {returnCode: 1}});
-
-  //     clientA.emit("submitAnswer", messageA);
-  //     clientB.emit("submitAnswer", messageB);
-
-  //     // make sure all players receive the message
-  //     let receieve = 0;
-  //     clientA.on("error", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(2);
-  //       expect(spy2).toHaveBeenCalledTimes(2);
-  //       expect(spy3).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({message: "Error in calculating scores"});
-  //       if (++receieve == 2) done();
-  //     });
-  //     clientB.on("error", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(2);
-  //       expect(spy2).toHaveBeenCalledTimes(2);
-  //       expect(spy3).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({message: "Error in calculating scores"});
-  //       if (++receieve == 2) done();
-  //     });
-  //   });
-
-  //   it("clientA sends bad message, errors out", (done) => {
-  //     // Message
-  //     const messageA = {
-  //       roomId: "WEEEE",
-  //       username : userA.username,
-  //       timeDelay : 1000,
-  //       isCorrect : true,
-  //       powerupCode : -1,
-  //       powerupVictimUsername: ""
-  //     };
-
-  //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(undefined);
-
-  //     clientA.emit("submitAnswer", messageA);
-
-  //     // make sure all players receive the message
-  //     clientA.on("error", (data) => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(data).toEqual({message: "Bad Answer Submission"});
-  //       done();
-  //     });
-  //   });
-  // })
-
-  // describe("submitEmote", () => {
-  //   it("clientA sends emote, everyone else should receuve it", (done) => {
-  //     // Message
-  //     const message = {
-  //       roomId: roomA.roomId,
-  //       username: userA.username,
-  //       emoteCode: "emote-A",
-  //     };
-
-  //     clientA.emit("submitEmote", message);
-
-  //     // make sure all players receive the message
-  //     clientB.on("emoteReceived", (data) => {
-  //       expect(data).toEqual({
-  //         username: userA.username,
-  //         emoteCode: "emote-A",
-  //       });
-  //       done();
-  //     });
-  //   });
-  // });
+  describe("change Setting event", () => {
+    it("change Setting should return error for invalid room", (done) => {
+      const message = {
+        roomId: "badRoom",
+        settingOption: undefined,
+        optionValue: undefined,
+      };
+
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(undefined);
+
+      clientA.emit("changeSetting", message);
+
+      clientA.on("error", (data) => {
+        // expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({
+          message: "You have passed in invalid parameters.",
+        });
+        done();
+      });
+    });
+
+    it("change Setting should return error for undefined setting Parameter", (done) => {
+      const message = {
+        roomId: "goodRoom",
+        settingOption: undefined,
+        optionValue: undefined,
+      };
+
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      clientA.emit("changeSetting", message);
+
+      clientA.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({
+          message: "You have passed in invalid parameters.",
+        });
+        done();
+      });
+    });
+
+    it("change Setting should return error for undefined option Parameter", (done) => {
+      const message = {
+        roomId: "goodRoom",
+        settingOption: "isPublic",
+        optionValue: undefined,
+      };
+
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      clientA.emit("changeSetting", message);
+
+      clientA.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({
+          message: "You have passed in invalid parameters.",
+        });
+        done();
+      });
+    });
+
+    it("change Setting (isPublic) should return success message for client A and B", (done) => {
+      const message = {
+        roomId: roomA.roomId,
+        settingOption: "isPublic",
+        optionValue: true,
+      };
+
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      clientA.emit("changeSetting", message);
+
+      let receieve = 0;
+      clientA.on("changedSetting", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({ settingOption: "isPublic", optionValue: true });
+        if (++receieve === 2) done();
+      });
+      clientB.on("changedSetting", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({ settingOption: "isPublic", optionValue: true });
+        if (++receieve === 2) done();
+      });
+    });
+
+    it("change Setting (isPublic) should return error for client A, bad value", (done) => {
+      const message = {
+        roomId: roomA.roomId,
+        settingOption: "isPublic",
+        optionValue: "1",
+      };
+
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      clientA.emit("changeSetting", message);
+
+      clientA.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({
+          message: "You have passed in an invalid settings configuration.",
+        });
+        done();
+      });
+    });
+
+    it("change Setting (add: category) should return success message for client A and B", (done) => {
+      // Message
+      const message = {
+        roomId: roomA.roomId,
+        settingOption: "category-General",
+        optionValue: true,
+      };
+
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      // Mock checker so cat we send is always valid
+      jest.spyOn(GameManager.prototype, "isACategory").mockReturnValue(true);
+      clientA.emit("changeSetting", message);
+
+      // make sure all players receive the message
+      let receieve = 0;
+      clientA.on("changedSetting", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({
+          settingOption: "category-General",
+          optionValue: true,
+        });
+        if (++receieve === 2) done();
+      });
+      clientB.on("changedSetting", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({
+          settingOption: "category-General",
+          optionValue: true,
+        });
+        if (++receieve === 2) done();
+      });
+    });
+
+    it("change Setting (remove: category) should return success message for client A and B", (done) => {
+      // Message
+      const message = {
+        roomId: roomA.roomId,
+        settingOption: "category-General",
+        optionValue: false,
+      };
+
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      // Mock checker so cat we send is always valid
+      jest.spyOn(GameManager.prototype, "isACategory").mockReturnValue(true);
+      clientA.emit("changeSetting", message);
+
+      // make sure all players receive the message
+      let receieve = 0;
+      clientA.on("changedSetting", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({
+          settingOption: "category-General",
+          optionValue: false,
+        });
+        if (++receieve === 2) done();
+      });
+      clientB.on("changedSetting", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({
+          settingOption: "category-General",
+          optionValue: false,
+        });
+        if (++receieve === 2) done();
+      });
+    });
+
+    it("change Setting (category) should return error for client A, bad optionValue", (done) => {
+      // Message
+      const message = {
+        roomId: roomA.roomId,
+        settingOption: "category-General",
+        optionValue: "ss",
+      };
+
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      // Mock checker so cat we send is always valid
+      jest.spyOn(GameManager.prototype, "isACategory").mockReturnValue(true);
+      clientA.emit("changeSetting", message);
+
+      clientA.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({
+          message: "You have passed in an invalid settings configuration.",
+        });
+        done();
+      });
+    });
+
+    it("change Setting (category) should return error for client A, bad category", (done) => {
+      // Message
+      const message = {
+        roomId: roomA.roomId,
+        settingOption: "category-General",
+        optionValue: true,
+      };
+
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      // Mock checker so cat we send is always valid
+      jest.spyOn(GameManager.prototype, "isACategory").mockReturnValue(false);
+      clientA.emit("changeSetting", message);
+
+      clientA.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({
+          message: "You have passed in an invalid settings configuration.",
+        });
+        done();
+      });
+    });
+
+    it("change Setting (difficulty) should return success message for client A and B", (done) => {
+      // Message
+      const message = {
+        roomId: roomA.roomId,
+        settingOption: "difficulty",
+        optionValue: "easy",
+      };
+
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      // Mock checker so cat we send is always valid
+      jest.spyOn(GameManager.prototype, "isADifficulty").mockReturnValue(true);
+      clientA.emit("changeSetting", message);
+
+      // make sure all players receive the message
+      let receieve = 0;
+      clientA.on("changedSetting", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({
+          settingOption: "difficulty",
+          optionValue: "easy",
+        });
+        if (++receieve === 2) done();
+      });
+      clientB.on("changedSetting", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({
+          settingOption: "difficulty",
+          optionValue: "easy",
+        });
+        if (++receieve === 2) done();
+      });
+    });
+
+    it("change Setting (difficulty) should return error for client A, bad difficulty", (done) => {
+      // Message
+      const message = {
+        roomId: roomA.roomId,
+        settingOption: "difficulty",
+        optionValue: "easy",
+      };
+
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      // Mock checker so cat we send is always valid
+      jest.spyOn(GameManager.prototype, "isADifficulty").mockReturnValue(false);
+      clientA.emit("changeSetting", message);
+
+      // make sure all players receive the message
+      clientA.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({
+          message: "You have passed in an invalid settings configuration.",
+        });
+        done();
+      });
+    });
+
+    it("change Setting (maxPlayers) should return success message for client A and B", (done) => {
+      // Message
+      const message = {
+        roomId: roomA.roomId,
+        settingOption: "maxPlayers",
+        optionValue: 3,
+      };
+
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      // Mock checker so cat we send is always valid
+      jest.spyOn(GameManager.prototype, "isAMaxPlayers").mockReturnValue(true);
+      clientA.emit("changeSetting", message);
+
+      // make sure all players receive the message
+      let receieve = 0;
+      clientA.on("changedSetting", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({ settingOption: "maxPlayers", optionValue: 3 });
+        if (++receieve === 2) done();
+      });
+      clientB.on("changedSetting", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({ settingOption: "maxPlayers", optionValue: 3 });
+        if (++receieve === 2) done();
+      });
+    });
+
+    it("change Setting (max player) should return error for client A, bad max player", (done) => {
+      // Message
+      const message = {
+        roomId: roomA.roomId,
+        settingOption: "maxPlayers",
+        optionValue: 3,
+      };
+
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      // Mock checker so cat we send is always valid
+      jest.spyOn(GameManager.prototype, "isAMaxPlayers").mockReturnValue(false);
+      clientA.emit("changeSetting", message);
+
+      // make sure all players receive the message
+      clientA.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({
+          message: "You have passed in an invalid settings configuration.",
+        });
+        done();
+      });
+    });
+
+    it("change Setting (timeLimit) should return success message for client A and B", (done) => {
+      // Message
+      const message = {
+        roomId: roomA.roomId,
+        settingOption: "timeLimit",
+        optionValue: 3,
+      };
+
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      // Mock checker so cat we send is always valid
+      jest.spyOn(GameManager.prototype, "isAnAnswerTime").mockReturnValue(true);
+      clientA.emit("changeSetting", message);
+
+      // make sure all players receive the message
+      let receieve = 0;
+      clientA.on("changedSetting", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({ settingOption: "timeLimit", optionValue: 3 });
+        if (++receieve === 2) done();
+      });
+      clientB.on("changedSetting", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({ settingOption: "timeLimit", optionValue: 3 });
+        if (++receieve === 2) done();
+      });
+    });
+
+    it("change Setting (timeLimit) should return error for client A, bad time", (done) => {
+      /// Message
+      const message = {
+        roomId: roomA.roomId,
+        settingOption: "timeLimit",
+        optionValue: 3,
+      };
+
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      // Mock checker so cat we send is always valid
+      jest
+        .spyOn(GameManager.prototype, "isAnAnswerTime")
+        .mockReturnValue(false);
+      clientA.emit("changeSetting", message);
+
+      // make sure all players receive the message
+      clientA.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({
+          message: "You have passed in an invalid settings configuration.",
+        });
+        done();
+      });
+    });
+
+    it("change Setting (totalQ) should return success message for client A and B", (done) => {
+      // Message
+      const message = {
+        roomId: roomA.roomId,
+        settingOption: "total",
+        optionValue: 3,
+      };
+
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      // Mock checker so cat we send is always valid
+      jest
+        .spyOn(GameManager.prototype, "isANumberOfQuestions")
+        .mockReturnValue(true);
+      clientA.emit("changeSetting", message);
+
+      // make sure all players receive the message
+      let receieve = 0;
+      clientA.on("changedSetting", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({ settingOption: "total", optionValue: 3 });
+        if (++receieve === 2) done();
+      });
+      clientB.on("changedSetting", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({ settingOption: "total", optionValue: 3 });
+        if (++receieve === 2) done();
+      });
+    });
+
+    it("change Setting (totalQ) should return error for client A, bad total", (done) => {
+      // Message
+      const message = {
+        roomId: roomA.roomId,
+        settingOption: "total",
+        optionValue: 3,
+      };
+
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      // Mock checker so cat we send is always valid
+      jest
+        .spyOn(GameManager.prototype, "isANumberOfQuestions")
+        .mockReturnValue(false);
+      clientA.emit("changeSetting", message);
+
+      // make sure all players receive the message
+      clientA.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({
+          message: "You have passed in an invalid settings configuration.",
+        });
+        done();
+      });
+    });
+
+    it("change Setting Invalid option return errror", (done) => {
+      // Message
+      const message = {
+        roomId: roomA.roomId,
+        settingOption: "booboo",
+        optionValue: 3,
+      };
+
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      clientA.emit("changeSetting", message);
+
+      // make sure all players receive the message
+      clientA.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({
+          message: "You have passed in an invalid settings configuration.",
+        });
+        done();
+      });
+    });
+  });
+
+  describe("readyToStartGame", () => {
+    it("clientB sends readyToStartGame, everyone should receuve it", (done) => {
+      // Message
+      const message = {
+        roomId: roomA.roomId,
+        username: "username-B",
+      };
+
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      jest
+        .spyOn(GameRoom.prototype, "getPlayers")
+        .mockReturnValue([
+          { user: { username: userA.username } },
+          { user: { username: "username-B" } },
+        ]);
+
+      clientB.emit("readyToStartGame", message);
+
+      // make sure all players receive the message
+      let receieve = 0;
+      clientA.on("playerReadyToStartGame", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({ playerUsername: "username-B" });
+        if (++receieve === 2) done();
+      });
+      clientB.on("playerReadyToStartGame", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({ playerUsername: "username-B" });
+        if (++receieve === 2) done();
+      });
+    });
+
+    it("clientB sends readyToStartGame, everyone should receive it", (done) => {
+      // Message
+      const message = {
+        roomId: roomA.roomId,
+        username: "username-B",
+      };
+
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(undefined);
+
+      jest
+        .spyOn(GameRoom.prototype, "getPlayers")
+        .mockReturnValue([
+          { user: { username: userA.username } },
+          { user: { username: "username-B" } },
+        ]);
+
+      clientA.emit("readyToStartGame", message);
+
+      // make sure all players receive the message
+      clientA.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({ message: "Invalid roomId" });
+        done();
+      });
+    });
+  });
+
+  describe("startGame", () => {
+    it("startGame should initialize the room and send first question to all players", (done) => {
+      // Message
+      const message = {
+        roomId: roomA.roomId,
+      };
+
+      roomA.gameQuestions = [1, 2];
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      // Make sure it passes successfuly from the question generator stage
+      jest
+        .spyOn(GameManager.prototype, "generateQuestions")
+        .mockImplementation(() => {
+          return new Promise((resolve, reject) => {
+            resolve(0);
+          });
+        });
+      const spy2 = jest
+        .spyOn(GameManager.prototype, "updateRoomState")
+        .mockImplementation();
+      jest
+        .spyOn(GameManager.prototype, "fetchNextQuestion")
+        .mockReturnValue(
+          new Question("What's 1+1?", "2", ["0", "11", "1"], "easy")
+        );
+
+      clientA.emit("startGame", message);
+
+      // make sure all players receive the message
+      let receieve = 0;
+      clientA.on("startQuestion", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy2).toHaveBeenCalledTimes(1);
+
+        expect(data.question).toEqual("What's 1+1?");
+        expect(data.answers.slice().sort()).toEqual(
+          ["0", "2", "11", "1"].slice().sort()
+        );
+        expect(data.answers[data.correctIndex]).toEqual("2");
+        if (++receieve === 2) done();
+      });
+      clientB.on("startQuestion", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy2).toHaveBeenCalledTimes(1);
+
+        expect(data.question).toEqual("What's 1+1?");
+        expect(data.answers.slice().sort()).toEqual(
+          ["0", "2", "11", "1"].slice().sort()
+        );
+        expect(data.answers[data.correctIndex]).toEqual("2");
+        if (++receieve === 2) done();
+      });
+    });
+
+    it("startGame invalid roomId; error to player", (done) => {
+      // Message
+      const message = {
+        roomId: "badRoom",
+      };
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(undefined);
+      // Make sure it passes successfuly from the question generator stage
+      jest
+        .spyOn(GameManager.prototype, "generateQuestions")
+        .mockRejectedValue(1);
+      clientA.emit("startGame", message);
+      // make sure all players receive the message
+      clientA.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({ message: "Invalid roomId" });
+        done();
+      });
+    });
+
+    it("startGame room had no categories selected; error to player", (done) => {
+      // Message
+      const message = {
+        roomId: roomA.roomId,
+      };
+
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      // Make sure it passes successfuly from the question generator stage
+      jest
+        .spyOn(GameManager.prototype, "generateQuestions")
+        .mockRejectedValue(2);
+
+      clientA.emit("startGame", message);
+
+      // make sure all players receive the message
+      clientA.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({ message: "No Categories Selected" });
+        done();
+      });
+    });
+
+    it("startGame room had no categories selected; error to player", (done) => {
+      // Message
+      const message = {
+        roomId: roomA.roomId,
+      };
+
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      // Make sure it passes successfuly from the question generator stage
+      jest
+        .spyOn(GameManager.prototype, "generateQuestions")
+        .mockRejectedValue(2);
+
+      clientA.emit("startGame", message);
+
+      // make sure all players receive the message
+      clientA.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({ message: "No Categories Selected" });
+        done();
+      });
+    });
+  });
+
+  describe("submitAnswer", () => {
+    it("clientA sends answer, everyone else should receuve it", (done) => {
+      // Message
+      const message = {
+        roomId: roomA.roomId,
+        username: userA.username,
+        answer: "answer-A",
+      };
+
+      clientA.emit("submitAnswer", message);
+
+      // make sure all players receive the message
+      clientB.on("answerReceived", (data) => {
+        expect(data).toEqual({ playerUsername: userA.username });
+        done();
+      });
+    });
+
+    it("clientA and clientB send answers, good submissins, next question gets sent", (done) => {
+      // Message
+      const messageA = {
+        roomId: roomA.roomId,
+        username: userA.username,
+        timeDelay: 1000,
+        isCorrect: true,
+        powerupCode: -1,
+        powerupVictimUsername: "",
+      };
+
+      const messageB = {
+        roomId: roomA.roomId,
+        username: userB.username,
+        timeDelay: 1000,
+        isCorrect: false,
+        powerupCode: -1,
+        powerupVictimUsername: "",
+      };
+
+      const spy = jest
+        .spyOn(GameManager.prototype, "fetchRoomById")
+        .mockReturnValue(roomA);
+
+      let messagesAdded = 0;
+      const spy2 = jest
+        .spyOn(GameManager.prototype, "addResponseToRoom")
+        .mockImplementation(() => {
+          return ++messagesAdded === 2;
+        });
+
+      let scores = new Map();
+      scores.set(userA.username, 95);
+      scores.set(userB.username, 0);
+      let stolenPoints = new Map();
+      stolenPoints.set(userA.username, false);
+      stolenPoints.set(userB.username, false);
+      const spy3 = jest
+        .spyOn(GameManager.prototype, "calculateScore")
+        .mockImplementation(() => {
+          return { returnCode: 0, scores, stolenPoints };
+        });
+      const spy4 = jest
+        .spyOn(GameManager.prototype, "addToPlayerScore")
+        .mockReturnValue([
+          { username: userA.username, finalScore: 95 },
+          { username: userB.username, finalScore: 90 },
+        ]);
+
+      const spy5 = jest
+        .spyOn(GameManager.prototype, "fetchQuestionsQuantity")
+        .mockReturnValue(3);
+      const spy6 = jest
+        .spyOn(GameManager.prototype, "fetchNextQuestion")
+        .mockReturnValue(
+          new Question("What's 2+2?", "4", ["0", "11", "1"], "easy")
+        );
+
+      clientA.emit("submitAnswer", messageA);
+      clientB.emit("submitAnswer", messageB);
+
+      // make sure all players receive the message
+      let receieve = 0;
+      clientA.on("showScoreboard", (data) => {
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(spy2).toHaveBeenCalledTimes(2);
+        expect(spy3).toHaveBeenCalledTimes(1);
+        expect(spy4).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({
+          scores: [
+            {
+              username: userA.username,
+              pointsEarned: 95,
+              updatedTotalPoints: 95,
+              stolenPoints: false,
+            },
+            {
+              username: userB.username,
+              pointsEarned: 0,
+              updatedTotalPoints: 90,
+              stolenPoints: false,
+            },
+          ],
+        });
+        receieve++;
+      });
+      clientB.on("showScoreboard", (data) => {
+        expect(data).toEqual({
+          scores: [
+            {
+              username: userA.username,
+              pointsEarned: 95,
+              updatedTotalPoints: 95,
+              stolenPoints: false,
+            },
+            {
+              username: userB.username,
+              pointsEarned: 0,
+              updatedTotalPoints: 90,
+              stolenPoints: false,
+            },
+          ],
+        });
+        receieve++;
+      });
+      clientA.on("startQuestion", (data) => {
+        expect(spy5).toHaveBeenCalledTimes(1);
+        expect(spy6).toHaveBeenCalledTimes(1);
+        expect(data.question).toEqual("What's 2+2?");
+        expect(data.answers.slice().sort()).toEqual(
+          ["0", "4", "11", "1"].slice().sort()
+        );
+        expect(data.answers[data.correctIndex]).toEqual("4");
+        if (++receieve == 4) done();
+      });
+      clientB.on("startQuestion", (data) => {
+        expect(spy5).toHaveBeenCalledTimes(1);
+        expect(spy6).toHaveBeenCalledTimes(1);
+        expect(data.question).toEqual("What's 2+2?");
+        expect(data.answers.slice().sort()).toEqual(
+          ["0", "4", "11", "1"].slice().sort()
+        );
+        expect(data.answers[data.correctIndex]).toEqual("4");
+        if (++receieve == 4) done();
+      });
+    }, 8000);
+
+    const successfulSubmissionEndGame = (numberOfPlayers, done) => {
+      // Messages to submit Answers
+      const messageA = {
+        roomId: roomA.roomId,
+        username: userA.username,
+        timeDelay: 1000,
+        isCorrect: true,
+        powerupCode: -1,
+        powerupVictimUsername: "",
+      };
+
+      const messageB = {
+        roomId: roomA.roomId,
+        username: userB.username,
+        timeDelay: 1000,
+        isCorrect: false,
+        powerupCode: -1,
+        powerupVictimUsername: "",
+      };
+
+      // Fetch Room Changes
+      const spy = jest
+        .spyOn(GameManager.prototype, "fetchRoomById")
+        .mockReturnValue(roomA);
+
+      // Mock responses to room
+      let messagesAdded = 0;
+      const spy2 = jest
+        .spyOn(GameManager.prototype, "addResponseToRoom")
+        .mockImplementation(() => {
+          return ++messagesAdded === 2;
+        });
+
+      // Mock return of new scores
+      let scores = new Map();
+      scores.set(userA.username, 95);
+      scores.set(userB.username, 0);
+      let stolenPoints = new Map();
+      stolenPoints.set(userA.username, false);
+      stolenPoints.set(userB.username, false);
+      const spy3 = jest
+        .spyOn(GameManager.prototype, "calculateScore")
+        .mockImplementation(() => {
+          return { returnCode: 0, scores, stolenPoints };
+        });
+      const spy4 = jest
+        .spyOn(GameManager.prototype, "addToPlayerScore")
+        .mockReturnValue([
+          { username: userA.username, finalScore: 95 },
+          { username: userB.username, finalScore: 90 },
+        ]);
+
+      // mock quantity checker
+      jest
+        .spyOn(GameManager.prototype, "fetchQuestionsQuantity")
+        .mockReturnValue(0);
+
+      // Mock DB
+      jest.spyOn(UserDBManager.prototype, "updateUserRank");
+      jest.spyOn(Player.prototype, "getSocketId").mockReturnValue("7");
+      let playerArray = Array(numberOfPlayers).fill(playerA);
+      jest.spyOn(GameRoom.prototype, "getPlayers").mockReturnValue(playerArray);
+      jest
+        .spyOn(GameManager.prototype, "removeRoomById")
+        .mockImplementation(() => {
+          return true;
+        });
+
+      clientA.emit("submitAnswer", messageA);
+      clientB.emit("submitAnswer", messageB);
+
+      // make sure all players receive the message
+      let receieve = 0;
+      clientA.on("showScoreboard", (data) => {
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(spy2).toHaveBeenCalledTimes(2);
+        expect(spy3).toHaveBeenCalledTimes(1);
+        expect(spy4).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({
+          scores: [
+            {
+              username: userA.username,
+              pointsEarned: 95,
+              updatedTotalPoints: 95,
+              stolenPoints: false,
+            },
+            {
+              username: userB.username,
+              pointsEarned: 0,
+              updatedTotalPoints: 90,
+              stolenPoints: false,
+            },
+          ],
+        });
+        receieve++;
+      });
+      clientB.on("showScoreboard", (data) => {
+        expect(data).toEqual({
+          scores: [
+            {
+              username: userA.username,
+              pointsEarned: 95,
+              updatedTotalPoints: 95,
+              stolenPoints: false,
+            },
+            {
+              username: userB.username,
+              pointsEarned: 0,
+              updatedTotalPoints: 90,
+              stolenPoints: false,
+            },
+          ],
+        });
+        receieve++;
+      });
+      clientA.on("endGame", (data) => {
+        expect(data).toEqual({
+          scores: [
+            { username: userA.username, finalScore: 95 },
+            { username: userB.username, finalScore: 90 },
+          ],
+        });
+        if (++receieve == 4) done();
+      });
+      clientB.on("endGame", (data) => {
+        expect(data).toEqual({
+          scores: [
+            { username: userA.username, finalScore: 95 },
+            { username: userB.username, finalScore: 90 },
+          ],
+        });
+        if (++receieve == 4) done();
+      });
+    };
+
+    for (let i = 1; i <= 6; i++) {
+      it(`clientA and clientB send answers, good submissins, last question so endGame (${i} people in room)`, (done) => {
+        successfulSubmissionEndGame(i, done);
+      }, 8000);
+    }
+
+    it("clientA and clientB send answers, error in calucalting answers, errors out", (done) => {
+      // Message
+      const messageA = {
+        roomId: roomA.roomId,
+        username: userA.username,
+        timeDelay: 1000,
+        isCorrect: true,
+        powerupCode: -1,
+        powerupVictimUsername: "",
+      };
+
+      const messageB = {
+        roomId: roomA.roomId,
+        username: userB.username,
+        timeDelay: 1000,
+        isCorrect: false,
+        powerupCode: -1,
+        powerupVictimUsername: "",
+      };
+
+      const spy = jest
+        .spyOn(GameManager.prototype, "fetchRoomById")
+        .mockReturnValue(roomA);
+      let messagesAdded = 0;
+      const spy2 = jest
+        .spyOn(GameManager.prototype, "addResponseToRoom")
+        .mockImplementation(() => {
+          return ++messagesAdded === 2;
+        });
+      const spy3 = (calculateScoreSpy = jest
+        .spyOn(GameManager.prototype, "calculateScore")
+        .mockImplementation(() => {
+          return { returnCode: 1 };
+        }));
+
+      clientA.emit("submitAnswer", messageA);
+      clientB.emit("submitAnswer", messageB);
+
+      // make sure all players receive the message
+      let receieve = 0;
+      clientA.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(spy2).toHaveBeenCalledTimes(2);
+        expect(spy3).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({ message: "Error in calculating scores" });
+        if (++receieve == 2) done();
+      });
+      clientB.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(spy2).toHaveBeenCalledTimes(2);
+        expect(spy3).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({ message: "Error in calculating scores" });
+        if (++receieve == 2) done();
+      });
+    });
+
+    it("clientA sends bad message, errors out", (done) => {
+      // Message
+      const messageA = {
+        roomId: "WEEEE",
+        username: userA.username,
+        timeDelay: 1000,
+        isCorrect: true,
+        powerupCode: -1,
+        powerupVictimUsername: "",
+      };
+
+      const spy = jest
+        .spyOn(GameManager.prototype, "fetchRoomById")
+        .mockReturnValue(undefined);
+
+      clientA.emit("submitAnswer", messageA);
+
+      // make sure all players receive the message
+      clientA.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({ message: "Bad Answer Submission" });
+        done();
+      });
+    });
+  });
+
+  describe("submitEmote", () => {
+    it("clientA sends emote, everyone else should receuve it", (done) => {
+      // Message
+      const message = {
+        roomId: roomA.roomId,
+        username: userA.username,
+        emoteCode: "emote-A",
+      };
+
+      clientA.emit("submitEmote", message);
+
+      // make sure all players receive the message
+      clientB.on("emoteReceived", (data) => {
+        expect(data).toEqual({
+          username: userA.username,
+          emoteCode: "emote-A",
+        });
+        done();
+      });
+    });
+  });
 
   describe("leaveRoom event", () => {
     /**
@@ -1298,6 +1451,7 @@ describe("Server", () => {
      *  
      */
     it("should emit playerLeft to the players in the room", (done) => {
+      jest.clearAllMocks();
       roomA.roomPlayers = [playerA, playerB];
 
       jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
@@ -1331,138 +1485,138 @@ describe("Server", () => {
       });
 
       clientB.emit("leaveRoom", messageB);
+    }, 8000);
+
+    /**
+     * Input: A valid roomId of an existing room in which the client is a
+     *        player. The client should not be the GameMaster of the room.
+     *
+     * Expected behaviour: Emit a roomClosed event to the player that has
+     *                     left the room.
+     * Expected output: a roomClosed event with empty payload
+     */
+    it("should emit roomClosed to the player that left the room", (done) => {
+      jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
+      jest
+        .spyOn(GameRoom.prototype, "getPlayers")
+        .mockReturnValue([playerA, playerB]);
+
+      jest.spyOn(GameRoom.prototype, "isGameMaster").mockReturnValue(false);
+
+      jest.spyOn(GameRoom.prototype, "removePlayer").mockReturnValue();
+
+      roomA.roomPlayers = [playerA];
+
+      const messageA = {
+        username: userA.username,
+        roomId: roomA.roomId,
+      };
+
+      clientA.emit("joinRoom", messageA);
+
+      clientA.on("roomClosed", (_) => {
+        done();
+      });
+
+      clientA.emit("leaveRoom", messageA);
     });
 
-    // /**
-    //  * Input: A valid roomId of an existing room in which the client is a
-    //  *        player. The client should not be the GameMaster of the room.
-    //  *
-    //  * Expected behaviour: Emit a roomClosed event to the player that has
-    //  *                     left the room.
-    //  * Expected output: a roomClosed event with empty payload
-    //  */
-    // it("should emit roomClosed to the player that left the room", (done) => {
-    //   jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
-    //   jest
-    //     .spyOn(GameRoom.prototype, "getPlayers")
-    //     .mockReturnValue([playerA, playerB]);
+    /**
+     * Input: The room with roomId could not be removed from the system.
+     *
+     * Expected behaviour: Emits a error event to the client with the appropriate message.
+     * Expected output:
+     * error event
+     * {
+     *    "message": "Could not remove room with id roomId-A"
+     * }
+     */
+    it("should emit roomClosed to the player that left the room", (done) => {
+      jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
+      jest
+        .spyOn(GameRoom.prototype, "getPlayers")
+        .mockReturnValue([playerA, playerB]);
+      jest.spyOn(GameRoom.prototype, "isGameMaster").mockReturnValue(true);
+      jest.spyOn(GameRoom.prototype, "removePlayer").mockReturnValue();
+      jest
+        .spyOn(GameManager.prototype, "removeRoomById")
+        .mockReturnValue(false);
 
-    //   jest.spyOn(GameRoom.prototype, "isGameMaster").mockReturnValue(false);
+      const messageA = {
+        username: userA.username,
+        roomId: roomA.roomId,
+      };
 
-    //   jest.spyOn(GameRoom.prototype, "removePlayer").mockReturnValue();
+      clientA.on("error", (data) => {
+        expect(data).toEqual({
+          message: "Could not remove room with id " + roomA.roomId,
+        });
+        done();
+      });
 
-    //   roomA.roomPlayers = [playerA];
+      clientA.emit("leaveRoom", messageA);
+    });
 
-    //   const messageA = {
-    //     username: userA.username,
-    //     roomId: roomA.roomId,
-    //   };
+    /**
+     * Input: One of the players from room.getPlayers is undefined and the
+     *        client is the game master
+     *
+     * Expected behaviour: Skip removing that "undefined" player from the room
+     *                     and continue to the next player in the room.
+     */
+    it("should skip removing undefined players from the room", (done) => {
+      jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
+      jest.spyOn(GameRoom.prototype, "isGameMaster").mockReturnValue(true);
+      jest
+        .spyOn(GameRoom.prototype, "getPlayers")
+        .mockReturnValue([undefined, playerA]);
+      jest.spyOn(GameManager.prototype, "removeRoomById").mockReturnValue(true);
 
-    //   clientA.emit("joinRoom", messageA);
+      const messageA = {
+        username: userA.username,
+        roomId: roomA.roomId,
+      };
 
-    //   clientA.on("roomClosed", (_) => {
-    //     done();
-    //   });
+      clientA.on("roomClosed", (_) => {
+        done();
+      });
 
-    //   clientA.emit("leaveRoom", messageA);
-    // });
+      clientA.emit("leaveRoom", messageA);
+    });
 
-    // /**
-    //  * Input: The room with roomId could not be removed from the system.
-    //  *
-    //  * Expected behaviour: Emits a error event to the client with the appropriate message.
-    //  * Expected output:
-    //  * error event
-    //  * {
-    //  *    "message": "Could not remove room with id roomId-A"
-    //  * }
-    //  */
-    // it("should emit roomClosed to the player that left the room", (done) => {
-    //   jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
-    //   jest
-    //     .spyOn(GameRoom.prototype, "getPlayers")
-    //     .mockReturnValue([playerA, playerB]);
-    //   jest.spyOn(GameRoom.prototype, "isGameMaster").mockReturnValue(true);
-    //   jest.spyOn(GameRoom.prototype, "removePlayer").mockReturnValue();
-    //   jest
-    //     .spyOn(GameManager.prototype, "removeRoomById")
-    //     .mockReturnValue(false);
+    /**
+     * Input: An error occurs while trying to remove the player from the room
+     *
+     * Expected behaviour: Emit an error event with the appropriate message.
+     * Expected output:
+     *
+     * error event (example message)
+        {
+          "message": "TypeError: cannot read properties of undefined (reading 'isGameMaster')"
+        }
+     *
+     */
+    it("should emit an error event when an error occurs", (done) => {
+      const errorMessage =
+        "TypeError: cannot read properties of undefined (reading 'isGameMaster')";
 
-    //   const messageA = {
-    //     username: userA.username,
-    //     roomId: roomA.roomId,
-    //   };
+      jest.spyOn(GameRoom.prototype, "isGameMaster").mockImplementation(() => {
+        throw new Error(errorMessage);
+      });
 
-    //   clientA.on("error", (data) => {
-    //     expect(data).toEqual({
-    //       message: "Could not remove room with id " + roomA.roomId,
-    //     });
-    //     done();
-    //   });
+      const messageA = {
+        username: userA.username,
+        roomId: roomA.roomId,
+      };
 
-    //   clientA.emit("leaveRoom", messageA);
-    // });
+      clientA.on("error", (data) => {
+        expect(data).toEqual({
+          message: errorMessage,
+        });
+        done();
+      });
 
-    // /**
-    //  * Input: One of the players from room.getPlayers is undefined and the
-    //  *        client is the game master
-    //  *
-    //  * Expected behaviour: Skip removing that "undefined" player from the room
-    //  *                     and continue to the next player in the room.
-    //  */
-    // it("should skip removing undefined players from the room", (done) => {
-    //   jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
-    //   jest.spyOn(GameRoom.prototype, "isGameMaster").mockReturnValue(true);
-    //   jest
-    //     .spyOn(GameRoom.prototype, "getPlayers")
-    //     .mockReturnValue([undefined, playerA]);
-    //   jest.spyOn(GameManager.prototype, "removeRoomById").mockReturnValue(true);
-
-    //   const messageA = {
-    //     username: userA.username,
-    //     roomId: roomA.roomId,
-    //   };
-
-    //   clientA.on("roomClosed", (_) => {
-    //     done();
-    //   });
-
-    //   clientA.emit("leaveRoom", messageA);
-    // });
-
-    // /**
-    //  * Input: An error occurs while trying to remove the player from the room
-    //  *
-    //  * Expected behaviour: Emit an error event with the appropriate message.
-    //  * Expected output:
-    //  *
-    //  * error event (example message)
-    //     {
-    //       "message": "TypeError: cannot read properties of undefined (reading 'isGameMaster')"
-    //     }
-    //  *
-    //  */
-    // it("should emit an error event when an error occurs", (done) => {
-    //   const errorMessage =
-    //     "TypeError: cannot read properties of undefined (reading 'isGameMaster')";
-
-    //   jest.spyOn(GameRoom.prototype, "isGameMaster").mockImplementation(() => {
-    //     throw new Error(errorMessage);
-    //   });
-
-    //   const messageA = {
-    //     username: userA.username,
-    //     roomId: roomA.roomId,
-    //   };
-
-    //   clientA.on("error", (data) => {
-    //     expect(data).toEqual({
-    //       message: errorMessage,
-    //     });
-    //     done();
-    //   });
-
-    //   clientA.emit("leaveRoom", messageA);
-    // });
+      clientA.emit("leaveRoom", messageA);
+    });
   });
 });

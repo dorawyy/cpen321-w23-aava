@@ -176,7 +176,7 @@ public class LoginActivity extends AppCompatActivity {
 
             RequestBody body = RequestBody.create(MediaType.parse("application/json"), data.toString());
             Request request = new Request.Builder()
-                    .url(getResources().getString(R.string.serverURL) + "/create-account")
+                    .url(getResources().getString(R.string.serverURL)+ "/create-account")
                     .post(body)
                     .build();
 
@@ -240,7 +240,7 @@ public class LoginActivity extends AppCompatActivity {
 
             RequestBody body = RequestBody.create(MediaType.parse("application/json"), data.toString());
             Request request = new Request.Builder()
-                    .url(getResources().getString(R.string.serverURL) + "/login") // update with your endpoint
+                    .url(getResources().getString(R.string.serverURL)+ "/login") // update with your endpoint
                     .post(body)
                     .build();
 

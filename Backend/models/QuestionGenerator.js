@@ -1,7 +1,7 @@
 const axios = require("axios");
 const Question = require("./Question.js");
 
-const TIME = 3500;
+const TIME = 5250;
 class QuestionGenerator {
   constructor() {
     this.possibleCategories = {};

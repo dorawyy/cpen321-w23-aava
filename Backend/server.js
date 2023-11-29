@@ -24,7 +24,7 @@ const server = httpsServer.listen(8081, "0.0.0.0", async () => {
   );
 
   await db.connect();
-  gameManager.updateCategories();
+  await gameManager.updateCategories();
 });
 
 // Delay between start of game and question

@@ -27,8 +27,8 @@ class GameManager {
    *
    * ChatGPT usage: No
    */
-  updateCategories() {
-    this.possibleCategories = this.questionGenerator.getCategories();
+  async updateCategories() {
+    this.possibleCategories = await this.questionGenerator.getCategories();
   }
 
   /**

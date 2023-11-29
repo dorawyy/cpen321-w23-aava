@@ -129,7 +129,6 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
 
     //ChatGPT usage: No
     private void onPlayButtonClick () {
-        Toast.makeText(this, "Play Button Clicked", Toast.LENGTH_SHORT).show();
         // Handle play button click
         joinRandomRoom(sessionToken);
     }
@@ -154,7 +153,6 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
 
                 if (!TextUtils.isEmpty(enteredCode)) {
                     // Handle the entered code here
-                    Toast.makeText(MenuActivity.this, "Entered Code: " + enteredCode, Toast.LENGTH_SHORT).show();
                     joinRomeByCode(sessionToken,enteredCode);
 
                 } else {
@@ -179,14 +177,12 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
 
     //ChatGPT usage: No
     private void onAccountButtonClick () {
-            Toast.makeText(this, "Account Button Clicked", Toast.LENGTH_SHORT).show();
             // Handle account button click
             showUserProfileDialog();
 
         }
 
     private void onInfoButtonClick () {
-        Toast.makeText(this, "Account Button Clicked", Toast.LENGTH_SHORT).show();
         // Handle account button click
         showInfoDialog();
 
@@ -194,7 +190,6 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
 
     //ChatGPT usage: No
     private void onCreateButtonClick () {
-        Toast.makeText(this, "Create Button Clicked", Toast.LENGTH_SHORT).show();
         // Handle create button click
         Log.d("MELO", sessionToken);
         createRoom(sessionToken);

@@ -70,7 +70,6 @@ public class LoginActivity extends AppCompatActivity {
                     public void onClick(View v) {
 
                         Log.d(TAG,"Reached click");
-                        showToast("Coming Soon");
 
                         signIn();
 

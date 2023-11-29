@@ -173,7 +173,7 @@ describe("Server", () => {
         done();
       });
     });
-    
+
     /**
      * Input: A roomId that does not exist
      *
@@ -376,7 +376,7 @@ describe("Server", () => {
   //       expect(data).toEqual({message: "You have passed in invalid parameters."});
   //       done();
   //     });
-      
+
   //   })
 
   //   it("change Setting should return error for undefined setting Parameter", (done) => {
@@ -396,7 +396,7 @@ describe("Server", () => {
   //       expect(data).toEqual({message: "You have passed in invalid parameters."});
   //       done();
   //     });
-      
+
   //   })
 
   //   it("change Setting should return error for undefined option Parameter", (done) => {
@@ -416,7 +416,7 @@ describe("Server", () => {
   //       expect(data).toEqual({message: "You have passed in invalid parameters."});
   //       done();
   //     });
-      
+
   //   })
 
   //   it("change Setting (isPublic) should return success message for client A and B", (done) => {
@@ -428,8 +428,6 @@ describe("Server", () => {
 
   //     const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
   //     spy.mockReturnValue(roomA);
-
-    
 
   //     clientA.emit("changeSetting", message);
 
@@ -787,7 +785,6 @@ describe("Server", () => {
   //     });
   //   })
 
-
   //   it("change Setting Invalid option return errror", (done) => {
   //     // Message
   //     const message = {
@@ -1018,8 +1015,8 @@ describe("Server", () => {
   //       expect(data).toEqual({playerUsername: userA.username});
   //       done();
   //     });
-  //   }); 
-    
+  //   });
+
   //   it("clientA and clientB send answers, good submissins, next question gets sent", (done) => {
   //     // Message
   //     const messageA = {
@@ -1052,8 +1049,8 @@ describe("Server", () => {
   //     stolenPoints.set(userA.username, false);
   //     stolenPoints.set(userB.username, false);
   //     const spy3 = jest.spyOn(GameManager.prototype, "calculateScore").mockImplementation(() => {return {returnCode: 0, scores, stolenPoints}});
-  //     const spy4 = jest.spyOn(GameManager.prototype, "addToPlayerScore").mockReturnValue([{username: userA.username, finalScore: 95},{username: userB.username, finalScore: 90}]) 
-      
+  //     const spy4 = jest.spyOn(GameManager.prototype, "addToPlayerScore").mockReturnValue([{username: userA.username, finalScore: 95},{username: userB.username, finalScore: 90}])
+
   //     const spy5 = jest.spyOn(GameManager.prototype, "fetchQuestionsQuantity").mockReturnValue(3);
   //     const spy6 = jest.spyOn(GameManager.prototype, "fetchNextQuestion").mockReturnValue(new Question("What's 2+2?", "4", ["0", "11", "1"], "easy"));
 
@@ -1072,7 +1069,7 @@ describe("Server", () => {
   //     });
   //     clientB.on("showScoreboard", (data) => {
   //       expect(data).toEqual({scores: [{username: userA.username, pointsEarned: 95, updatedTotalPoints: 95, stolenPoints: false},{username: userB.username, pointsEarned: 0, updatedTotalPoints: 90, stolenPoints: false}]});
-  //       receieve++;        
+  //       receieve++;
   //     });
   //     clientA.on("startQuestion", (data) => {
   //       expect(spy5).toHaveBeenCalledTimes(1);
@@ -1091,8 +1088,7 @@ describe("Server", () => {
   //       if(++receieve == 4) done();
   //     });
 
-      
-  //   }, 8000); 
+  //   }, 8000);
 
   //   const sucesfullSubmissionEndGame = (numberOfPlayers, done) => {
   //     // Messages to submit Answers
@@ -1129,8 +1125,8 @@ describe("Server", () => {
   //     stolenPoints.set(userA.username, false);
   //     stolenPoints.set(userB.username, false);
   //     const spy3 = jest.spyOn(GameManager.prototype, "calculateScore").mockImplementation(() => {return {returnCode: 0, scores, stolenPoints}});
-  //     const spy4 = jest.spyOn(GameManager.prototype, "addToPlayerScore").mockReturnValue([{username: userA.username, finalScore: 95},{username: userB.username, finalScore: 90}]) 
-      
+  //     const spy4 = jest.spyOn(GameManager.prototype, "addToPlayerScore").mockReturnValue([{username: userA.username, finalScore: 95},{username: userB.username, finalScore: 90}])
+
   //     // mock quantity checker
   //     jest.spyOn(GameManager.prototype, "fetchQuestionsQuantity").mockReturnValue(0);
 
@@ -1141,7 +1137,7 @@ describe("Server", () => {
   //     jest.spyOn(GameRoom.prototype, "getPlayers").mockReturnValue(playerArray)
   //     jest.spyOn(Player.prototype, "getSocketId").mockReturnValue("7")
   //     jest.spyOn(GameManager.prototype, "removeRoomById").mockImplementation(() => {return true})
-      
+
   //     clientA.emit("submitAnswer", messageA);
   //     clientB.emit("submitAnswer", messageB);
 
@@ -1157,7 +1153,7 @@ describe("Server", () => {
   //     });
   //     clientB.on("showScoreboard", (data) => {
   //       expect(data).toEqual({scores: [{username: userA.username, pointsEarned: 95, updatedTotalPoints: 95, stolenPoints: false},{username: userB.username, pointsEarned: 0, updatedTotalPoints: 90, stolenPoints: false}]});
-  //       receieve++;        
+  //       receieve++;
   //     });
   //     clientA.on("endGame", (data) => {
   //       expect(data).toEqual({scores:[{username: userA.username, finalScore: 95},{username: userB.username, finalScore: 90}]});
@@ -1219,7 +1215,6 @@ describe("Server", () => {
   //     const spy2 = jest.spyOn(GameManager.prototype, "addResponseToRoom").mockImplementation(() => {return (++messagesAdded === 2)});
   //     const spy3 = calculateScoreSpy = jest.spyOn(GameManager.prototype, "calculateScore").mockImplementation(() => {return {returnCode: 1}});
 
-
   //     clientA.emit("submitAnswer", messageA);
   //     clientB.emit("submitAnswer", messageB);
 
@@ -1239,7 +1234,7 @@ describe("Server", () => {
   //       expect(data).toEqual({message: "Error in calculating scores"});
   //       if (++receieve == 2) done();
   //     });
-  //   }); 
+  //   });
 
   //   it("clientA sends bad message, errors out", (done) => {
   //     // Message
@@ -1262,7 +1257,7 @@ describe("Server", () => {
   //       expect(data).toEqual({message: "Bad Answer Submission"});
   //       done();
   //     });
-  //   }); 
+  //   });
   // })
 
   // describe("submitEmote", () => {
@@ -1303,16 +1298,14 @@ describe("Server", () => {
      *  
      */
     it("should emit playerLeft to the players in the room", (done) => {
+      roomA.roomPlayers = [playerA, playerB];
+
       jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
       jest
         .spyOn(GameRoom.prototype, "getPlayers")
         .mockReturnValue([playerA, playerB]);
-
       jest.spyOn(GameRoom.prototype, "isGameMaster").mockReturnValue(false);
-
       jest.spyOn(GameRoom.prototype, "removePlayer").mockReturnValue();
-
-      roomA.roomPlayers = [playerA];
 
       const messageA = {
         username: userA.username,
@@ -1331,13 +1324,13 @@ describe("Server", () => {
         console.log(data);
 
         expect(data).toEqual({
-          playerUsername: playerB.username,
+          playerUsername: userB.username,
           reason: "left",
         });
         done();
       });
 
-      clientB.emit("leaveRoom", messageA);
+      clientB.emit("leaveRoom", messageB);
     });
 
     // /**
@@ -1442,12 +1435,12 @@ describe("Server", () => {
     //  *
     //  * Expected behaviour: Emit an error event with the appropriate message.
     //  * Expected output:
-    //  * 
+    //  *
     //  * error event (example message)
     //     {
     //       "message": "TypeError: cannot read properties of undefined (reading 'isGameMaster')"
     //     }
-    //  *  
+    //  *
     //  */
     // it("should emit an error event when an error occurs", (done) => {
     //   const errorMessage =
@@ -1471,7 +1464,5 @@ describe("Server", () => {
 
     //   clientA.emit("leaveRoom", messageA);
     // });
-  
   });
-
 });

@@ -172,7 +172,8 @@ io.on("connection", (socket) => {
     const room = gameManager.fetchRoomById(roomId);
 
     try {
-      if (room === undefined) socket.emit("error", { message: "Invalid roomId"});
+      if (room === undefined)
+        socket.emit("error", { message: "Invalid roomId" });
 
       if (room.isGameMaster(username)) {
         // Now remove all players from room.
@@ -214,10 +215,13 @@ io.on("connection", (socket) => {
 
         // Notify other players still in the room that a player
         // has left
-        io.in(roomId).emit("playerLeft", { playerUsername: username, reason: "left" });
+        io.in(roomId).emit("playerLeft", {
+          playerUsername: username,
+          reason: "left",
+        });
 
         // Notify the player who left that their request has been fulfilled.
-        socket.emit("removedFromRoom", {
+        playerSocket.emit("removedFromRoom", {
           reason: "left",
         });
       }

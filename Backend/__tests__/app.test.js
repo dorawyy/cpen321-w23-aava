@@ -2,7 +2,7 @@ const supertest = require("supertest");
 const { app } = require("../app.js");
 const MockUserDBManager = require("../models/__mocks__/UserDBManager.js");
 const GameManager = require("../models/GameManager.js");
-const GameRoom = require("../models/GameRoom.js");
+const GameRoom = require("../models/GameRoom.js").GameRoom;
 const Player = require("../models/Player.js");
 const User = require("../models/User.js");
 const Settings = require("../models/Settings.js");
@@ -700,9 +700,7 @@ describe("POST /join-room-by-code", () => {
 
     expect(response.status).toEqual(401);
     const responseBody = JSON.parse(response.text);
-    expect(responseBody).toEqual({
-      message: "No Room COde Provided",
-    });
+    expect(responseBody).toEqual({ message: "Empty parameters were passed in."});
   });
 
   /**
@@ -924,4 +922,5 @@ describe("POST /create-room", () => {
     const responseBody = JSON.parse(response.text);
     expect(responseBody).toEqual({ message: "Invalid Session Token" });
   });
+
 });

@@ -5,7 +5,7 @@ const MockUserDBManager = require("../models/__mocks__/UserDBManager.js");
 const UserDBManager = require("../models/UserDBManager.js");
 const Player = require("../models/Player.js");
 const User = require("../models/User.js");
-const GameRoom = require("../models/GameRoom.js");
+const GameRoom = require("../models/GameRoom.js").GameRoom;
 const Settings = require("../models/Settings.js");
 const GameManager = require("../models/GameManager.js");
 const Question = require("../models/Question.js");
@@ -357,192 +357,6 @@ describe("Server", () => {
       clientA.emit("joinRoom", messageA);
     });
   });
-
-  // describe("leaveRoom event", () => {
-  //   /**
-  //    * Input: A valid roomId of an existing room in which the client is a 
-  //    *        player. The client should not be the GameMaster of the room.
-  //    *
-  //    * Expected behaviour: Emit a playerLeft event to all other players in the room.
-  //    * Expected output:
-  //    * 
-  //    * playerLeft event
-  //       {
-  //         "playerUsername": "username-B",
-  //         "reason": "left"
-  //       }
-  //    *  
-  //    */
-  //   it("should emit playerLeft to the players in the room", (done) => {
-  //     jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
-  //     jest
-  //       .spyOn(GameRoom.prototype, "getPlayers")
-  //       .mockReturnValue([playerA, playerB]);
-
-  //     jest.spyOn(GameRoom.prototype, "isGameMaster").mockReturnValue(false);
-
-  //     jest.spyOn(GameRoom.prototype, "removePlayer").mockReturnValue();
-
-  //     roomA.roomPlayers = [playerA];
-
-  //     const messageA = {
-  //       username: userA.username,
-  //       roomId: roomA.roomId,
-  //     };
-
-  //     const messageB = {
-  //       username: userB.username,
-  //       roomId: roomA.roomId,
-  //     };
-
-  //     clientA.emit("joinRoom", messageA);
-  //     clientB.emit("joinRoom", messageB);
-
-  //     clientA.on("playerLeft", (data) => {
-  //       console.log(data);
-
-  //       expect(data).toEqual({
-  //         playerUsername: playerB.username,
-  //         reason: "left",
-  //       });
-  //       done();
-  //     });
-
-  //     clientB.emit("leaveRoom", messageA);
-  //   });
-
-  //   /**
-  //    * Input: A valid roomId of an existing room in which the client is a
-  //    *        player. The client should not be the GameMaster of the room.
-  //    *
-  //    * Expected behaviour: Emit a roomClosed event to the player that has
-  //    *                     left the room.
-  //    * Expected output: a roomClosed event with empty payload
-  //    */
-  //   it("should emit roomClosed to the player that left the room", (done) => {
-  //     jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
-  //     jest
-  //       .spyOn(GameRoom.prototype, "getPlayers")
-  //       .mockReturnValue([playerA, playerB]);
-
-  //     jest.spyOn(GameRoom.prototype, "isGameMaster").mockReturnValue(false);
-
-  //     jest.spyOn(GameRoom.prototype, "removePlayer").mockReturnValue();
-
-  //     roomA.roomPlayers = [playerA];
-
-  //     const messageA = {
-  //       username: userA.username,
-  //       roomId: roomA.roomId,
-  //     };
-
-  //     clientA.emit("joinRoom", messageA);
-
-  //     clientA.on("roomClosed", (_) => {
-  //       done();
-  //     });
-
-  //     clientA.emit("leaveRoom", messageA);
-  //   });
-
-  //   /**
-  //    * Input: The room with roomId could not be removed from the system.
-  //    *
-  //    * Expected behaviour: Emits a error event to the client with the appropriate message.
-  //    * Expected output:
-  //    * error event
-  //    * {
-  //    *    "message": "Could not remove room with id roomId-A"
-  //    * }
-  //    */
-  //   it("should emit roomClosed to the player that left the room", (done) => {
-  //     jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
-  //     jest
-  //       .spyOn(GameRoom.prototype, "getPlayers")
-  //       .mockReturnValue([playerA, playerB]);
-  //     jest.spyOn(GameRoom.prototype, "isGameMaster").mockReturnValue(true);
-  //     jest.spyOn(GameRoom.prototype, "removePlayer").mockReturnValue();
-  //     jest
-  //       .spyOn(GameManager.prototype, "removeRoomById")
-  //       .mockReturnValue(false);
-
-  //     const messageA = {
-  //       username: userA.username,
-  //       roomId: roomA.roomId,
-  //     };
-
-  //     clientA.on("error", (data) => {
-  //       expect(data).toEqual({
-  //         message: "Could not remove room with id " + roomA.roomId,
-  //       });
-  //       done();
-  //     });
-
-  //     clientA.emit("leaveRoom", messageA);
-  //   });
-
-  //   /**
-  //    * Input: One of the players from room.getPlayers is undefined and the
-  //    *        client is the game master
-  //    *
-  //    * Expected behaviour: Skip removing that "undefined" player from the room
-  //    *                     and continue to the next player in the room.
-  //    */
-  //   it("should skip removing undefined players from the room", (done) => {
-  //     jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
-  //     jest.spyOn(GameRoom.prototype, "isGameMaster").mockReturnValue(true);
-  //     jest
-  //       .spyOn(GameRoom.prototype, "getPlayers")
-  //       .mockReturnValue([undefined, playerA]);
-  //     jest.spyOn(GameManager.prototype, "removeRoomById").mockReturnValue(true);
-
-  //     const messageA = {
-  //       username: userA.username,
-  //       roomId: roomA.roomId,
-  //     };
-
-  //     clientA.on("roomClosed", (_) => {
-  //       done();
-  //     });
-
-  //     clientA.emit("leaveRoom", messageA);
-  //   });
-
-  //   /**
-  //    * Input: An error occurs while trying to remove the player from the room
-  //    *
-  //    * Expected behaviour: Emit an error event with the appropriate message.
-  //    * Expected output:
-  //    * 
-  //    * error event (example message)
-  //       {
-  //         "message": "TypeError: cannot read properties of undefined (reading 'isGameMaster')"
-  //       }
-  //    *  
-  //    */
-  //   it("should emit an error event when an error occurs", (done) => {
-  //     const errorMessage =
-  //       "TypeError: cannot read properties of undefined (reading 'isGameMaster')";
-
-  //     jest.spyOn(GameRoom.prototype, "isGameMaster").mockImplementation(() => {
-  //       throw new Error(errorMessage);
-  //     });
-
-  //     const messageA = {
-  //       username: userA.username,
-  //       roomId: roomA.roomId,
-  //     };
-
-  //     clientA.on("error", (data) => {
-  //       expect(data).toEqual({
-  //         message: errorMessage,
-  //       });
-  //       done();
-  //     });
-
-  //     clientA.emit("leaveRoom", messageA);
-  //   });
-  // });
 
   describe("banPlayer event", () => {
     /**
@@ -1716,6 +1530,192 @@ describe("Server", () => {
         });
         done();
       });
+    });
+  });
+
+  describe("leaveRoom event", () => {
+    /**
+     * Input: A valid roomId of an existing room in which the client is a 
+     *        player. The client should not be the GameMaster of the room.
+     *
+     * Expected behaviour: Emit a playerLeft event to all other players in the room.
+     * Expected output:
+     * 
+     * playerLeft event
+        {
+          "playerUsername": "username-B",
+          "reason": "left"
+        }
+     *  
+     */
+    it("should emit playerLeft to the players in the room", (done) => {
+      jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
+      jest
+        .spyOn(GameRoom.prototype, "getPlayers")
+        .mockReturnValue([playerA, playerB]);
+
+      jest.spyOn(GameRoom.prototype, "isGameMaster").mockReturnValue(false);
+
+      jest.spyOn(GameRoom.prototype, "removePlayer").mockReturnValue();
+
+      roomA.roomPlayers = [playerA];
+
+      const messageA = {
+        username: userA.username,
+        roomId: roomA.roomId,
+      };
+
+      const messageB = {
+        username: userB.username,
+        roomId: roomA.roomId,
+      };
+
+      clientA.emit("joinRoom", messageA);
+      clientB.emit("joinRoom", messageB);
+
+      clientA.on("playerLeft", (data) => {
+        console.log(data);
+
+        expect(data).toEqual({
+          playerUsername: playerB.username,
+          reason: "left",
+        });
+        done();
+      });
+
+      clientB.emit("leaveRoom", messageA);
+    });
+
+    /**
+     * Input: A valid roomId of an existing room in which the client is a
+     *        player. The client should not be the GameMaster of the room.
+     *
+     * Expected behaviour: Emit a roomClosed event to the player that has
+     *                     left the room.
+     * Expected output: a roomClosed event with empty payload
+     */
+    it("should emit roomClosed to the player that left the room", (done) => {
+      jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
+      jest
+        .spyOn(GameRoom.prototype, "getPlayers")
+        .mockReturnValue([playerA, playerB]);
+
+      jest.spyOn(GameRoom.prototype, "isGameMaster").mockReturnValue(false);
+
+      jest.spyOn(GameRoom.prototype, "removePlayer").mockReturnValue();
+
+      roomA.roomPlayers = [playerA];
+
+      const messageA = {
+        username: userA.username,
+        roomId: roomA.roomId,
+      };
+
+      clientA.emit("joinRoom", messageA);
+
+      clientA.on("roomClosed", (_) => {
+        done();
+      });
+
+      clientA.emit("leaveRoom", messageA);
+    });
+
+    /**
+     * Input: The room with roomId could not be removed from the system.
+     *
+     * Expected behaviour: Emits a error event to the client with the appropriate message.
+     * Expected output:
+     * error event
+     * {
+     *    "message": "Could not remove room with id roomId-A"
+     * }
+     */
+    it("should emit roomClosed to the player that left the room", (done) => {
+      jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
+      jest
+        .spyOn(GameRoom.prototype, "getPlayers")
+        .mockReturnValue([playerA, playerB]);
+      jest.spyOn(GameRoom.prototype, "isGameMaster").mockReturnValue(true);
+      jest.spyOn(GameRoom.prototype, "removePlayer").mockReturnValue();
+      jest
+        .spyOn(GameManager.prototype, "removeRoomById")
+        .mockReturnValue(false);
+
+      const messageA = {
+        username: userA.username,
+        roomId: roomA.roomId,
+      };
+
+      clientA.on("error", (data) => {
+        expect(data).toEqual({
+          message: "Could not remove room with id " + roomA.roomId,
+        });
+        done();
+      });
+
+      clientA.emit("leaveRoom", messageA);
+    });
+
+    /**
+     * Input: One of the players from room.getPlayers is undefined and the
+     *        client is the game master
+     *
+     * Expected behaviour: Skip removing that "undefined" player from the room
+     *                     and continue to the next player in the room.
+     */
+    it("should skip removing undefined players from the room", (done) => {
+      jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(roomA);
+      jest.spyOn(GameRoom.prototype, "isGameMaster").mockReturnValue(true);
+      jest
+        .spyOn(GameRoom.prototype, "getPlayers")
+        .mockReturnValue([undefined, playerA]);
+      jest.spyOn(GameManager.prototype, "removeRoomById").mockReturnValue(true);
+
+      const messageA = {
+        username: userA.username,
+        roomId: roomA.roomId,
+      };
+
+      clientA.on("roomClosed", (_) => {
+        done();
+      });
+
+      clientA.emit("leaveRoom", messageA);
+    });
+
+    /**
+     * Input: An error occurs while trying to remove the player from the room
+     *
+     * Expected behaviour: Emit an error event with the appropriate message.
+     * Expected output:
+     * 
+     * error event (example message)
+        {
+          "message": "TypeError: cannot read properties of undefined (reading 'isGameMaster')"
+        }
+     *  
+     */
+    it("should emit an error event when an error occurs", (done) => {
+      const errorMessage =
+        "TypeError: cannot read properties of undefined (reading 'isGameMaster')";
+
+      jest.spyOn(GameRoom.prototype, "isGameMaster").mockImplementation(() => {
+        throw new Error(errorMessage);
+      });
+
+      const messageA = {
+        username: userA.username,
+        roomId: roomA.roomId,
+      };
+
+      clientA.on("error", (data) => {
+        expect(data).toEqual({
+          message: errorMessage,
+        });
+        done();
+      });
+
+      clientA.emit("leaveRoom", messageA);
     });
   });
 

@@ -216,6 +216,11 @@ app.post("/join-room-by-code", (req, res) => {
   const user = req.user;
   const roomCode = req.body.roomCode;
 
+  if (user === undefined || roomCode === undefined) {
+    res.status(401).send({ message: "Empty parameters were passed in." });
+    return;
+  }
+
   const room = gameManager.fetchRoom(roomCode);
 
   try {

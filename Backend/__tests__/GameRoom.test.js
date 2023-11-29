@@ -1,4 +1,5 @@
-const GameRoom = require("../models/GameRoom");
+const GameRoom = require("../models/GameRoom").GameRoom;
+const roomStateEnum = require("../models/GameRoom").roomStateEnum
 const Player = require("../models/Player");
 const Question = require("../models/Question");
 const Settings = require("../models/Settings");

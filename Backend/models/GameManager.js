@@ -1,4 +1,4 @@
-const GameRoom = require("./GameRoom.js");
+const GameRoom = require("./GameRoom.js").GameRoom;
 const QuestionGenerator = require("./QuestionGenerator.js");
 const PowerupEnum = require("./PowerUpEnum.js");
 const Settings = require("./Settings");
@@ -292,6 +292,7 @@ class GameManager {
    */
   updateRoomState(roomCode) {
     let room = this.fetchRoom(roomCode);
+    if (room === undefined) return undefined;
     const newState = room.updateState();
     this.roomCodeToGameRoom.set(roomCode, room);
     return newState;

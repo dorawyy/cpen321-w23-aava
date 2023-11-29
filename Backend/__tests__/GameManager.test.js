@@ -2,7 +2,7 @@ const GameManager = require("../models/GameManager.js");
 const QuestionGenerator = require("../models/QuestionGenerator.js");
 const uuid = require("uuid").v4;
 const PlayerAction = require("../models/PlayerAction.js");
-const GameRoom = require("../models/GameRoom.js");
+const GameRoom = require("../models/GameRoom.js").GameRoom;
 
 jest.mock("uuid");
 

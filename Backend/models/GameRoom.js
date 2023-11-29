@@ -370,4 +370,4 @@ class roomStateEnum {
   static IN_PROGRESS = 1;
 }
 
-module.exports = GameRoom;
+module.exports = {GameRoom, roomStateEnum};

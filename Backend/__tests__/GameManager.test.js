@@ -27,15 +27,15 @@ describe("GameManager", () => {
         expect(gameManager.possibleMaxPlayers).toEqual([2, 3, 4, 5, 6]);
     });
 
-    it("updateCategories should change possibleCategories", () => {
+    it("updateCategories should change possibleCategories", async () => {
         const spy = jest
           .spyOn(QuestionGenerator.prototype, "getCategories")
-          .mockImplementation(() => {
+          .mockImplementation(async () => {
             return ["Science"];
           });
 
         gameManager.possibleCategories = ["PE", "time"];
-        gameManager.updateCategories();
+        await gameManager.updateCategories();
 
         console.log(gameManager.possibleCategories);
 

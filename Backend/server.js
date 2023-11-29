@@ -227,56 +227,6 @@ io.on("connection", (socket) => {
   });
 
   /**
-   * Purpose: Permanently Removes Client From the Room
-   * ChatGPT usage: No
-   */
-  socket.on("banPlayer", async (message) => {
-    console.log("Banning player...");
-
-    const roomId = message.roomId;
-    const username = message.username;
-    const bannedUsername = message.playerToBanUsername;
-
-    const room = gameManager.fetchRoomById(roomId);
-
-    try {
-      if (!room.isGameMaster(username)) {
-        socket.emit("error", {
-          message: "You must be the game room owner to ban another user.",
-        });
-
-        return;
-      }
-
-      room.removePlayer(bannedUsername);
-      room.banPlayer(bannedUsername);
-
-      // Notify other players that a player has been banned from the room
-      io.in(roomId).emit("playerLeft", {
-        playerUsername: bannedUsername,
-        reason: "banned",
-      });
-
-      // Notify the banned player that they have been banned
-      const bannedPlayer = room.getPlayer(bannedUsername);
-
-      const bannedPlayerSocketId = bannedPlayer.getSocketId();
-
-      if (bannedPlayerSocketId != undefined) {
-        let bannedPlayerSocket = io.sockets.sockets.get(bannedPlayerSocketId);
-        bannedPlayerSocket.emit("removedFromRoom", {
-          reason: "banned",
-        });
-      } else {
-        socket.emit("error", { message: "Player socket id is undefined" });
-      }
-    } catch (err) {
-      console.log(err);
-      socket.emit("error", { message });
-    }
-  });
-
-  /**
    * Purpose: Updates setting of the room
    * ChatGPT usage: No
    */

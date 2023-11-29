@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.text.Html;
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -28,10 +29,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 
 public class GameActivity extends AppCompatActivity implements GameStateListener {
 
     final static String TAG = "GameActivity";
+    final static Random random = new Random();
 
     // Constant options for room settings
 
@@ -41,9 +44,20 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     private final String[] PUBLIC_OPTIONS = new String[] {"Public", "Private"};
     private final String[] DIFFICULTY_OPTIONS = new String[] {"Easy", "Medium", "Hard"};
 
+    private int questionCountChosen = 0;
+    private int maxPlayerChosen = 4;
+    private int timeLimitChosen = 2;
+    private int publicChosen = 1;
+    private int difficultyChosen = 0;
+    private final List<Integer> categoriesChosen = new ArrayList<Integer>() {{
+        add(0);
+    }};
+
     // Views
 
     private TextView headerLabel;
+
+    private ImageView emoteImage;
 
     private RelativeLayout lobbyUniversalLayout;
     private RelativeLayout lobbyJoinerLayout;
@@ -103,6 +117,17 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     private TextView questionTimerLabel;
     private TextView questionPlayersFinishedLabel;
 
+    private TextView stallBlurbLabel;
+    private List<String> stallBlurbStrings = new ArrayList<String>() {{
+       add("Think you're fast enough?");
+       add("DANG everyone else is slow...");
+       add("ZOOM!");
+       add("Uhh, are you sure you clicked the right one?");
+       add("Done in a jiffy!");
+       add("Did you even read the question??");
+       add("Faster than the Flash!");
+    }};
+
     private LinearLayout scoreboardLesserColumn;
     private LinearLayout scoreboardGreaterColumn;
     private TextView scoreboardLesserGainLabel;
@@ -114,7 +139,95 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     private TextView scoreboardGreaterGainLabel;
     private TextView scoreboardGreaterScoreLabel;
     private TextView scoreboardGreaterUsernameLabel;
+
+    private ImageView scoreboardLesserFace;
+    private ImageView scoreboardCurrentFace;
+    private ImageView scoreboardGreaterFace;
+    private final int[][] scoreboardFaceGroups = new int[][] {
+            {},
+            {0},
+            {0, 1},
+            {0, 1, 2},
+            {0, 1, 1, 2},
+            {0, 1, 1, 2, 2},
+            {0, 0, 1, 1, 2, 2}
+    };
+    private final List<Integer> scoreboardFaceResourcesGood = new ArrayList<Integer>() {{
+        add(R.drawable.emoji_bitelip);
+        add(R.drawable.emoji_nerd);
+        add(R.drawable.emoji_laughcry);
+        add(R.drawable.emoji_tripletink);
+    }};
+    private final List<Integer> scoreboardFaceResourcesMid = new ArrayList<Integer>() {{
+        add(R.drawable.emoji_flooshed);
+        add(R.drawable.emoji_focus);
+        add(R.drawable.emoji_thinkglasses);
+        add(R.drawable.emoji_sunglasscry);
+    }};
+    private final List<Integer> scoreboardFaceResourcesBad = new ArrayList<Integer>() {{
+        add(R.drawable.emoji_spunchbop);
+        add(R.drawable.emoji_cryroll);
+        add(R.drawable.emoji_wail);
+        add(R.drawable.emoji_nooooo);
+    }};
+
     private TextView scoreboardRankLabel;
+    private TextView scoreboardStolenLabel;
+
+    private TextView scoreboardBlurbLabel;
+    private final int[][][] scoreboardBlurbGroups = new int[][][] {
+            {},
+            {{0}},
+            {{0}, {1, 2, 3, 4, 5}},
+            {{0}, {1, 2}, {3, 4, 5}},
+            {{0}, {1}, {2, 3}, {4, 5}},
+            {{0}, {1}, {2}, {3}, {4, 5}},
+            {{0}, {1}, {2}, {3}, {4}, {5}}
+    };
+    private final List<List<String>> scoreboardBlurbStrings = new ArrayList<List<String>>() {{
+        add(new ArrayList<String>() {{
+            add("YOU GOT THAT DAWG IN YA");
+            add("OMG SLAYY");
+            add("YASS QUEEN");
+            add("UR IN SPAIN WITHOUT THE P");
+            add("Look who's right again (as always)");
+        }});
+        add(new ArrayList<String>() {{
+            add("LET 'EM COOK, LET 'EM COOK");
+            add("You're almost there!");
+            add("ur above average (copium)");
+            add("*heavy breathing*");
+        }});
+        add(new ArrayList<String>() {{
+            add("You're almost there!");
+            add("Come on, keep it up!");
+            add("kinda mid ngl");
+            add("ur above average (copium)");
+        }});
+        add(new ArrayList<String>() {{
+            add("Come on, keep it up!");
+            add("Don't lose hope now!");
+            add("kinda mid ngl");
+            add("fam this ain't a vibe");
+            add("Have a participation award");
+        }});
+        add(new ArrayList<String>() {{
+            add("Time to start a comeback!");
+            add("Don't lose hope now!");
+            add("should NOT have let bro cook...");
+            add("fam this ain't a vibe");
+            add("Mission failed, we'll get 'em next time");
+            add("Have a participation award");
+        }});
+        add (new ArrayList<String>() {{
+            add("Time to start a comeback!");
+            add("It's giving terminal :/");
+            add("should NOT have let bro cook...");
+            add("Mission failed, we'll get 'em next time");
+            add("Have a participation award");
+        }});
+    }};
+
     private ImageView scoreboardLeaveImage;
 
     private List<ImageView> powerupImages = new ArrayList<>();
@@ -172,8 +285,6 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
             enableLayout(lobbyUniversalLayout, true);
             if (gameConstants.isOwner) {
                 enableLayout(lobbyOwnerLayout, true);
-                // Disable Start button by default, as more players need to join.
-                lobbyOwnerStartImage.setClickable(false);
             } else {
                 enableLayout(lobbyJoinerLayout, true);
             }
@@ -422,12 +533,32 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     }
 
     // ChatGPT usage: No
+    public void otherPlayerEmoted(String otherUsername, int emoteCode) {
+        Log.d(TAG, "EMOTE RECEIVED: " + otherUsername + ", " + emoteCode);
+        runOnUiThread(() -> {
+
+            new CountDownTimer(2000, 100) {
+                @Override
+                public void onTick(long l) {
+                    // Intentionally left blank
+                }
+                @Override
+                public void onFinish() {
+
+                }
+            };
+        });
+    }
+
+    // ChatGPT usage: No
     public void youAnswered() {
         runOnUiThread(() -> {
             if (gameState.powerupCode != -1) {
                 Log.d(TAG, "Powerup code: " + gameState.powerupCode);
                 powerupIconImages.get(gameState.powerupCode).setVisibility(View.INVISIBLE);
             }
+
+            stallBlurbLabel.setText(getStallBlurb());
         });
 
         disableLayout(questionLayout);
@@ -436,17 +567,22 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     }
 
     // ChatGPT usage: No
-    public void scoreboardReceived(boolean finished, int rank, @NonNull List<JSONObject> scoreInfoList) {
+    public void scoreboardReceived(boolean finished, boolean stolen, int rank, @NonNull List<JSONObject> scoreInfoList) {
         disableLayout(powerupLayout);
         disableLayout(stallLayout);
         enableLayout(scoreboardLayout, true);
 
         runOnUiThread(() -> {
+            // Leave Button
             if (finished) {
                 scoreboardLeaveImage.setVisibility(View.VISIBLE);
                 scoreboardLeaveImage.setClickable(true);
             }
 
+            // Stolen score indicator
+            scoreboardStolenLabel.setVisibility(stolen ? View.VISIBLE : View.INVISIBLE);
+
+            // Correct or incorrect header
             headerLabel.setText(gameState.lastQuestionCorrect ? "Correct!" : "Incorrect");
             scoreboardRankLabel.setText(
                     (rank == 0) ? "1st" : (rank == 1) ? "2nd" : (rank == 2) ? "3rd" : String.format(Locale.US, "%dth", rank + 1)
@@ -454,11 +590,15 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
 
             Log.d(TAG, "Rank: " + rank);
 
+            // Set player labels
             try {
+                int numPlayers = scoreInfoList.size();
                 JSONObject currentPlayer = scoreInfoList.get(rank);
                 scoreboardCurrentGainLabel.setText(getString(R.string.scoreboardPoints, currentPlayer.getInt("pointsEarned")));
                 scoreboardCurrentScoreLabel.setText(String.valueOf(currentPlayer.getInt("updatedTotalPoints")));
                 scoreboardCurrentUsernameLabel.setText(currentPlayer.getString("username"));
+                scoreboardCurrentFace.setImageResource(getFace(rank, numPlayers));
+                scoreboardBlurbLabel.setText(getScoreboardBlurb(rank, numPlayers));
 
                 if (rank == gameState.roomPlayers.length() - 1) {
                     scoreboardLesserColumn.setVisibility(View.INVISIBLE);
@@ -468,6 +608,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                     scoreboardLesserScoreLabel.setText(String.valueOf(lesserPlayer.getInt("updatedTotalPoints")));
                     scoreboardLesserUsernameLabel.setText(lesserPlayer.getString("username"));
                     scoreboardLesserColumn.setVisibility(View.VISIBLE);
+                    scoreboardLesserFace.setImageResource(getFace(rank + 1, numPlayers));
                 }
                 if (rank == 0) {
                     scoreboardGreaterColumn.setVisibility(View.INVISIBLE);
@@ -477,6 +618,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                     scoreboardGreaterScoreLabel.setText(String.valueOf(greaterPlayer.getInt("updatedTotalPoints")));
                     scoreboardGreaterUsernameLabel.setText(greaterPlayer.getString("username"));
                     scoreboardGreaterColumn.setVisibility(View.VISIBLE);
+                    scoreboardGreaterFace.setImageResource(getFace(rank - 1, numPlayers));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -486,7 +628,13 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
 
     // ChatGPD usage: No
     public void errorReceived(String message) {
-        Toast.makeText(GameActivity.this, message, Toast.LENGTH_SHORT).show();
+        runOnUiThread(() -> {
+            if (message.contains("Questions")) {
+                Toast.makeText(GameActivity.this, "Trivia API Error", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(GameActivity.this, message, Toast.LENGTH_SHORT).show();
+            }
+        });
         gameState.leaveRoom();
         Intent intent = new Intent(GameActivity.this, MenuActivity.class);
         intent.putExtra("userName", gameConstants.username);
@@ -496,10 +644,42 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
 
     // OTHER METHODS
 
+    // Pick an available emoji based on rank.
+    // ChatGPT usage: no
+    private int getFace(int rank, int numPlayers) {
+        rank += 1;
+        int group = scoreboardFaceGroups[numPlayers][rank - 1];
+        List<Integer> list = scoreboardFaceResourcesBad;
+        if (group == 0) {
+            list = scoreboardFaceResourcesGood;
+        } else if (group == 1) {
+            list = scoreboardFaceResourcesMid;
+        }
+        return list.get(random.nextInt(list.size()));
+    }
+
+    // Pick an available scoreboard blurb based on rank.
+    // ChatGPT usage: no
+    private String getScoreboardBlurb(int rank, int numPlayers) {
+        rank += 1;
+        int[] groups = scoreboardBlurbGroups[numPlayers][rank - 1];
+        int group = groups[random.nextInt(groups.length)];
+        List<String> strings = scoreboardBlurbStrings.get(group);
+        return strings.get(random.nextInt(strings.size()));
+    }
+
+    // Pick an available stall blurb.
+    // ChatGPT usage: no
+    private String getStallBlurb() {
+        return stallBlurbStrings.get(random.nextInt(stallBlurbStrings.size()));
+    }
+
     // Get and set all View objects.
     // ChatGPT usage: No
     private void getSetAllViews() {
         headerLabel = findViewById(R.id.game_header_label);
+
+        emoteImage = findViewById(R.id.game_emote_image);
 
         lobbyUniversalLayout = findViewById(R.id.game_lobby_universal_layout);
         lobbyJoinerLayout = findViewById(R.id.game_lobby_joiner_layout);
@@ -606,7 +786,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
         questionTimerLabel = findViewById(R.id.game_question_timer_label);
         questionPlayersFinishedLabel = findViewById(R.id.game_question_players_finished_label);
 
-//        TextView stallBlurbLabel = findViewById(R.id.game_stall_blurb_label);
+        stallBlurbLabel = findViewById(R.id.game_stall_blurb_label);
 
         scoreboardLesserColumn = findViewById(R.id.game_scoreboard_lesser_column);
         scoreboardGreaterColumn = findViewById(R.id.game_scoreboard_greater_column);
@@ -614,18 +794,19 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
         scoreboardLesserGainLabel = findViewById(R.id.game_scoreboard_lesser_gain_label);
         scoreboardLesserScoreLabel = findViewById(R.id.game_scoreboard_lesser_score_label);
         scoreboardLesserUsernameLabel = findViewById(R.id.game_scoreboard_lesser_username_label);
-//        ImageView scoreboardLesserImage = findViewById(R.id.game_scoreboard_lesser_image);
+        scoreboardLesserFace = findViewById(R.id.game_scoreboard_lesser_image);
         scoreboardCurrentGainLabel = findViewById(R.id.game_scoreboard_current_gain_label);
         scoreboardCurrentScoreLabel = findViewById(R.id.game_scoreboard_current_score_label);
         scoreboardCurrentUsernameLabel = findViewById(R.id.game_scoreboard_current_username_label);
-//        ImageView scoreboardCurrentImage = findViewById(R.id.game_scoreboard_current_image);
+        scoreboardCurrentFace = findViewById(R.id.game_scoreboard_current_image);
         scoreboardGreaterGainLabel = findViewById(R.id.game_scoreboard_greater_gain_label);
         scoreboardGreaterScoreLabel = findViewById(R.id.game_scoreboard_greater_score_label);
         scoreboardGreaterUsernameLabel = findViewById(R.id.game_scoreboard_greater_username_label);
-//        ImageView scoreboardGreaterImage = findViewById(R.id.game_scoreboard_greater_image);
+        scoreboardGreaterFace = findViewById(R.id.game_scoreboard_greater_image);
         scoreboardRankLabel = findViewById(R.id.game_scoreboard_rank_label);
-//        TextView scoreboardBlurbLabel = findViewById(R.id.game_scoreboard_blurb_label);
+        scoreboardBlurbLabel = findViewById(R.id.game_scoreboard_blurb_label);
         scoreboardLeaveImage = findViewById(R.id.game_scoreboard_leave_image);
+        scoreboardStolenLabel = findViewById(R.id.game_scoreboard_stolen_label);
 
         powerupImages = new ArrayList<ImageView>() {{
             add(findViewById(R.id.game_powerup_image1));
@@ -672,7 +853,27 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
         runOnUiThread(() -> {
 
             // LOBBY
-            if (v == lobbyJoinerReadyImage) {
+            if (v == emoteImage) {
+                Log.d(TAG, "Emote button pressed");
+                new AlertDialog.Builder(this)
+                        .setTitle("Express yourself!")
+                        .setPositiveButton("\uD83D\uDE0F", (dialogInterface, i) -> { // Right
+                            dialogInterface.dismiss();
+                            Log.d(TAG, "Positive emoji clicked");
+                            gameState.submitEmote(0);
+                        })
+                        .setNeutralButton("\uD83D\uDE2D", (dialogInterface, i) -> { // Left
+                            dialogInterface.dismiss();
+                            Log.d(TAG, "Negative emoji clicked");
+                            gameState.submitEmote(1);
+                        })
+                        .setNegativeButton("\uD83D\uDC80", (dialogInterface, i) -> { // Center
+                            dialogInterface.dismiss();
+                            Log.d(TAG, "Skull emoji clicked");
+                            gameState.submitEmote(2);
+                        })
+                        .show();
+            } else if (v == lobbyJoinerReadyImage) {
                 // Emit readyToStartGame event, and disable the button
                 Log.d(TAG, "READY!");
                 gameState.readyUp();
@@ -689,9 +890,11 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                 // Change question count and emit changeSetting event
                 new AlertDialog.Builder(this)
                         .setTitle("Select Question Count")
-                        .setSingleChoiceItems(QUESTION_COUNT_OPTIONS, 0, null)
+                        .setSingleChoiceItems(QUESTION_COUNT_OPTIONS, questionCountChosen, null)
                         .setPositiveButton("OK", (dialogInterface, i) -> {
                             dialogInterface.dismiss();
+                            questionCountChosen = ((AlertDialog) dialogInterface).getListView().getCheckedItemPosition();
+                            Log.d(TAG, "QUESTION COUNT CHOSEN: " + questionCountChosen);
                             gameState.chooseQuestionCount(Integer.parseInt(QUESTION_COUNT_OPTIONS[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()]));
                         })
                         .show();
@@ -699,9 +902,10 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                 // Change max players and emit changeSetting event
                 new AlertDialog.Builder(this)
                         .setTitle(R.string.editMaxPlayersTitle)
-                        .setSingleChoiceItems(MAX_PLAYER_OPTIONS, 0, null)
+                        .setSingleChoiceItems(MAX_PLAYER_OPTIONS, maxPlayerChosen, null)
                         .setPositiveButton("OK", (dialogInterface, i) -> {
                             dialogInterface.dismiss();
+                            maxPlayerChosen = ((AlertDialog) dialogInterface).getListView().getCheckedItemPosition();
                             gameState.chooseMaxPlayers(Integer.parseInt(MAX_PLAYER_OPTIONS[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()]));
                         })
                         .show();
@@ -709,9 +913,10 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                 // Change time limit and emit changeSetting event
                 new AlertDialog.Builder(this)
                         .setTitle("Select Time Limit Per Question")
-                        .setSingleChoiceItems(TIME_LIMIT_OPTIONS, 0, null)
+                        .setSingleChoiceItems(TIME_LIMIT_OPTIONS, timeLimitChosen, null)
                         .setPositiveButton("OK", (dialogInterface, i) -> {
                             dialogInterface.dismiss();
+                            timeLimitChosen = ((AlertDialog) dialogInterface).getListView().getCheckedItemPosition();
                             gameState.chooseTimeLimit(Integer.parseInt(TIME_LIMIT_OPTIONS[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()]));
                         })
                         .show();
@@ -720,9 +925,10 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                 // Change room isPublic and emit changeSetting event
                 new AlertDialog.Builder(this)
                         .setTitle("Select Room Publicity")
-                        .setSingleChoiceItems(PUBLIC_OPTIONS, 0, null)
+                        .setSingleChoiceItems(PUBLIC_OPTIONS, publicChosen, null)
                         .setPositiveButton("OK", (dialogInterface, i) -> {
                             dialogInterface.dismiss();
+                            publicChosen = ((AlertDialog) dialogInterface).getListView().getCheckedItemPosition();
                             gameState.chooseRoomPublicity(Objects.equals(PUBLIC_OPTIONS[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()], "Public"));
                         })
                         .show();
@@ -730,17 +936,22 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                 // Change question difficulty and emit changeSetting event
                 new AlertDialog.Builder(this)
                         .setTitle("Select Question Difficulty")
-                        .setSingleChoiceItems(DIFFICULTY_OPTIONS, 0, null)
+                        .setSingleChoiceItems(DIFFICULTY_OPTIONS, difficultyChosen, null)
                         .setPositiveButton("OK", (dialogInterface, i) -> {
                             dialogInterface.dismiss();
+                            difficultyChosen = ((AlertDialog) dialogInterface).getListView().getCheckedItemPosition();
                             gameState.chooseQuestionDifficulty(DIFFICULTY_OPTIONS[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()].toLowerCase());
                         })
                         .show();
             } else if (v == lobbyEditCategoriesImage) {
                 // Change question count and emit changeSetting event
+                boolean[] checkedCategories = new boolean[gameConstants.possibleCategories.size()];
+                for (int i = 0; i < gameConstants.possibleCategories.size(); i++) {
+                    checkedCategories[i] = categoriesChosen.contains(i);
+                }
                 new AlertDialog.Builder(this)
                         .setTitle("Select Question Categories (Max 5)")
-                        .setMultiChoiceItems(gameConstants.possibleCategories.toArray(new String[0]), null, null)
+                        .setMultiChoiceItems(gameConstants.possibleCategories.toArray(new String[0]), checkedCategories, null)
                         .setPositiveButton("OK", (dialogInterface, i) -> {
                             dialogInterface.dismiss();
                             int categoryCount = 0;
@@ -749,17 +960,23 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                                 gameState.chooseQuestionCategory(category, false);
                             }
                             SparseBooleanArray indicesChosen = ((AlertDialog) dialogInterface).getListView().getCheckedItemPositions();
-                            if (indicesChosen.size() == 0) {
+                            categoriesChosen.clear();
+                            Log.d(TAG, "SBA: " + indicesChosen);
+                            for (int index = 0; index < indicesChosen.size(); index++) {
+                                int categoryIndex = indicesChosen.keyAt(index);
+                                boolean categoryValue = indicesChosen.get(categoryIndex);
+                                Log.d(TAG, "Key " + categoryIndex + ": " + categoryValue);
+                                if (!categoryValue) continue;
+                                categoriesChosen.add(categoryIndex);
+                                Log.d(TAG, "Chose category " + categoryIndex);
+                                String category = gameConstants.possibleCategories.get(categoryIndex);
+                                gameState.chooseQuestionCategory(category, true);
+                                categoryCount++;
+                                if (categoryCount == 5) break;
+                            }
+                            if (categoriesChosen.size() == 0) {
+                                categoriesChosen.add(0);
                                 gameState.chooseQuestionCategory(gameConstants.possibleCategories.get(0), true);
-                            } else {
-                                for (int key = 0; key < indicesChosen.size(); key++) {
-                                    int index = indicesChosen.keyAt(key);
-                                    Log.d(TAG, "Chose category " + index);
-                                    String category = gameConstants.possibleCategories.get(index);
-                                    gameState.chooseQuestionCategory(category, true);
-                                    categoryCount++;
-                                    if (categoryCount == 5) break;
-                                }
                             }
                         })
                         .show();
@@ -771,6 +988,8 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                 enableLayout(lobbyOwnerLayout, true);
             } else if (v == lobbyOwnerStartImage) {
                 // Emit startGame event, and disable the button
+                Toast.makeText(GameActivity.this, "Game will start soon - sit tight!", Toast.LENGTH_LONG).show();
+                lobbyOwnerStartImage.setClickable(false);
                 gameState.startGame();
             }
 

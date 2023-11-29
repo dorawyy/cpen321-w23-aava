@@ -34,7 +34,7 @@ public class GameState implements SocketManagerListener{
 
     // State concerning the settings of the game room.
     public boolean roomIsPublic;
-    public final List<String> roomChosenCategories = new ArrayList<>();
+    public String roomCategory;
     public String roomQuestionDifficulty;
     public int roomMaxPlayers;
     public int roomQuestionTime;
@@ -104,9 +104,7 @@ public class GameState implements SocketManagerListener{
                 gameConstants.possibleCategories.add(possibleCategoriesJSONArray.getString(i));
             }
             JSONArray chosenCategoriesJSONARray = roomSettings.getJSONArray("questionCategories");
-            for (int i = 0; i < chosenCategoriesJSONARray.length(); i++) {
-                roomChosenCategories.add(chosenCategoriesJSONARray.getString(i));
-            }
+            roomCategory = chosenCategoriesJSONARray.getString(0);
 
             gameStateListener.youJoined();
             gameStateListener.roomPlayersChanged();
@@ -194,14 +192,13 @@ public class GameState implements SocketManagerListener{
                 case "total":
                     roomQuestionCount = settingData.getInt("optionValue");
                     break;
-                default: // Will be a category set
+                default: // Will be a category
                     String category = option.substring(9);
                     if (settingData.getBoolean("optionValue")) {
-                        roomChosenCategories.add(category);
+                        roomCategory = category;
                         Log.d(TAG, "Adding " + category);
                     } else {
-                        roomChosenCategories.remove(category);
-                        Log.d(TAG, "Removing " + category);
+                        Log.d(TAG, "Ignoring " + category);
                     }
             }
 

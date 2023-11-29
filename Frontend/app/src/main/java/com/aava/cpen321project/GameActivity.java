@@ -49,9 +49,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     private int timeLimitChosen = 2;
     private int publicChosen = 1;
     private int difficultyChosen = 0;
-    private final List<Integer> categoriesChosen = new ArrayList<Integer>() {{
-        add(0);
-    }};
+    private int categoryChosen = 0;
 
     // Views
 
@@ -120,7 +118,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     private TextView questionPlayersFinishedLabel;
 
     private TextView stallBlurbLabel;
-    private List<String> stallBlurbStrings = new ArrayList<String>() {{
+    private final List<String> stallBlurbStrings = new ArrayList<String>() {{
        add("Think you're fast enough?");
        add("DANG everyone else is slow...");
        add("ZOOM!");
@@ -189,8 +187,8 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     private final List<List<String>> scoreboardBlurbStrings = new ArrayList<List<String>>() {{
         add(new ArrayList<String>() {{
             add("YOU GOT THAT DAWG IN YA");
-            add("OMG SLAYY");
-            add("YASS QUEEN");
+            add("OMG SLAYYY!!");
+            add("YASS QUEEN!!!");
             add("UR IN SPAIN WITHOUT THE P");
             add("Look who's right again (as always)");
         }});
@@ -380,15 +378,8 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
             lobbyEditPublicLabel.setText(publicLabel);
             lobbyEditDifficultyLabel.setText(difficultyLabel);
 
-            for (int i = 0; i < 5; i++) {
-                if (i < gameState.roomChosenCategories.size()) {
-                    lobbyUniversalCategoryLabels[i].setText(gameState.roomChosenCategories.get(i));
-                    lobbyEditCategoryLabels[i].setText(gameState.roomChosenCategories.get(i));
-                } else {
-                    lobbyUniversalCategoryLabels[i].setText("");
-                    lobbyEditCategoryLabels[i].setText("");
-                }
-            }
+            lobbyUniversalCategoryLabels[0].setText(gameState.roomCategory);
+            lobbyEditCategoryLabels[0].setText(gameState.roomCategory);
         });
     }
 
@@ -932,7 +923,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                             dialogInterface.dismiss();
                             questionCountChosen = ((AlertDialog) dialogInterface).getListView().getCheckedItemPosition();
                             Log.d(TAG, "QUESTION COUNT CHOSEN: " + questionCountChosen);
-                            gameState.chooseQuestionCount(Integer.parseInt(QUESTION_COUNT_OPTIONS[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()]));
+                            gameState.chooseQuestionCount(Integer.parseInt(QUESTION_COUNT_OPTIONS[questionCountChosen]));
                         })
                         .show();
             } else if (v == lobbyEditPlayersImage) {
@@ -943,7 +934,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                         .setPositiveButton("OK", (dialogInterface, i) -> {
                             dialogInterface.dismiss();
                             maxPlayerChosen = ((AlertDialog) dialogInterface).getListView().getCheckedItemPosition();
-                            gameState.chooseMaxPlayers(Integer.parseInt(MAX_PLAYER_OPTIONS[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()]));
+                            gameState.chooseMaxPlayers(Integer.parseInt(MAX_PLAYER_OPTIONS[maxPlayerChosen]));
                         })
                         .show();
             } else if (v == lobbyEditTimeImage) {
@@ -954,7 +945,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                         .setPositiveButton("OK", (dialogInterface, i) -> {
                             dialogInterface.dismiss();
                             timeLimitChosen = ((AlertDialog) dialogInterface).getListView().getCheckedItemPosition();
-                            gameState.chooseTimeLimit(Integer.parseInt(TIME_LIMIT_OPTIONS[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()]));
+                            gameState.chooseTimeLimit(Integer.parseInt(TIME_LIMIT_OPTIONS[timeLimitChosen]));
                         })
                         .show();
 
@@ -966,7 +957,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                         .setPositiveButton("OK", (dialogInterface, i) -> {
                             dialogInterface.dismiss();
                             publicChosen = ((AlertDialog) dialogInterface).getListView().getCheckedItemPosition();
-                            gameState.chooseRoomPublicity(Objects.equals(PUBLIC_OPTIONS[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()], "Public"));
+                            gameState.chooseRoomPublicity(Objects.equals(PUBLIC_OPTIONS[publicChosen], "Public"));
                         })
                         .show();
             } else if (v == lobbyEditDifficultyImage) {
@@ -977,43 +968,23 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                         .setPositiveButton("OK", (dialogInterface, i) -> {
                             dialogInterface.dismiss();
                             difficultyChosen = ((AlertDialog) dialogInterface).getListView().getCheckedItemPosition();
-                            gameState.chooseQuestionDifficulty(DIFFICULTY_OPTIONS[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()].toLowerCase());
+                            gameState.chooseQuestionDifficulty(DIFFICULTY_OPTIONS[difficultyChosen].toLowerCase());
                         })
                         .show();
             } else if (v == lobbyEditCategoriesImage) {
                 // Change question count and emit changeSetting event
-                boolean[] checkedCategories = new boolean[gameConstants.possibleCategories.size()];
-                for (int i = 0; i < gameConstants.possibleCategories.size(); i++) {
-                    checkedCategories[i] = categoriesChosen.contains(i);
-                }
                 new AlertDialog.Builder(this)
-                        .setTitle("Select Question Categories (Max 5)")
-                        .setMultiChoiceItems(gameConstants.possibleCategories.toArray(new String[0]), checkedCategories, null)
+                        .setTitle("Select Question Category")
+                        .setSingleChoiceItems(gameConstants.possibleCategories.toArray(new String[0]), categoryChosen, null)
                         .setPositiveButton("OK", (dialogInterface, i) -> {
                             dialogInterface.dismiss();
-                            int categoryCount = 0;
-
-                            for (String category : gameState.roomChosenCategories) {
+                            categoryChosen = ((AlertDialog) dialogInterface).getListView().getCheckedItemPosition();
+                            for (int c = 0; c < gameConstants.possibleCategories.size(); c++) {
+                                String category = gameConstants.possibleCategories.get(c);
                                 gameState.chooseQuestionCategory(category, false);
-                            }
-                            SparseBooleanArray indicesChosen = ((AlertDialog) dialogInterface).getListView().getCheckedItemPositions();
-                            categoriesChosen.clear();
-                            Log.d(TAG, "SBA: " + indicesChosen);
-                            for (int index = 0; index < indicesChosen.size(); index++) {
-                                int categoryIndex = indicesChosen.keyAt(index);
-                                boolean categoryValue = indicesChosen.get(categoryIndex);
-                                Log.d(TAG, "Key " + categoryIndex + ": " + categoryValue);
-                                if (!categoryValue) continue;
-                                categoriesChosen.add(categoryIndex);
-                                Log.d(TAG, "Chose category " + categoryIndex);
-                                String category = gameConstants.possibleCategories.get(categoryIndex);
-                                gameState.chooseQuestionCategory(category, true);
-                                categoryCount++;
-                                if (categoryCount == 5) break;
-                            }
-                            if (categoriesChosen.size() == 0) {
-                                categoriesChosen.add(0);
-                                gameState.chooseQuestionCategory(gameConstants.possibleCategories.get(0), true);
+                                if (c == categoryChosen) {
+                                    gameState.chooseQuestionCategory(category, true);
+                                }
                             }
                         })
                         .show();

@@ -18,12 +18,4 @@ public class GameConstants {
         this.roomId = roomId;
         this.isOwner = isOwner;
     }
-
-    public void setRoomCode(String roomCode) {
-        this.roomCode = roomCode;
-    }
-
-    public void setPossibleCategories(List<String> possibleCategories) {
-        this.possibleCategories = possibleCategories;
-    }
 }

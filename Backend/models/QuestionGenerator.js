@@ -1,6 +1,7 @@
 const axios = require("axios");
 const Question = require("./Question.js");
 
+const TIME = 2000;
 class QuestionGenerator {
   constructor() {
     this.possibleCategories = {};
@@ -19,6 +20,7 @@ class QuestionGenerator {
     let return_arr = [];
 
     try {
+      await new Promise(resolve => setTimeout(resolve, TIME));
       const response = await axios.get("https://opentdb.com/api_category.php");
       const res_arr = response.data.trivia_categories;
 
@@ -56,6 +58,7 @@ class QuestionGenerator {
 
     // Make API call and save the count
     try {
+      await new Promise(resolve => setTimeout(resolve, TIME));
       const response = await axios.get(
         "https://opentdb.com/api_count.php",
         parameters
@@ -64,6 +67,10 @@ class QuestionGenerator {
         response.data.category_question_count[
           `total_${difficulty}_question_count`
         ];
+
+        console.log("Quantity:")
+        console.log(response)
+        console.log("End of Quantity\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     } catch (err) {
       console.log(err);
     }
@@ -112,6 +119,7 @@ class QuestionGenerator {
     // API Call attempt
     try {
       // Make API Call and parse the response
+      await new Promise(resolve => setTimeout(resolve, TIME));
       const response = await axios.get(
         "https://opentdb.com/api.php",
         parameters
@@ -119,6 +127,9 @@ class QuestionGenerator {
       const response_code = response.data.response_code;
       const result = response.data.results;
 
+      console.log("TRY 1:")
+      console.log(response)
+      console.log("End of TRY 1\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
       // If successfull, add each question to the array of questions
       if (response_code == ApiCode.SUCCESS) {
         result.forEach((elem) => {
@@ -147,6 +158,9 @@ class QuestionGenerator {
           difficulty,
           new_quantity
         );
+        console.log("TRY 2:")
+        console.log(response)
+        console.log("End of TRY 2\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
         questions = response.questions;
         res_code = response.res_code;
       } else if (response_code == ApiCode.INVALID_PARAMETER) {

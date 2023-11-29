@@ -368,29 +368,27 @@ io.on("connection", (socket) => {
   socket.on("startGame", (message) => {
     console.log("starting game...");
     const roomId = message.roomId;
-    const room = gameManager.fetchRoomById(roomId)
+    const room = gameManager.fetchRoomById(roomId);
 
     if (room === undefined) {
       socket.emit("error", { message: "Invalid roomId" });
       return;
-    }
-    else{
+    } else {
       roomCode = room.roomCode;
       gameManager
-      .generateQuestions(roomCode)
-      .then(() => {
-        if (room.gameQuestions.length === 0) {
-          socket.emit("error", { message: "No Questions Generated" });
-          return;
-        }
-        else {
-          gameManager.updateRoomState(roomCode);
-          sendQuestion(socket, roomCode, roomId);
-        }
-      })
-      .catch((errCode) => {
-        socket.emit("error", { message: "No Categories Selected" });
-      });
+        .generateQuestions(roomCode)
+        .then(() => {
+          if (room.gameQuestions.length === 0) {
+            socket.emit("error", { message: "No Questions Generated" });
+            return;
+          } else {
+            gameManager.updateRoomState(roomCode);
+            sendQuestion(socket, roomCode, roomId);
+          }
+        })
+        .catch((errCode) => {
+          socket.emit("error", { message: "No Categories Selected" });
+        });
     }
   });
 
@@ -442,7 +440,7 @@ io.on("connection", (socket) => {
               username: score.username,
               pointsEarned,
               updatedTotalPoints: score.finalScore,
-              stolenPoints: stolenPoints.get(score.username)
+              stolenPoints: stolenPoints.get(score.username),
             });
           });
 
@@ -468,7 +466,9 @@ io.on("connection", (socket) => {
             let rankValues = [];
 
             // Sort the array of room players from highest to lowest points
-            roomPlayers.filter(e => e != undefined).sort((a, b) => b.points - a.points);
+            roomPlayers
+              .filter((e) => e != undefined)
+              .sort((a, b) => b.points - a.points);
 
             switch (numPlayers) {
               case 2:
@@ -500,7 +500,7 @@ io.on("connection", (socket) => {
             }
 
             gameManager.removeRoomById(roomId);
-     
+
             for (let i = 0; i < numPlayers; i++) {
               let player = roomPlayers[i];
               let value = rankValues[i];
@@ -510,19 +510,18 @@ io.on("connection", (socket) => {
 
               let socketId = player.getSocketId();
               let playerSocket = io.sockets.sockets.get(socketId);
-              playerSocket.leave(roomId);  
+              playerSocket.leave(roomId);
             }
-
-    
           }
-        } 
-        else {
-          io.in(roomId).emit("error", { message: "Error in calculating scores" });
+        } else {
+          io.in(roomId).emit("error", {
+            message: "Error in calculating scores",
+          });
         }
       }
     } catch (err) {
       console.log(err);
-      socket.emit("error", {message: "Bad Answer Submission"});
+      socket.emit("error", { message: "Bad Answer Submission" });
     }
   });
 

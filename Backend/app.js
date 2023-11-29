@@ -138,6 +138,30 @@ app.post("/logout", (req, res) => {
 });
 
 /**
+ * Changes the username of the user.
+ *
+ * ChatGPT usage: No
+ */
+app.post("/change-username", (req, res) => {
+  const sessionToken = req.body.sessionToken;
+  const username = req.body.username;
+
+  userDBManager.setUsername(sessionToken, username).then(
+    (updatedUser) => {
+      res.status(200).send({
+        username: updatedUser.username,
+      });
+    },
+    (err) => {
+      console.log("[ERROR]: " + err);
+      res
+        .status(400)
+        .send({ message: "Username is already taken by another user" });
+    }
+  );
+});
+
+/**
  * Puts the user in a random active game room. The user will only
  * be put in a game room that is marked as public.
  *

@@ -475,7 +475,7 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/quantico_regular"
                             android:gravity="start"
-                            android:text="Questions: 20"
+                            android:text="Questions: 5"
                             android:textColor="@color/white"
                             android:textSize="17dp" />
 

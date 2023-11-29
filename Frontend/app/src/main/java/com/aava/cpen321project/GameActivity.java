@@ -44,7 +44,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     private final String[] PUBLIC_OPTIONS = new String[] {"Public", "Private"};
     private final String[] DIFFICULTY_OPTIONS = new String[] {"Easy", "Medium", "Hard"};
 
-    private int questionCountChosen = 0;
+    private int questionCountChosen = 1;
     private int maxPlayerChosen = 4;
     private int timeLimitChosen = 2;
     private int publicChosen = 1;
@@ -498,19 +498,19 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     // Show the possible answers.
     // ChatGPT usage: No
     public void questionFinished() {
+        int[] answerImages = new int[] {
+                R.drawable.answer_red,
+                R.drawable.answer_green,
+                R.drawable.answer_blue,
+                R.drawable.answer_yellow
+        };
         runOnUiThread(() -> {
-            questionAnswer1Image.setClickable(true);
-            questionAnswer2Image.setClickable(true);
-            questionAnswer3Image.setClickable(true);
-            questionAnswer4Image.setClickable(true);
-            questionAnswer1Label.setVisibility(View.VISIBLE);
-            questionAnswer2Label.setVisibility(View.VISIBLE);
-            questionAnswer3Label.setVisibility(View.VISIBLE);
-            questionAnswer4Label.setVisibility(View.VISIBLE);
-            questionAnswer1Image.setImageResource(R.drawable.answer_red);
-            questionAnswer2Image.setImageResource(R.drawable.answer_green);
-            questionAnswer3Image.setImageResource(R.drawable.answer_blue);
-            questionAnswer4Image.setImageResource(R.drawable.answer_yellow);
+            for (int i = 0; i < 4; i++) {
+                if (i == gameState.hiddenIndex1 || i == gameState.hiddenIndex2) continue;
+                questionAnswerImages.get(i).setClickable(true);
+                questionAnswerImages.get(i).setImageResource(answerImages[i]);
+                questionAnswerLabels.get(i).setVisibility(View.VISIBLE);
+            }
         });
     }
 
@@ -1037,20 +1037,18 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
 
                 // Powerup-specific functionality
                 if (gameState.powerupCode == 1) { // Fifty-fifty
-                    int cancel1;
-                    int cancel2;
                     do {
-                        cancel1 = gameState.rand.nextInt(4);
-                    } while (cancel1 == gameState.correctAnswer);
+                        gameState.hiddenIndex1 = gameState.rand.nextInt(4);
+                    } while (gameState.hiddenIndex1 == gameState.correctAnswer);
                     do {
-                        cancel2 = gameState.rand.nextInt(4);
-                    } while (cancel2 == cancel1 || cancel2 == gameState.correctAnswer);
-                    questionAnswerImages.get(cancel1).setClickable(false);
-                    questionAnswerImages.get(cancel1).setImageResource(R.drawable.answer_blank);
-                    questionAnswerLabels.get(cancel1).setVisibility(View.INVISIBLE);
-                    questionAnswerImages.get(cancel2).setClickable(false);
-                    questionAnswerImages.get(cancel2).setImageResource(R.drawable.answer_blank);
-                    questionAnswerLabels.get(cancel2).setVisibility(View.INVISIBLE);
+                        gameState.hiddenIndex2 = gameState.rand.nextInt(4);
+                    } while (gameState.hiddenIndex2 == gameState.hiddenIndex1 || gameState.hiddenIndex2 == gameState.correctAnswer);
+                    questionAnswerImages.get(gameState.hiddenIndex1).setClickable(false);
+                    questionAnswerImages.get(gameState.hiddenIndex1).setImageResource(R.drawable.answer_blank);
+                    questionAnswerLabels.get(gameState.hiddenIndex1).setVisibility(View.INVISIBLE);
+                    questionAnswerImages.get(gameState.hiddenIndex2).setClickable(false);
+                    questionAnswerImages.get(gameState.hiddenIndex2).setImageResource(R.drawable.answer_blank);
+                    questionAnswerLabels.get(gameState.hiddenIndex2).setVisibility(View.INVISIBLE);
 
                 } else if (gameState.powerupCode == 2) { // Steal points
                     String[] otherPlayerUsernamesArray = new String[gameState.otherPlayerUsernames.size()];
@@ -1070,9 +1068,10 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                                 .show();
                     }
                 } else if (gameState.powerupCode == 3) {
-                    if (gameState.questionPhase.equals("question")) {
+                    if (gameState.questionCountdownTimer != null) {
                         gameState.questionCountdownTimer.cancel();
-                    } else if (gameState.questionPhase.equals("answer")) {
+                    }
+                    if (gameState.answerCountdownTimer != null) {
                         gameState.answerCountdownTimer.cancel();
                     }
                     gameState.submitAnswer(-1);

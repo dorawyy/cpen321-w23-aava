@@ -63,6 +63,8 @@ public class GameState implements SocketManagerListener{
     public final List<String> otherPlayerUsernames =  new ArrayList<>();
     public String powerupVictimUsername;
     public final Random rand = new Random();
+    public int hiddenIndex1 = -1;
+    public int hiddenIndex2 = -1;
     public boolean extraLifeEnabled = false;
 
     // ChatGPT usage: No
@@ -231,6 +233,9 @@ public class GameState implements SocketManagerListener{
 
     // ChatGPT usage: No
     public void questionReceived(@NonNull JSONObject questionData) {
+        hiddenIndex1 = -1;
+        hiddenIndex2 = -1;
+        extraLifeEnabled = false;
         try {
             // Set all question state values.
             questionDescription = questionData.getString("question");

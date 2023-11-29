@@ -75,12 +75,16 @@ class MockUserDBManager {
     console.log(username);
 
     if (sessionToken === "test-sessionToken") {
-      return {
-        token: "test-token",
-        username: "test-username",
-        rank: 2,
-        sessionToken: "test-sessionToken",
-      };
+      if (username === "test-username") {
+        throw new Error("Username is already taken by another user");
+      } else {
+        return {
+          token: "test-token",
+          username,
+          rank: 2,
+          sessionToken: "test-sessionToken",
+        };
+      }
     }
   }
 

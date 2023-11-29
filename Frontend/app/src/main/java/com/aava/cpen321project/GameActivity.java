@@ -532,7 +532,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
             int playerIndex = 0;
             for (int i = 0; i < gameState.roomPlayers.length(); i++) {
                 try {
-                    if (gameState.roomPlayers.getJSONObject(i).getString("username").equals(gameConstants.username)) {
+                    if (gameState.roomPlayers.getJSONObject(i).getString("username").equals(otherUsername)) {
                         playerIndex = i;
                     }
                 } catch (JSONException e) {

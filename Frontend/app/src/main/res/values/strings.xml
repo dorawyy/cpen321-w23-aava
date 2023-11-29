@@ -13,6 +13,8 @@
 
     <string name="editMaxPlayersTitle">Select Max Players</string>
 
+    <string name="help_title">Powerup &amp; Score Help</string>
+
     <string name="fifty_fifty">Description for Fifty-fifty feature...</string>
     <string name="desc_fifty_fifty">Fifty-fifty: Removes two incorrect answers.</string>
 

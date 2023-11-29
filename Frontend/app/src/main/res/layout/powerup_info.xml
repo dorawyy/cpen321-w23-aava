@@ -13,6 +13,26 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Header -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/help_title"
+            android:fontFamily="@font/quantico_bolditalic"
+            android:textColor="#FFFFFF"
+            android:textSize="48sp"
+            android:lineSpacingMultiplier="0.75"
+            android:layout_marginBottom="0dp"/>
+
+        <!-- Divider -->
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:scaleType="fitXY"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="20dp"
+            android:src="@drawable/game_lobby_setting_divider"/>
+
         <!-- Fifty-fifty Feature -->
         <TextView
             android:layout_width="wrap_content"

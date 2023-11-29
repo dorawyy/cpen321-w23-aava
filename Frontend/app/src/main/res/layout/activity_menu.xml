@@ -14,14 +14,14 @@
         <!-- Header -->
         <TextView
             android:id="@+id/titleText"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="25dp"
+            android:gravity="center"
             android:text="@string/kashoot"
             android:fontFamily="@font/fugaz_one"
             android:textSize="50dp"
-            android:textStyle="bold"
             android:textColor="#FFFFFF" />
 
         <!-- Hexagon -->
@@ -32,17 +32,23 @@
             android:layout_centerInParent="true"
             android:src="@drawable/midground_hex" />
 
+        <View
+            android:id="@+id/playAnchor"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_centerInParent="true" />
+
         <TextView
             android:id="@+id/playText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/titleText"
+            android:layout_above="@+id/playButton"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="10dp"
+            android:layout_marginBottom="-5dp"
             android:fontFamily="@font/quantico_regular"
             android:text="PLAY!"
             android:textColor="#FFFFFF"
-            android:textSize="25dp"
+            android:textSize="30dp"
             android:textStyle="bold" />
 
 
@@ -50,10 +56,9 @@
             android:id="@+id/playButton"
             android:layout_width="227dp"
             android:layout_height="211dp"
-            android:layout_below="@id/playText"
+            android:layout_marginBottom="-40dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginStart="0dp"
-            android:layout_marginTop="0dp"
+            android:layout_above="@id/playAnchor"
             android:clickable="true"
             android:contentDescription="Play"
             android:focusable="true"
@@ -71,7 +76,8 @@
             android:layout_centerHorizontal="true"
             android:layout_alignParentLeft="true"
             android:layout_below="@id/playButton"
-            android:layout_marginLeft="25dp">
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="40dp">
 
 
             <!-- Code Button -->
@@ -109,7 +115,7 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_below="@id/playButton"
-            android:layout_marginTop="0dp">
+            android:layout_marginTop="17dp">
 
 
             <ImageView
@@ -148,7 +154,8 @@
             android:layout_centerHorizontal="true"
             android:layout_alignParentRight="true"
             android:layout_below="@id/playButton"
-            android:layout_marginRight="25dp">
+            android:layout_marginRight="40dp"
+            android:layout_marginTop="15dp">
 
             <!-- Create Button -->
 
@@ -204,14 +211,12 @@
 
         <ImageView
             android:id="@+id/infoButton"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_below="@id/playText"
-            android:layout_marginStart="62dp"
-            android:layout_marginLeft="70dp"
-            android:layout_marginTop="6dp"
-            android:layout_marginEnd="62dp"
-            android:layout_marginBottom="62dp"
+            android:layout_toLeftOf="@+id/playButton"
+            android:layout_marginEnd="-15dp"
+            android:layout_marginTop="85dp"
             android:clickable="true"
             android:contentDescription="Info"
             android:focusable="true"
@@ -222,10 +227,9 @@
             android:id="@+id/logoImage"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:layout_below="@id/accountButtonView"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="80dp"
-            android:layout_marginBottom="10dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="50dp"
             android:background="?android:attr/selectableItemBackground"
             android:src="@drawable/logo" />
 

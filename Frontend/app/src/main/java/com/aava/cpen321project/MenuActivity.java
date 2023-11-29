@@ -475,7 +475,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
 
         String nameText = String.format(Locale.getDefault(), "Wow! %s,", userName);
 
-        String rankText = String.format(Locale.getDefault(), "you're now a %s!",  updateRank(userRank));
+        String rankText = String.format(Locale.getDefault(), "you're now %s!",  updateRank(userRank));
         tvUserName.setText(nameText);
         tvGameRank.setText((rankText));
 
@@ -550,11 +550,12 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
 
     public String updateRank(int inputRank) {
         String rankSymbol;
-        rankSymbol = String.valueOf(inputRank);
         if (inputRank == 0) {
-            rankSymbol = "Beginner";
+            rankSymbol = "the Beginner";
         } else if (inputRank == 1) {
-            rankSymbol= "King of the World";
+            rankSymbol= "the King of the World";
+        }else{
+            rankSymbol= "a"+ String.valueOf(inputRank);
         }
         // If inputRank is neither 0 nor 1, rankSymbol remains unchanged
 

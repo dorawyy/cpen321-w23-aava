@@ -27,24 +27,75 @@
         android:textSize="24sp"
         android:layout_marginBottom="16dp"/>
 
-    <ImageView
-        android:id="@+id/btnLogout"
-        android:layout_width="128dp"
-        android:layout_height="86dp"
-        android:clickable="true"
-        android:contentDescription="Logout"
-        android:focusable="true"
-        android:onClick="onClick"
-        android:src="@drawable/menu_logout_icon" />
+    <LinearLayout
+        android:id="@+id/btnView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
 
-    <ImageView
-        android:id="@+id/btnUpdateUsername"
-        android:layout_width="98dp"
-        android:layout_height="62dp"
-        android:clickable="true"
-        android:contentDescription="Name"
-        android:focusable="true"
-        android:onClick="onClick"
-        android:src="@drawable/menu_name_icon" />
+            <RelativeLayout
+                android:id="@+id/logoutButtonView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/tvGameRank"
+                android:layout_marginTop="0dp">
+
+                <ImageView
+                    android:id="@+id/btnLogout"
+                    android:layout_width="128dp"
+                    android:layout_height="86dp"
+                    android:clickable="true"
+                    android:contentDescription="Logout"
+                    android:focusable="true"
+                    android:onClick="onClick"
+                    android:src="@drawable/menu_logout_icon" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginLeft="-16dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_below="@id/btnLogout"
+                    android:fontFamily="@font/quantico_regular"
+                    android:text="Logout"
+                    android:textColor="#FFFFFF"
+                    android:textSize="20dp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/updNameButtonView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="0dp">
+
+                <ImageView
+                    android:id="@+id/btnUpdateUsername"
+                    android:layout_width="98dp"
+                    android:layout_height="62dp"
+                    android:layout_marginTop="12dp"
+                    android:clickable="true"
+                    android:contentDescription="Name"
+                    android:focusable="true"
+                    android:onClick="onClick"
+                    android:src="@drawable/menu_name_icon" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/btnUpdateUsername"
+                    android:layout_marginTop="20dp"
+                    android:fontFamily="@font/quantico_regular"
+                    android:text="New Name"
+                    android:textColor="#FFFFFF"
+                    android:textSize="20dp" />
+
+            </RelativeLayout>
+
+    </LinearLayout>
 
 </LinearLayout>

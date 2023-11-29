@@ -261,7 +261,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
 
     //ChatGPT usage: No
     private void createRoom(String sessionToken) {
-        performRoomOperation(false, null, sessionToken, "/create-room", "Error creating room", new RoomSuccessCallback() {
+        performRoomOperation( false, null, sessionToken, "/create-room", "Error creating room", new RoomSuccessCallback() {
             @Override
             public void onSuccess(String roomId) {
                 joinRoomNext(userName, roomId, sessionToken, true);
@@ -450,6 +450,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
 
                         if (!TextUtils.isEmpty(newUsername)) {
                             // Handle the new username here
+                            changeUsername(sessionToken, newUsername);
                             tvUserName.setText(newUsername); // Update TextView with new username
                             // Also save the new username in backend
                         } else {
@@ -475,7 +476,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
 
         String nameText = String.format(Locale.getDefault(), "Wow! %s,", userName);
 
-        String rankText = String.format(Locale.getDefault(), "you're now %s!",  updateRank(userRank));
+        String rankText = String.format(Locale.getDefault(), "you're now a %s!",  userRank);
         tvUserName.setText(nameText);
         tvGameRank.setText((rankText));
 
@@ -548,19 +549,19 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    public String updateRank(int inputRank) {
-        String rankSymbol;
-        if (inputRank == 0) {
-            rankSymbol = "the Beginner";
-        } else if (inputRank == 1) {
-            rankSymbol= "the King of the World";
-        }else{
-            rankSymbol= "a"+ String.valueOf(inputRank);
-        }
-        // If inputRank is neither 0 nor 1, rankSymbol remains unchanged
-
-        return rankSymbol;
-    }
+//    public String updateRank(int inputRank) {
+//        String rankSymbol;
+//        if (inputRank == 0) {
+//            rankSymbol = "the Beginner";
+//        } else if (inputRank == 1) {
+//            rankSymbol= "the King of the World";
+//        }else{
+//            rankSymbol= "a"+ String.valueOf(inputRank);
+//        }
+//        // If inputRank is neither 0 nor 1, rankSymbol remains unchanged
+//
+//        return rankSymbol;
+//    }
 
     public void showInfoDialog() {
         // Create the dialog
@@ -585,6 +586,62 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
             window.setAttributes(layoutParams);
         }
     }
+
+    private void changeUsername(String sessionToken, String newUsername) {
+        JSONObject data = new JSONObject();
+        try {
+            data.put("sessionToken", sessionToken);
+            data.put("username", newUsername);
+
+            RequestBody body = RequestBody.create(MediaType.parse("application/json"), data.toString());
+            Request request = new Request.Builder()
+                    .url(getResources().getString(R.string.serverURL) + "/change-username")
+                    .post(body)
+                    .build();
+
+            OkHttpClient insecureClient = getInsecureOkHttpClient();
+
+            insecureClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Log.e(TAG, "Network error: " + e.getMessage());
+                    runOnUiThread(() -> showToast("Network error. Please try again later."));
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (!response.isSuccessful()) {
+                        String message = "Failed to change username.";
+                        if (response.code() == 400) {
+                            message = "Username is already taken by another user.";
+                        }
+                        Log.e(TAG, message);
+                        showToast(message);
+                        return;
+                    }
+
+                    try {
+                        JSONObject responseObject = new JSONObject(response.body().string());
+                        if (responseObject.has("username")) {
+                            String updatedUsername = responseObject.getString("username");
+                            Log.d(TAG, "Username successfully changed to: " + updatedUsername);
+                            runOnUiThread(() -> showToast("Username successfully updated."));
+                            // Update UI or perform other actions as needed
+                        }
+                    } catch (JSONException e) {
+                        Log.e(TAG, "Failed to parse response", e);
+                        runOnUiThread(() -> showToast("Unexpected error. Please try again later."));
+                    }
+                }
+            });
+        } catch (JSONException e) {
+            Log.e(TAG, "Failed to create JSON object", e);
+            runOnUiThread(() -> showToast("Unexpected error. Please try again later."));
+        }
+    }
+
+
+
 
 
 

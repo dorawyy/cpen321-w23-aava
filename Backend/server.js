@@ -429,8 +429,14 @@ io.on("connection", (socket) => {
       gameManager
       .generateQuestions(roomCode)
       .then(() => {
-        gameManager.updateRoomState(roomCode);
-        sendQuestion(socket, roomCode, roomId);
+        if (room.gameQuestions.length === 0) {
+          socket.emit("error", { message: "No Questions Generated" });
+          return;
+        }
+        else {
+          gameManager.updateRoomState(roomCode);
+          sendQuestion(socket, roomCode, roomId);
+        }
       })
       .catch((errCode) => {
         socket.emit("error", { message: "No Categories Selected" });

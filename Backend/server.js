@@ -587,7 +587,7 @@ io.on("connection", (socket) => {
     const username = message.username;
     const emoteCode = message.emoteCode;
 
-    socket.to(roomId).emit("emoteReceived", { username, emoteCode });
+    io.in(roomId).emit("emoteReceived", { username, emoteCode });
   });
 });
 

@@ -1,7 +1,7 @@
 const axios = require("axios");
 const Question = require("./Question.js");
 
-const TIME = 2000;
+const TIME = 3500;
 class QuestionGenerator {
   constructor() {
     this.possibleCategories = {};
@@ -119,7 +119,9 @@ class QuestionGenerator {
     // API Call attempt
     try {
       // Make API Call and parse the response
-      await new Promise(resolve => setTimeout(resolve, TIME));
+      if(!doSpecificCategory){
+        await new Promise(resolve => setTimeout(resolve, TIME));
+      }
       const response = await axios.get(
         "https://opentdb.com/api.php",
         parameters
@@ -151,6 +153,7 @@ class QuestionGenerator {
           category,
           difficulty
         );
+        await new Promise(resolve => setTimeout(resolve, TIME));
         const response = await this.getQuestions(
           doSpecificCategory,
           false,

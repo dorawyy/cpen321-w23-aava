@@ -1656,7 +1656,7 @@ describe("Server", () => {
         username: userA.username
       };
 
-      jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(undefined);
+      spy = jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(undefined);
 
       clientA.emit("leaveRoom", message);
 

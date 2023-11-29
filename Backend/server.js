@@ -46,24 +46,29 @@ const io = require("socket.io")(server, {
  * ChatGPT usage: No
  */
 const sendQuestion = (socket, roomCode, roomId) => {
-  gameManager.resetResponses(roomCode);
-  const questionObject = gameManager.fetchNextQuestion(roomCode);
+  try {
+    gameManager.resetResponses(roomCode);
+    const questionObject = gameManager.fetchNextQuestion(roomCode);
 
-  // Get necessary parameters from question Object to send to the client
-  const question = questionObject.question;
-  const correctAnswer = questionObject.correctAnswer;
+    // Get necessary parameters from question Object to send to the client
+    const question = questionObject.question;
+    const correctAnswer = questionObject.correctAnswer;
 
-  let answers = questionObject.incorrectAnswers;
-  answers.push(correctAnswer);
-  answers.sort(() => Math.random() - 0.5);
+    let answers = questionObject.incorrectAnswers;
+    answers.push(correctAnswer);
+    answers.sort(() => Math.random() - 0.5);
 
-  const correctIndex = answers.indexOf(correctAnswer);
-  const questionData = { question, answers, correctIndex };
+    const correctIndex = answers.indexOf(correctAnswer);
+    const questionData = { question, answers, correctIndex };
 
-  socket.to(roomId).emit("startQuestion", questionData);
-  socket.emit("startQuestion", questionData);
+    socket.to(roomId).emit("startQuestion", questionData);
+    socket.emit("startQuestion", questionData);
 
-  console.log(JSON.stringify(questionData));
+    console.log(JSON.stringify(questionData));
+  } catch (err) {
+    console.log(err);
+    socket.emit("error", { message: "Error in sending question" });
+  }
 };
 
 /**

@@ -58,6 +58,8 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     private TextView headerLabel;
 
     private ImageView emoteImage;
+    private ImageView[] emoteImageDisplays = new ImageView[6];
+    private final CountDownTimer[] emoteCountDownTimers = new CountDownTimer[6];
 
     private RelativeLayout lobbyUniversalLayout;
     private RelativeLayout lobbyJoinerLayout;
@@ -536,17 +538,44 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     public void otherPlayerEmoted(String otherUsername, int emoteCode) {
         Log.d(TAG, "EMOTE RECEIVED: " + otherUsername + ", " + emoteCode);
         runOnUiThread(() -> {
+            int playerIndex = 0;
+            for (int i = 0; i < gameState.roomPlayers.length(); i++) {
+                try {
+                    if (gameState.roomPlayers.getJSONObject(i).getString("username").equals(gameConstants.username)) {
+                        playerIndex = i;
+                    }
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            Log.d(TAG, "EMOTE USER ID: " + playerIndex);
+            int emoteDrawable = R.drawable.emote_code0;
+            if (emoteCode == 1) {
+                emoteDrawable = R.drawable.emote_code1;
+            } else if (emoteCode == 2) {
+                emoteDrawable = R.drawable.emote_code2;
+            }
 
-            new CountDownTimer(2000, 100) {
+            ImageView emoteImageDisplay = emoteImageDisplays[playerIndex];
+            emoteImageDisplay.setImageResource(emoteDrawable);
+            emoteImageDisplay.setVisibility(View.VISIBLE);
+
+            CountDownTimer newCountDownTimer = new CountDownTimer(2000, 100) {
                 @Override
                 public void onTick(long l) {
                     // Intentionally left blank
                 }
                 @Override
                 public void onFinish() {
-
+                    emoteImageDisplay.setVisibility(View.INVISIBLE);
                 }
             };
+
+            if (emoteCountDownTimers[playerIndex] != null) {
+                emoteCountDownTimers[playerIndex].cancel();
+            }
+            emoteCountDownTimers[playerIndex] = newCountDownTimer;
+            newCountDownTimer.start();
         });
     }
 
@@ -680,6 +709,14 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
         headerLabel = findViewById(R.id.game_header_label);
 
         emoteImage = findViewById(R.id.game_emote_image);
+        emoteImageDisplays = new ImageView[] {
+                findViewById(R.id.game_receive_emote_image1),
+                findViewById(R.id.game_receive_emote_image2),
+                findViewById(R.id.game_receive_emote_image3),
+                findViewById(R.id.game_receive_emote_image4),
+                findViewById(R.id.game_receive_emote_image5),
+                findViewById(R.id.game_receive_emote_image6)
+        };
 
         lobbyUniversalLayout = findViewById(R.id.game_lobby_universal_layout);
         lobbyJoinerLayout = findViewById(R.id.game_lobby_joiner_layout);

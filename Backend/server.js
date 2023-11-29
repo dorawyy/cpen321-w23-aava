@@ -172,7 +172,7 @@ io.on("connection", (socket) => {
     const room = gameManager.fetchRoomById(roomId);
 
     try {
-      if (room === undefined)
+      if (room == undefined)
         socket.emit("error", { message: "Invalid roomId" });
 
       if (room.isGameMaster(username)) {

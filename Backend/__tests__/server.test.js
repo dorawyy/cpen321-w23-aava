@@ -973,6 +973,36 @@ describe("Server", () => {
       });
     });
 
+    it("startGame should return error if questions are failing", (done) => {
+      // Message
+      const message = {
+        roomId: roomA.roomId,
+      };
+
+      roomA.gameQuestions = [];
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      // Make sure it passes successfuly from the question generator stage
+      jest
+        .spyOn(GameManager.prototype, "generateQuestions")
+        .mockImplementation(() => {
+          return new Promise((resolve, reject) => {
+            resolve(0);
+          });
+        })
+
+      clientA.emit("startGame", message);
+
+      clientA.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({ message: "No Questions Generated" });
+        done();
+      })
+      
+    });
+
     it("startGame invalid roomId; error to player", (done) => {
       // Message
       const message = {
@@ -1617,6 +1647,27 @@ describe("Server", () => {
       });
 
       clientA.emit("leaveRoom", messageA);
+    });
+
+    it("should emit an error if room is undefined", (done) => {
+      /// Message
+      const message = {
+        roomId: "badCode",
+        username: userA.username
+      };
+
+      jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(undefined);
+
+      clientA.emit("leaveRoom", message);
+
+      // make sure all players receive the message
+      clientA.on("error", (data) => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(data).toEqual({
+          message: "Invalid roomId"
+        });
+        done();
+      });
     });
   });
 });

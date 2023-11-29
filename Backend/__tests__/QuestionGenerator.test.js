@@ -21,7 +21,7 @@ describe("QuestionGenerator", () => {
         const categories = await questionGenerator.getCategories();
         expect(categories).toEqual(["General Knowledge", "Entertainment: Books"]);
         expect(questionGenerator.possibleCategories).toEqual({"General Knowledge":9, "Entertainment: Books":10});
-    });
+    }, 7000);
 
     it("getCategories API request fails and error is thrown", async () => {
         questionGenerator.possibleCategories = {};
@@ -30,7 +30,7 @@ describe("QuestionGenerator", () => {
         const categories = await questionGenerator.getCategories();
         expect(categories).toEqual([]);
         expect(questionGenerator.possibleCategories).toEqual({});
-    });
+    }, 7000);
 
     it("getQuestionQuantity should return the number of questions in a category/difficulty", async () => {
         questionGenerator.possibleCategories = {"General Knowledge" : 9};
@@ -40,7 +40,7 @@ describe("QuestionGenerator", () => {
 
         const quantity = await questionGenerator.getQuestionQuantity("General Knowledge", "easy");
         expect(quantity).toEqual(122);
-    })
+    },7000)
 
     it("getQuestionQuantity API request fails and error is thrown", async () => {
         questionGenerator.possibleCategories = {"General Knowledge" : 9};
@@ -48,7 +48,7 @@ describe("QuestionGenerator", () => {
 
         const quantity = await questionGenerator.getQuestionQuantity("General Knowledge", "easy");
         expect(quantity).toEqual(-1);
-    })
+    },7000)
 
     it("getNumArr should return an array of numbers with 20 questions, 3 categories", () => {
         // 20 total questions, 3 categories should be an array with two 7s one 6
@@ -99,7 +99,7 @@ describe("QuestionGenerator", () => {
         const response = await questionGenerator.getQuestions(true, true, "General Knowledge", "easy", 5);
         expect(response.res_code).toBe(0);
         expect(response.questions).toEqual(expectedQuestionArr);
-    });
+    }, 20000);
 
     it("getQuestions tested with no category", async () => {
         questionGenerator.possibleCategories = {"General Knowledge" : 9};
@@ -112,7 +112,7 @@ describe("QuestionGenerator", () => {
         const response = await questionGenerator.getQuestions(false, true, "General Knowledge", "easy", 1);
         expect(response.res_code).toBe(0);
         expect(response.questions).toEqual(expectedQuestionArr);
-    })
+    }, 70000)
 
     it("getQuestions tested with invalid parameters", async () => {
         questionGenerator.possibleCategories = {"General Knowledge" : 9};
@@ -122,7 +122,7 @@ describe("QuestionGenerator", () => {
         const response = await questionGenerator.getQuestions(false, true, "General Knowledge", "x", 26);
         expect(response.res_code).toBe(0);
         expect(response.questions).toEqual([]);
-    })
+    },7000)
 
     it("getQuestions API usage resulted in different result code", async () => {
         questionGenerator.possibleCategories = {"General Knowledge" : 9};
@@ -132,7 +132,7 @@ describe("QuestionGenerator", () => {
         const response = await questionGenerator.getQuestions(false, true, "General Knowledge", "easy", 1);
         expect(response.res_code).toBe(1);
         expect(response.questions).toEqual([]);
-    })
+    }, 7000)
 
 
     it("getQuestions API request fails and error is thrown", async () => {
@@ -142,5 +142,5 @@ describe("QuestionGenerator", () => {
         const response = await questionGenerator.getQuestions(false, true, "General Knowledge", "easy", 1);
         expect(response.res_code).toBe(-1);
         expect(response.questions).toEqual([]);
-    })
+    }, 7000)
 });

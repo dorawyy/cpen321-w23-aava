@@ -4,12 +4,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.Html;
 import android.util.Log;
 import android.util.SparseBooleanArray;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
@@ -58,6 +60,17 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     private ImageView emoteImage;
     private ImageView[] emoteImageDisplays = new ImageView[6];
     private final CountDownTimer[] emoteCountDownTimers = new CountDownTimer[6];
+    private final int[] emoteDrawables = new int[] {
+            R.drawable.emote_code0,
+            R.drawable.emote_code1,
+            R.drawable.emote_code2,
+            R.drawable.emote_code3,
+            R.drawable.emote_code4,
+            R.drawable.emote_code5,
+            R.drawable.emote_code6,
+            R.drawable.emote_code7,
+            R.drawable.emote_code8,
+    };
 
     private RelativeLayout lobbyUniversalLayout;
     private RelativeLayout lobbyJoinerLayout;
@@ -540,12 +553,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                 }
             }
             Log.d(TAG, "EMOTE USER ID: " + playerIndex);
-            int emoteDrawable = R.drawable.emote_code0;
-            if (emoteCode == 1) {
-                emoteDrawable = R.drawable.emote_code1;
-            } else if (emoteCode == 2) {
-                emoteDrawable = R.drawable.emote_code2;
-            }
+            int emoteDrawable = emoteDrawables[emoteCode];
 
             ImageView emoteImageDisplay = emoteImageDisplays[playerIndex];
             emoteImageDisplay.setImageResource(emoteDrawable);
@@ -663,6 +671,43 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     }
 
     // OTHER METHODS
+
+    // ChatGPT usage: no
+    private void showEmoteDialog() {
+        Dialog emoteDialog = new Dialog(this);
+
+        // Inflate layout
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_emote, null);
+        emoteDialog.setContentView(dialogView);
+
+        ImageView[] emoteImages = new ImageView[] {
+                dialogView.findViewById(R.id.emote_dialog_image1),
+                dialogView.findViewById(R.id.emote_dialog_image2),
+                dialogView.findViewById(R.id.emote_dialog_image3),
+                dialogView.findViewById(R.id.emote_dialog_image4),
+                dialogView.findViewById(R.id.emote_dialog_image5),
+                dialogView.findViewById(R.id.emote_dialog_image6),
+                dialogView.findViewById(R.id.emote_dialog_image7),
+                dialogView.findViewById(R.id.emote_dialog_image8),
+                dialogView.findViewById(R.id.emote_dialog_image9),
+        };
+
+        for (int i = 0; i < 9; i++) {
+            ImageView imageView = emoteImages[i];
+            int finalI = i;
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    gameState.submitEmote(finalI);
+                    emoteDialog.dismiss();
+                }
+            });
+        }
+
+        emoteDialog.show();
+        emoteDialog.setCanceledOnTouchOutside(true);
+    }
 
     // Pick an available emoji based on rank.
     // ChatGPT usage: no
@@ -883,24 +928,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
             // LOBBY
             if (v == emoteImage) {
                 Log.d(TAG, "Emote button pressed");
-                new AlertDialog.Builder(this)
-                        .setTitle("Express yourself!")
-                        .setPositiveButton("\uD83D\uDE0F", (dialogInterface, i) -> { // Right
-                            dialogInterface.dismiss();
-                            Log.d(TAG, "Positive emoji clicked");
-                            gameState.submitEmote(0);
-                        })
-                        .setNeutralButton("\uD83D\uDE2D", (dialogInterface, i) -> { // Left
-                            dialogInterface.dismiss();
-                            Log.d(TAG, "Negative emoji clicked");
-                            gameState.submitEmote(1);
-                        })
-                        .setNegativeButton("\uD83D\uDC80", (dialogInterface, i) -> { // Center
-                            dialogInterface.dismiss();
-                            Log.d(TAG, "Skull emoji clicked");
-                            gameState.submitEmote(2);
-                        })
-                        .show();
+                showEmoteDialog();
             } else if (v == lobbyJoinerReadyImage) {
                 // Emit readyToStartGame event, and disable the button
                 Log.d(TAG, "READY!");

@@ -719,8 +719,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     // Pick an available scoreboard blurb based on rank.
     // ChatGPT usage: no
     private String getScoreboardBlurb(int rank, int numPlayers) {
-        rank += 1;
-        int[] groups = scoreboardBlurbGroups[numPlayers][rank - 1];
+        int[] groups = scoreboardBlurbGroups[numPlayers][rank];
         int group = groups[random.nextInt(groups.length)];
         List<String> strings = scoreboardBlurbStrings.get(group);
         return strings.get(random.nextInt(strings.size()));

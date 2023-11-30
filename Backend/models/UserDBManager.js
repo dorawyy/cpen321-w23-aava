@@ -18,7 +18,7 @@ class UserDBManager {
   /**
    * Purpose: Creates a new entry in UserDB with username and a unique token
    * @param {String} token: The unique token for the user
-   * @param {String} username: The username for the user (NOT UNIQUE - can be same as for multiple users)
+   * @param {String} username: The username for the user
    * @returns {User} The newly created user as a User object if successful
    *                 Undefined if unsuccessful
    * @throws {Error} If a user already exists with the same token
@@ -144,7 +144,7 @@ class UserDBManager {
    * Purpose: Adds `value` to the `rank` of the user that matches `username`.
    * If the sum is negative, the user's `rank` becomes zero, which is the lowest
    * value possible.
-   * @param {String} username: The username for the user (NOT UNIQUE)
+   * @param {String} username: The username for the user
    * @param {number} value: The integer value to add to the user's rank.
    */
   updateUserRank(username, value) {
@@ -160,6 +160,17 @@ class UserDBManager {
           { $set: { rank: 0 } }
         );
       });
+  }
+
+  /**
+   * Purpose: Returns the rank of the user from the database
+   * @param {String} username: The username for the user.
+   * @returns {number} The rank of the user.
+   */
+  async fetchUserRank(username) {
+    const user = await this.usersCollection.findOne({ username });
+
+    return user.rank;
   }
 }
 

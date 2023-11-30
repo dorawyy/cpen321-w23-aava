@@ -162,6 +162,22 @@ app.post("/change-username", (req, res) => {
 });
 
 /**
+ * Retrieves the current rank of the user.
+ *
+ * ChatGPT usage: No
+ */
+app.get("/rank", (req, res) => {
+  const { username } = req.query;
+  console.log("Viewing rank of user: " + username);
+
+  userDBManager.fetchUserRank(username).then((user) => {
+    res.status(200).send({
+      rank: user.rank,
+    });
+  });
+});
+
+/**
  * Puts the user in a random active game room. The user will only
  * be put in a game room that is marked as public.
  *

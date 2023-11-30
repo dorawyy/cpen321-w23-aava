@@ -169,7 +169,6 @@ class UserDBManager {
    */
   async fetchUserRank(username) {
     const user = await this.usersCollection.findOne({ username });
-
     return user.rank;
   }
 }

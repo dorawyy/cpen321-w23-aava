@@ -394,9 +394,10 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
 
     // ChatGPT usage: No
     public void roomCanStartChanged(boolean canStart) {
-        runOnUiThread(() -> {
-            lobbyOwnerStartImage.setClickable(canStart);
-        });
+        // Intentionally left blank
+//        runOnUiThread(() -> {
+//            lobbyOwnerStartImage.setClickable(canStart);
+//        });
     }
 
     // ChatGPT usage: No
@@ -1020,8 +1021,25 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
             } else if (v == lobbyOwnerStartImage) {
                 // Emit startGame event, and disable the button
                 Toast.makeText(GameActivity.this, "Game will start soon - sit tight!", Toast.LENGTH_LONG).show();
-                lobbyOwnerStartImage.setClickable(false);
-                gameState.startGame();
+
+                boolean canStart = true;
+                for (int p = 0; p < gameState.roomPlayers.length(); p++) {
+                    try {
+                        if (gameState.roomPlayers.getJSONObject(p).getBoolean("ready")) {
+                            canStart = false;
+                            break;
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                if (canStart) {
+                    lobbyOwnerStartImage.setClickable(false);
+                    gameState.startGame();
+                } else {
+                    Toast.makeText(this, "All players need to be ready!", Toast.LENGTH_LONG);
+                }
             }
 
             // GAMEPLAY

@@ -1114,7 +1114,7 @@ describe("Server", () => {
         );
       jest
         .spyOn(GameManager.prototype, "resetResponses")
-        .mockImplementation(() => {
+        .mockImplementationOnce(() => {
           throw new Error("Error in sending question");
         });
 
@@ -1230,6 +1230,7 @@ describe("Server", () => {
           ],
         });
         receive++;
+        console.log("RECIEVE: " + receive);
       });
       clientB.on("showScoreboard", (data) => {
         expect(data).toEqual({
@@ -1249,6 +1250,7 @@ describe("Server", () => {
           ],
         });
         receive++;
+        console.log("RECIEVE: " + receive);
       });
       clientA.on("startQuestion", (data) => {
         expect(spy5).toHaveBeenCalledTimes(1);
@@ -1259,6 +1261,7 @@ describe("Server", () => {
         );
         expect(data.answers[data.correctIndex]).toEqual("4");
         ++receive;
+        console.log("RECIEVE: " + receive);
         if (receive === 4) done();
       });
       clientB.on("startQuestion", (data) => {
@@ -1270,6 +1273,7 @@ describe("Server", () => {
         );
         expect(data.answers[data.correctIndex]).toEqual("4");
         ++receive;
+        console.log("RECIEVE: " + receive);
         if (receive === 4) done();
       });
     }, 10000);

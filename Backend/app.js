@@ -23,19 +23,25 @@ app.use((req, res, next) => {
   // Exclude the middleware for /login and /create-account
   if (req.path === "/login" || req.path === "/create-account") {
     return next();
-  } else {
-    const sessionToken = req.body.sessionToken;
+  }
 
-    if (sessionToken) {
-      userDBManager.getUserBySessionToken(sessionToken).then((user) => {
-        req.user = user;
-        next();
-      });
-    } else {
-      res.status(404).send({
-        message: "Unable to find the user for this account.",
-      });
-    }
+  let sessionToken;
+
+  if (req.path === "/rank") {
+    sessionToken = req.query.sessionToken;
+  } else {
+    sessionToken = req.body.sessionToken;
+  }
+
+  if (sessionToken) {
+    userDBManager.getUserBySessionToken(sessionToken).then((user) => {
+      req.user = user;
+      next();
+    });
+  } else {
+    res.status(404).send({
+      message: "Unable to find the user for this account.",
+    });
   }
 });
 
@@ -166,8 +172,8 @@ app.post("/change-username", (req, res) => {
  *
  * ChatGPT usage: No
  */
-app.post("/rank", (req, res) => {
-  const username = req.body.username;
+app.get("/rank", (req, res) => {
+  const username = req.query.username;
   console.log("Viewing rank of user: " + username);
 
   userDBManager.fetchUserRank(username).then((rank) => {

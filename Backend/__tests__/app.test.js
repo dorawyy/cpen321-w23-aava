@@ -118,7 +118,7 @@ describe("Interface middleware functions", () => {
     const data = {};
     expect(data).not.toHaveProperty("sessionToken");
 
-    const response = await request.post("/rank").send(data);
+    const response = await request.get("/rank").query(data);
 
     expect(response.status).toEqual(404);
     const responseBody = JSON.parse(response.text);
@@ -509,21 +509,17 @@ describe("POST /change-username", () => {
 });
 
 /**
- * Interface POST /rank
+ * Interface GET /rank
  */
-describe("POST /rank", () => {
+describe("GET /rank", () => {
   /**
-   * Input: A valid `sessionToken`.
-   * {
-   *   "sessionToken": "test-sessionToken",
-   *   "username": "myCoolNewName"
-   * }
+   * Input: A valid `sessionToken` and `username` in the query parameters.
    *
    * Expected status code: 200
-   * Expected behaviour: Returns a session token and updates the database
+   * Expected behaviour: Retrieves the user's rank from the database.
    * Expected output:
    * {
-   *   "username": "myCoolNewName",
+   *   "rank": 5,
    * }
    */
   it("should return 200 and user's rank", async () => {
@@ -531,8 +527,8 @@ describe("POST /rank", () => {
     const username = "username-B";
 
     const response = await request
-      .post("/rank")
-      .send({ sessionToken, username });
+      .get("/rank")
+      .query({ sessionToken, username });
 
     expect(response.status).toEqual(200);
     const responseBody = JSON.parse(response.text);

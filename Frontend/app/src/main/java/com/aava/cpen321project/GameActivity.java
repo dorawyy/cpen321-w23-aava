@@ -309,8 +309,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                         .setMessage("You have successfully left the room.")
                         .setPositiveButton("OK", (dialogInterface, i) -> {
                             dialogInterface.dismiss();
-                            Intent intent = new Intent(GameActivity.this, MenuActivity.class);
-                            startActivity(intent);
+                            returnToMenu();
                         })
                         .create()
                         .show();
@@ -320,8 +319,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                         .setMessage("You have been kicked from the room.")
                         .setPositiveButton("Damn", (dialogInterface, i) -> {
                             dialogInterface.dismiss();
-                            Intent intent = new Intent(GameActivity.this, MenuActivity.class);
-                            startActivity(intent);
+                            returnToMenu();
                         })
                         .create()
                         .show();
@@ -408,8 +406,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                     .setMessage("Unfortunately, the room owner has left. You will be sent to the main menu.")
                     .setPositiveButton("OK", (dialogInterface, i) -> {
                         dialogInterface.dismiss();
-                        Intent intent = new Intent(GameActivity.this, MenuActivity.class);
-                        startActivity(intent);
+                        returnToMenu();
                     })
                     .create()
                     .show();

@@ -194,7 +194,6 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
     //ChatGPT usage: No
     private void onCreateButtonClick () {
         // Handle create button click
-        Log.d("MELO", sessionToken);
         createRoom(sessionToken);
 
 

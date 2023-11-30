@@ -1,7 +1,5 @@
 const io = require("socket.io-client");
 const { server, db } = require("../server.js");
-const { gameManager } = require("../app.js");
-const MockUserDBManager = require("../models/__mocks__/UserDBManager.js");
 const UserDBManager = require("../models/UserDBManager.js");
 const Player = require("../models/Player.js");
 const User = require("../models/User.js");
@@ -30,7 +28,6 @@ describe("Server", () => {
   const roomBSettings = new Settings();
 
   const roomA = new GameRoom("roomId-A", playerA, "roomCode-A", roomASettings);
-  const roomB = new GameRoom("roomId-B", playerB, "roomCode-B", roomBSettings);
 
   let clientA;
   let clientB;
@@ -435,16 +432,18 @@ describe("Server", () => {
 
       clientA.emit("changeSetting", message);
 
-      let receieve = 0;
+      let receive = 0;
       clientA.on("changedSetting", (data) => {
         expect(spy).toHaveBeenCalledTimes(1);
         expect(data).toEqual({ settingOption: "isPublic", optionValue: true });
-        if (++receieve === 2) done();
+        ++receive;
+        if (receive === 2) done();
       });
       clientB.on("changedSetting", (data) => {
         expect(spy).toHaveBeenCalledTimes(1);
         expect(data).toEqual({ settingOption: "isPublic", optionValue: true });
-        if (++receieve === 2) done();
+        ++receive;
+        if (receive === 2) done();
       });
     });
 
@@ -486,14 +485,15 @@ describe("Server", () => {
       clientA.emit("changeSetting", message);
 
       // make sure all players receive the message
-      let receieve = 0;
+      let receive = 0;
       clientA.on("changedSetting", (data) => {
         expect(spy).toHaveBeenCalledTimes(1);
         expect(data).toEqual({
           settingOption: "category-General",
           optionValue: true,
         });
-        if (++receieve === 2) done();
+        ++receive;
+        if (receive === 2) done();
       });
       clientB.on("changedSetting", (data) => {
         expect(spy).toHaveBeenCalledTimes(1);
@@ -501,7 +501,8 @@ describe("Server", () => {
           settingOption: "category-General",
           optionValue: true,
         });
-        if (++receieve === 2) done();
+        ++receive;
+        if (receive === 2) done();
       });
     });
 
@@ -522,14 +523,15 @@ describe("Server", () => {
       clientA.emit("changeSetting", message);
 
       // make sure all players receive the message
-      let receieve = 0;
+      let receive = 0;
       clientA.on("changedSetting", (data) => {
         expect(spy).toHaveBeenCalledTimes(1);
         expect(data).toEqual({
           settingOption: "category-General",
           optionValue: false,
         });
-        if (++receieve === 2) done();
+        ++receive;
+        if (receive === 2) done();
       });
       clientB.on("changedSetting", (data) => {
         expect(spy).toHaveBeenCalledTimes(1);
@@ -537,7 +539,8 @@ describe("Server", () => {
           settingOption: "category-General",
           optionValue: false,
         });
-        if (++receieve === 2) done();
+        ++receive;
+        if (receive === 2) done();
       });
     });
 
@@ -608,14 +611,15 @@ describe("Server", () => {
       clientA.emit("changeSetting", message);
 
       // make sure all players receive the message
-      let receieve = 0;
+      let receive = 0;
       clientA.on("changedSetting", (data) => {
         expect(spy).toHaveBeenCalledTimes(1);
         expect(data).toEqual({
           settingOption: "difficulty",
           optionValue: "easy",
         });
-        if (++receieve === 2) done();
+        ++receive;
+        if (receive === 2) done();
       });
       clientB.on("changedSetting", (data) => {
         expect(spy).toHaveBeenCalledTimes(1);
@@ -623,7 +627,8 @@ describe("Server", () => {
           settingOption: "difficulty",
           optionValue: "easy",
         });
-        if (++receieve === 2) done();
+        ++receive;
+        if (receive === 2) done();
       });
     });
 
@@ -670,16 +675,18 @@ describe("Server", () => {
       clientA.emit("changeSetting", message);
 
       // make sure all players receive the message
-      let receieve = 0;
+      let receive = 0;
       clientA.on("changedSetting", (data) => {
         expect(spy).toHaveBeenCalledTimes(1);
         expect(data).toEqual({ settingOption: "maxPlayers", optionValue: 3 });
-        if (++receieve === 2) done();
+        ++receive;
+        if (receive === 2) done();
       });
       clientB.on("changedSetting", (data) => {
         expect(spy).toHaveBeenCalledTimes(1);
         expect(data).toEqual({ settingOption: "maxPlayers", optionValue: 3 });
-        if (++receieve === 2) done();
+        ++receive;
+        if (receive === 2) done();
       });
     });
 
@@ -726,16 +733,18 @@ describe("Server", () => {
       clientA.emit("changeSetting", message);
 
       // make sure all players receive the message
-      let receieve = 0;
+      let receive = 0;
       clientA.on("changedSetting", (data) => {
         expect(spy).toHaveBeenCalledTimes(1);
         expect(data).toEqual({ settingOption: "timeLimit", optionValue: 3 });
-        if (++receieve === 2) done();
+        ++receive;
+        if (receive === 2) done();
       });
       clientB.on("changedSetting", (data) => {
         expect(spy).toHaveBeenCalledTimes(1);
         expect(data).toEqual({ settingOption: "timeLimit", optionValue: 3 });
-        if (++receieve === 2) done();
+        ++receive;
+        if (receive === 2) done();
       });
     });
 
@@ -786,16 +795,18 @@ describe("Server", () => {
       clientA.emit("changeSetting", message);
 
       // make sure all players receive the message
-      let receieve = 0;
+      let receive = 0;
       clientA.on("changedSetting", (data) => {
         expect(spy).toHaveBeenCalledTimes(1);
         expect(data).toEqual({ settingOption: "total", optionValue: 3 });
-        if (++receieve === 2) done();
+        ++receive;
+        if (receive === 2) done();
       });
       clientB.on("changedSetting", (data) => {
         expect(spy).toHaveBeenCalledTimes(1);
         expect(data).toEqual({ settingOption: "total", optionValue: 3 });
-        if (++receieve === 2) done();
+        ++receive;
+        if (receive === 2) done();
       });
     });
 
@@ -874,16 +885,18 @@ describe("Server", () => {
       clientB.emit("readyToStartGame", message);
 
       // make sure all players receive the message
-      let receieve = 0;
+      let receive = 0;
       clientA.on("playerReadyToStartGame", (data) => {
         expect(spy).toHaveBeenCalledTimes(1);
         expect(data).toEqual({ playerUsername: "username-B" });
-        if (++receieve === 2) done();
+        ++receive;
+        if (receive === 2) done();
       });
       clientB.on("playerReadyToStartGame", (data) => {
         expect(spy).toHaveBeenCalledTimes(1);
         expect(data).toEqual({ playerUsername: "username-B" });
-        if (++receieve === 2) done();
+        ++receive;
+        if (receive === 2) done();
       });
     });
 
@@ -948,7 +961,7 @@ describe("Server", () => {
       clientA.emit("startGame", message);
 
       // make sure all players receive the message
-      let receieve = 0;
+      let receive = 0;
       clientA.on("startQuestion", (data) => {
         expect(spy).toHaveBeenCalledTimes(1);
         expect(spy2).toHaveBeenCalledTimes(1);
@@ -958,7 +971,8 @@ describe("Server", () => {
           ["0", "2", "11", "1"].slice().sort()
         );
         expect(data.answers[data.correctIndex]).toEqual("2");
-        if (++receieve === 2) done();
+        ++receive;
+        if (receive === 2) done();
       });
       clientB.on("startQuestion", (data) => {
         expect(spy).toHaveBeenCalledTimes(1);
@@ -969,7 +983,8 @@ describe("Server", () => {
           ["0", "2", "11", "1"].slice().sort()
         );
         expect(data.answers[data.correctIndex]).toEqual("2");
-        if (++receieve === 2) done();
+        ++receive;
+        if (receive === 2) done();
       });
     });
 
@@ -991,7 +1006,7 @@ describe("Server", () => {
           return new Promise((resolve, reject) => {
             resolve(0);
           });
-        })
+        });
 
       clientA.emit("startGame", message);
 
@@ -999,8 +1014,7 @@ describe("Server", () => {
         expect(spy).toHaveBeenCalledTimes(1);
         expect(data).toEqual({ message: "No Questions Generated" });
         done();
-      })
-      
+      });
     });
 
     it("startGame invalid roomId; error to player", (done) => {
@@ -1155,7 +1169,7 @@ describe("Server", () => {
       clientB.emit("submitAnswer", messageB);
 
       // make sure all players receive the message
-      let receieve = 0;
+      let receive = 0;
       clientA.on("showScoreboard", (data) => {
         expect(spy).toHaveBeenCalledTimes(2);
         expect(spy2).toHaveBeenCalledTimes(2);
@@ -1177,7 +1191,7 @@ describe("Server", () => {
             },
           ],
         });
-        receieve++;
+        receive++;
       });
       clientB.on("showScoreboard", (data) => {
         expect(data).toEqual({
@@ -1196,7 +1210,7 @@ describe("Server", () => {
             },
           ],
         });
-        receieve++;
+        receive++;
       });
       clientA.on("startQuestion", (data) => {
         expect(spy5).toHaveBeenCalledTimes(1);
@@ -1206,7 +1220,8 @@ describe("Server", () => {
           ["0", "4", "11", "1"].slice().sort()
         );
         expect(data.answers[data.correctIndex]).toEqual("4");
-        if (++receieve == 4) done();
+        ++receive;
+        if (receive === 4) done();
       });
       clientB.on("startQuestion", (data) => {
         expect(spy5).toHaveBeenCalledTimes(1);
@@ -1216,7 +1231,8 @@ describe("Server", () => {
           ["0", "4", "11", "1"].slice().sort()
         );
         expect(data.answers[data.correctIndex]).toEqual("4");
-        if (++receieve == 4) done();
+        ++receive;
+        if (receive === 4) done();
       });
     }, 8000);
 
@@ -1292,7 +1308,7 @@ describe("Server", () => {
       clientB.emit("submitAnswer", messageB);
 
       // make sure all players receive the message
-      let receieve = 0;
+      let receive = 0;
       clientA.on("showScoreboard", (data) => {
         expect(spy).toHaveBeenCalledTimes(2);
         expect(spy2).toHaveBeenCalledTimes(2);
@@ -1314,7 +1330,7 @@ describe("Server", () => {
             },
           ],
         });
-        receieve++;
+        receive++;
       });
       clientB.on("showScoreboard", (data) => {
         expect(data).toEqual({
@@ -1333,7 +1349,7 @@ describe("Server", () => {
             },
           ],
         });
-        receieve++;
+        receive++;
       });
       clientA.on("endGame", (data) => {
         expect(data).toEqual({
@@ -1342,7 +1358,8 @@ describe("Server", () => {
             { username: userB.username, finalScore: 90 },
           ],
         });
-        if (++receieve == 4) done();
+        ++receive;
+        if (receive === 4) done();
       });
       clientB.on("endGame", (data) => {
         expect(data).toEqual({
@@ -1351,7 +1368,8 @@ describe("Server", () => {
             { username: userB.username, finalScore: 90 },
           ],
         });
-        if (++receieve == 4) done();
+        ++receive;
+        if (receive === 4) done();
       });
     };
 
@@ -1390,30 +1408,32 @@ describe("Server", () => {
         .mockImplementation(() => {
           return ++messagesAdded === 2;
         });
-      const spy3 = (calculateScoreSpy = jest
+      const spy3 = jest
         .spyOn(GameManager.prototype, "calculateScore")
         .mockImplementation(() => {
           return { returnCode: 1 };
-        }));
+        });
 
       clientA.emit("submitAnswer", messageA);
       clientB.emit("submitAnswer", messageB);
 
       // make sure all players receive the message
-      let receieve = 0;
+      let receive = 0;
       clientA.on("error", (data) => {
         expect(spy).toHaveBeenCalledTimes(2);
         expect(spy2).toHaveBeenCalledTimes(2);
         expect(spy3).toHaveBeenCalledTimes(1);
         expect(data).toEqual({ message: "Error in calculating scores" });
-        if (++receieve == 2) done();
+        ++receive;
+        if (receive === 2) done();
       });
       clientB.on("error", (data) => {
         expect(spy).toHaveBeenCalledTimes(2);
         expect(spy2).toHaveBeenCalledTimes(2);
         expect(spy3).toHaveBeenCalledTimes(1);
         expect(data).toEqual({ message: "Error in calculating scores" });
-        if (++receieve == 2) done();
+        ++receive;
+        if (receive === 2) done();
       });
     });
 
@@ -1653,10 +1673,12 @@ describe("Server", () => {
       /// Message
       const message = {
         roomId: "badCode",
-        username: userA.username
+        username: userA.username,
       };
 
-      spy = jest.spyOn(GameManager.prototype, "fetchRoomById").mockReturnValue(undefined);
+      spy = jest
+        .spyOn(GameManager.prototype, "fetchRoomById")
+        .mockReturnValue(undefined);
 
       clientA.emit("leaveRoom", message);
 
@@ -1664,7 +1686,7 @@ describe("Server", () => {
       clientA.on("error", (data) => {
         expect(spy).toHaveBeenCalledTimes(1);
         expect(data).toEqual({
-          message: "Invalid roomId"
+          message: "Invalid roomId",
         });
         done();
       });

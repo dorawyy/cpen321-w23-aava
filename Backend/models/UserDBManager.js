@@ -109,7 +109,7 @@ class UserDBManager {
       throw new Error("Username is already taken by another user");
     }
 
-    const result = await this.usersCollection.updateOne(
+    await this.usersCollection.updateOne(
       { sessionToken },
       { $set: { username } }
     );

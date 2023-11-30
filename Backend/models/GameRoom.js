@@ -157,7 +157,7 @@ class GameRoom {
    * ChatGPT usage: No
    */
   isIdle() {
-    return this.roomState == roomStateEnum.WAITING;
+    return this.roomState === roomStateEnum.WAITING;
   }
 
   /* Player Interaction */
@@ -370,4 +370,4 @@ class roomStateEnum {
   static IN_PROGRESS = 1;
 }
 
-module.exports = {GameRoom, roomStateEnum};
+module.exports = { GameRoom, roomStateEnum };

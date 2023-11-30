@@ -27,8 +27,8 @@ describe("Interface middleware functions", () => {
    * Expected output: Not important for this test
    */
   it("/create-account should not require a sessionToken", async () => {
-    token = "test-token";
-    username = "test-username";
+    const token = "test-token";
+    const username = "test-username";
     const data = {
       token,
       username,
@@ -295,7 +295,7 @@ describe("POST /create-account", () => {
    * }
    */
   it("should return 201 with valid parameters", async () => {
-    token = "test-token";
+    const token = "test-token";
     username = "test-username";
 
     const response = await request

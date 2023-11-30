@@ -116,7 +116,7 @@ describe("QuestionGenerator", () => {
 
     it("getQuestions tested with invalid parameters", async () => {
         questionGenerator.possibleCategories = {"General Knowledge" : 9};
-        mockedResult = {data: {"response_code":2,"results":[]}}
+        const mockedResult = {data: {"response_code":2,"results":[]}}
         axios.get.mockResolvedValue(mockedResult)
 
         const response = await questionGenerator.getQuestions(false, true, "General Knowledge", "x", 26);

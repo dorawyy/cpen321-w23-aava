@@ -189,7 +189,7 @@ app.post("/join-random-room", (req, res) => {
   // Fetch all the public game rooms with space remaining for new players
   const availableRooms = gameManager.getAvailableRooms();
 
-  if (availableRooms.length == 0) {
+  if (availableRooms.length === 0) {
     res.status(404).send({
       message: "No game rooms available at the moment. Please try again later.",
     });
@@ -224,7 +224,7 @@ app.post("/join-random-room", (req, res) => {
     // The lower the priority value, the more suitable the room is for the user.
     const priority = i + Math.abs(user.rank - averageRank);
 
-    roomPriorities.push({ roomCode: room.roomCode, priority: priority });
+    roomPriorities.push({ roomCode: room.roomCode, priority});
   }
 
   roomPriorities.sort((roomA, roomB) => roomA["priority"] - roomB["priority"]);
@@ -304,7 +304,7 @@ app.post("/create-room", (req, res) => {
   const sessionToken = req.body.sessionToken;
 
   userDBManager.getUserBySessionToken(sessionToken).then((dbUser) => {
-    if (dbUser == undefined) {
+    if (dbUser === undefined) {
       res.status(500).send({ message: "Invalid Session Token" });
     } else {
       const user = new User(

@@ -6,7 +6,6 @@ const https = require("https");
 const { app, gameManager, userDBManager } = require("./app.js");
 const db = require("./database/dbSetup.js");
 const PlayerAction = require("./models/PlayerAction.js");
-const { Socket } = require("socket.io");
 
 // Read the SSL certificate files from the current directory
 const privateKey = fs.readFileSync("./key.pem", "utf8");
@@ -177,7 +176,7 @@ io.on("connection", (socket) => {
     const room = gameManager.fetchRoomById(roomId);
 
     try {
-      if (room == undefined)
+      if (room === undefined)
         socket.emit("error", { message: "Invalid roomId" });
 
       if (room.isGameMaster(username)) {
@@ -383,7 +382,7 @@ io.on("connection", (socket) => {
       socket.emit("error", { message: "Invalid roomId" });
       return;
     } else {
-      roomCode = room.roomCode;
+      const roomCode = room.roomCode;
       gameManager
         .generateQuestions(roomCode)
         .then(() => {

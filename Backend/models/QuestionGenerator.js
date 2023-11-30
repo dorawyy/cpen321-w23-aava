@@ -20,7 +20,7 @@ class QuestionGenerator {
     let return_arr = [];
 
     try {
-      await new Promise(resolve => setTimeout(resolve, TIME));
+      await new Promise((resolve) => setTimeout(resolve, TIME));
       const response = await axios.get("https://opentdb.com/api_category.php");
       const res_arr = response.data.trivia_categories;
 
@@ -58,7 +58,7 @@ class QuestionGenerator {
 
     // Make API call and save the count
     try {
-      await new Promise(resolve => setTimeout(resolve, TIME));
+      await new Promise((resolve) => setTimeout(resolve, TIME));
       const response = await axios.get(
         "https://opentdb.com/api_count.php",
         parameters
@@ -68,9 +68,9 @@ class QuestionGenerator {
           `total_${difficulty}_question_count`
         ];
 
-        console.log("Quantity:")
-        console.log(response)
-        console.log("End of Quantity\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+      console.log("Quantity:");
+      console.log(response);
+      console.log("End of Quantity\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     } catch (err) {
       console.log(err);
     }
@@ -119,8 +119,8 @@ class QuestionGenerator {
     // API Call attempt
     try {
       // Make API Call and parse the response
-      if(!doSpecificCategory){
-        await new Promise(resolve => setTimeout(resolve, TIME));
+      if (!doSpecificCategory) {
+        await new Promise((resolve) => setTimeout(resolve, TIME));
       }
       const response = await axios.get(
         "https://opentdb.com/api.php",
@@ -129,13 +129,13 @@ class QuestionGenerator {
       const response_code = response.data.response_code;
       const result = response.data.results;
 
-      console.log("TRY 1:")
-      console.log(response)
-      console.log("End of TRY 1\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+      console.log("TRY 1:");
+      console.log(response);
+      console.log("End of TRY 1\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
       // If successfull, add each question to the array of questions
-      if (response_code == ApiCode.SUCCESS) {
+      if (response_code === ApiCode.SUCCESS) {
         result.forEach((elem) => {
-          if (elem.type == ApiParameter.QUESTION_TYPE_MULTIPLE) {
+          if (elem.type === ApiParameter.QUESTION_TYPE_MULTIPLE) {
             const questionObj = new Question(
               elem.question,
               elem.correct_answer,
@@ -146,14 +146,14 @@ class QuestionGenerator {
           }
         });
         res_code = 0;
-      } else if (response_code == ApiCode.NO_RESULTS) {
+      } else if (response_code === ApiCode.NO_RESULTS) {
         // If Questions quantity too big, find actual quantity and call again
         // (but do not limit by type as quantity returned includes T/F and MCQ)
         const new_quantity = await this.getQuestionQuantity(
           category,
           difficulty
         );
-        await new Promise(resolve => setTimeout(resolve, TIME));
+        await new Promise((resolve) => setTimeout(resolve, TIME));
         const response = await this.getQuestions(
           doSpecificCategory,
           false,
@@ -161,12 +161,12 @@ class QuestionGenerator {
           difficulty,
           new_quantity
         );
-        console.log("TRY 2:")
-        console.log(response)
-        console.log("End of TRY 2\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+        console.log("TRY 2:");
+        console.log(response);
+        console.log("End of TRY 2\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         questions = response.questions;
         res_code = response.res_code;
-      } else if (response_code == ApiCode.INVALID_PARAMETER) {
+      } else if (response_code === ApiCode.INVALID_PARAMETER) {
         // If we used invalid paramters, just return empty array
         res_code = 0;
       } else {

@@ -3,8 +3,6 @@ const QuestionGenerator = require("./QuestionGenerator.js");
 const PowerupEnum = require("./PowerUpEnum.js");
 const Settings = require("./Settings");
 const { v4: uuidv4 } = require("uuid");
-const Player = require("./Player.js");
-const User = require("./User.js");
 
 /**
  * Purpose: This class provides functionality of the Game
@@ -195,7 +193,8 @@ class GameManager {
     const maxScore = 100;
     //  Fetch room, if room not found, return error code 1
     const room = this.fetchRoom(roomCode);
-    if (room === undefined) return { returnCode: 1, scores: [], stolenPoints: [] };
+    if (room === undefined)
+      return { returnCode: 1, scores: [], stolenPoints: [] };
 
     const actions = room.actionsArray;
     //  Initialize the scores for each player in actions
@@ -266,7 +265,6 @@ class GameManager {
 
         stolenPoints.set(victim, true);
       }
-
     });
 
     // Add the stolen scores to the total scores
@@ -274,12 +272,9 @@ class GameManager {
       totalScores.set(username, score + stolenScores.get(username));
     });
 
-
-
     const result = { returnCode: 0, scores: totalScores, stolenPoints };
     return result;
   }
-
 
   /* Room Interaction Stuff */
 
@@ -336,7 +331,7 @@ class GameManager {
     let room = this.fetchRoom(roomCode);
     room.addAction(response);
     this.roomCodeToGameRoom.set(roomCode, room);
-    return room.actionsArray.length == room.getPlayers().length;
+    return room.actionsArray.length === room.getPlayers().length;
   }
 
   /**
@@ -360,12 +355,12 @@ class GameManager {
    *
    * ChatGPT usage: No
    */
-  addToPlayerScore (roomCode, scores) {
+  addToPlayerScore(roomCode, scores) {
     let room = this.fetchRoom(roomCode);
     let newScores = room.updateScores(scores);
     this.roomCodeToGameRoom.set(roomCode, room);
     return newScores;
-  };
+  }
 
   /**
    * Purpose: Checks if Category is valid

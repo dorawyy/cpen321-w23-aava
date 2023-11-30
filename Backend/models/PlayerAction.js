@@ -33,7 +33,7 @@ class PlayerAction {
     /**
      * The user token of the player on which the powerup was used.
      *
-     * This field is populated only if (powerupUsed == PowerupEnum.STEAL_POINTS).
+     * This field is populated only if (powerupUsed === PowerupEnum.STEAL_POINTS).
      * Otherwise, this field should be null.
      */
     this.powerupVictim = powerupVictim;

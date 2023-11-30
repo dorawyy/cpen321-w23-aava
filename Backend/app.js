@@ -170,9 +170,9 @@ app.post("/rank", (req, res) => {
   const username = req.body.username;
   console.log("Viewing rank of user: " + username);
 
-  userDBManager.fetchUserRank(username).then((user) => {
+  userDBManager.fetchUserRank(username).then((rank) => {
     res.status(200).send({
-      rank: user.rank,
+      rank,
     });
   });
 });

@@ -263,7 +263,6 @@ public class LoginActivity extends AppCompatActivity {
                         Log.d(TAG, "check parameters " + token + " username" + userName);
                         //createAccount(token, userName);
                         Log.e(TAG,""+ response.body().string());
-                        showToast("Trouble getting response");
                         createAccount(token, userName);
                         return;
                     }

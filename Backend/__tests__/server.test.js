@@ -1,5 +1,5 @@
 const io = require("socket.io-client");
-const { server, db } = require("../server.js");
+const { server, db, sendQuestion } = require("../server.js");
 const UserDBManager = require("../models/UserDBManager.js");
 const Player = require("../models/Player.js");
 const User = require("../models/User.js");
@@ -929,6 +929,27 @@ describe("Server", () => {
     });
   });
 
+  describe("sendQuestion", () => {
+    it("should emit an error event when an error occurs", (done) => {
+      const errorMessage = "Error in sending question";
+      jest
+        .spyOn(GameManager.prototype, "resetResponses")
+        .mockImplementation(() => {
+          throw new Error(errorMessage);
+        });
+
+      clientA.on("error", (data) => {
+        console.log(data);
+        expect(data).toEqual({
+          message: errorMessage,
+        });
+        done();
+      });
+
+      sendQuestion(clientA, roomA.roomId, 0);
+    });
+  });
+
   describe("startGame", () => {
     it("startGame should initialize the room and send first question to all players", (done) => {
       // Message
@@ -1676,7 +1697,7 @@ describe("Server", () => {
         username: userA.username,
       };
 
-      spy = jest
+      const spy = jest
         .spyOn(GameManager.prototype, "fetchRoomById")
         .mockReturnValue(undefined);
 

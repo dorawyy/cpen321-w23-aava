@@ -182,4 +182,77 @@ describe("UserDBManager", () => {
       "Value must be an integer."
     );
   });
+
+  it("should set a new username for a user", async () => {
+    // Create a user to update
+    await usersCollection.insertOne(
+      new User("uniqueToken", "username", 1, "sessionToken")
+    );
+
+    const sessionToken = "sessionToken";
+    const newUsername = "newUsername";
+
+    const updatedUser = await userDBManager.setUsername(
+      sessionToken,
+      newUsername
+    );
+
+    // Check if the username was updated successfully
+    expect(updatedUser).toBeDefined();
+    expect(updatedUser.username).toBe(newUsername);
+  });
+
+  it("should throw an error if the new username is already taken", async () => {
+    // Create a user to update
+    await usersCollection.insertOne(
+      new User("uniqueToken", "username", 1, "sessionToken")
+    );
+    await usersCollection.insertOne(
+      new User("taken-token", "taken-username", 2, "taken-sessionToken")
+    );
+
+    const sessionToken = "sessionToken";
+    const existingUsername = "taken-username";
+
+    await expect(
+      userDBManager.setUsername(sessionToken, existingUsername)
+    ).rejects.toThrow("Username is already taken by another user");
+  });
+
+  it("should return undefined if the user with the sessionToken is not found", async () => {
+    const nonExistentSessionToken = "nonExistentSessionToken";
+    const newUsername = "newUsername";
+
+    const updatedUser = await userDBManager.setUsername(
+      nonExistentSessionToken,
+      newUsername
+    );
+
+    // Check if the function returns null for a non-existent sessionToken or username
+    expect(updatedUser).toBe(null);
+  });
+
+  it("should fetch the rank of a user", async () => {
+    // Create a user to update
+    await usersCollection.insertOne(
+      new User("uniqueToken", "username", 12, null)
+    );
+
+    const username = "username";
+
+    const userRank = await userDBManager.fetchUserRank(username);
+
+    // Check if the user's rank is fetched successfully
+    expect(userRank).toBeDefined();
+    expect(userRank).toBe(12);
+  });
+
+  it("should return undefined if the user is not found", async () => {
+    const nonExistentUsername = "nonExistentUsername";
+
+    const userRank = await userDBManager.fetchUserRank(nonExistentUsername);
+
+    // Check if the function returns undefined for a non-existent username
+    expect(userRank).toBeUndefined();
+  });
 });

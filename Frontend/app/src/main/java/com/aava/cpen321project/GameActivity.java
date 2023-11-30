@@ -4,11 +4,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.text.Html;
 import android.util.Log;
 import android.util.SparseBooleanArray;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
@@ -28,10 +31,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 
 public class GameActivity extends AppCompatActivity implements GameStateListener {
 
     final static String TAG = "GameActivity";
+    final static Random random = new Random();
 
     // Constant options for room settings
 
@@ -41,9 +46,31 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     private final String[] PUBLIC_OPTIONS = new String[] {"Public", "Private"};
     private final String[] DIFFICULTY_OPTIONS = new String[] {"Easy", "Medium", "Hard"};
 
+    private int questionCountChosen = 1;
+    private int maxPlayerChosen = 4;
+    private int timeLimitChosen = 2;
+    private int publicChosen = 1;
+    private int difficultyChosen = 0;
+    private int categoryChosen = 0;
+
     // Views
 
     private TextView headerLabel;
+
+    private ImageView emoteImage;
+    private ImageView[] emoteImageDisplays = new ImageView[6];
+    private final CountDownTimer[] emoteCountDownTimers = new CountDownTimer[6];
+    private final int[] emoteDrawables = new int[] {
+            R.drawable.emote_code0,
+            R.drawable.emote_code1,
+            R.drawable.emote_code2,
+            R.drawable.emote_code3,
+            R.drawable.emote_code4,
+            R.drawable.emote_code5,
+            R.drawable.emote_code6,
+            R.drawable.emote_code7,
+            R.drawable.emote_code8,
+    };
 
     private RelativeLayout lobbyUniversalLayout;
     private RelativeLayout lobbyJoinerLayout;
@@ -103,6 +130,17 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     private TextView questionTimerLabel;
     private TextView questionPlayersFinishedLabel;
 
+    private TextView stallBlurbLabel;
+    private final List<String> stallBlurbStrings = new ArrayList<String>() {{
+       add("Think you're fast enough?");
+       add("DANG everyone else is slow...");
+       add("ZOOM!");
+       add("Uhh, are you sure you clicked the right one?");
+       add("Done in a jiffy!");
+       add("Did you even read the question??");
+       add("Faster than the Flash!");
+    }};
+
     private LinearLayout scoreboardLesserColumn;
     private LinearLayout scoreboardGreaterColumn;
     private TextView scoreboardLesserGainLabel;
@@ -114,7 +152,95 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     private TextView scoreboardGreaterGainLabel;
     private TextView scoreboardGreaterScoreLabel;
     private TextView scoreboardGreaterUsernameLabel;
+
+    private ImageView scoreboardLesserFace;
+    private ImageView scoreboardCurrentFace;
+    private ImageView scoreboardGreaterFace;
+    private final int[][] scoreboardFaceGroups = new int[][] {
+            {},
+            {0},
+            {0, 1},
+            {0, 1, 2},
+            {0, 1, 1, 2},
+            {0, 1, 1, 2, 2},
+            {0, 0, 1, 1, 2, 2}
+    };
+    private final List<Integer> scoreboardFaceResourcesGood = new ArrayList<Integer>() {{
+        add(R.drawable.emoji_bitelip);
+        add(R.drawable.emoji_nerd);
+        add(R.drawable.emoji_laughcry);
+        add(R.drawable.emoji_tripletink);
+    }};
+    private final List<Integer> scoreboardFaceResourcesMid = new ArrayList<Integer>() {{
+        add(R.drawable.emoji_flooshed);
+        add(R.drawable.emoji_focus);
+        add(R.drawable.emoji_thinkglasses);
+        add(R.drawable.emoji_sunglasscry);
+    }};
+    private final List<Integer> scoreboardFaceResourcesBad = new ArrayList<Integer>() {{
+        add(R.drawable.emoji_spunchbop);
+        add(R.drawable.emoji_cryroll);
+        add(R.drawable.emoji_wail);
+        add(R.drawable.emoji_nooooo);
+    }};
+
     private TextView scoreboardRankLabel;
+    private TextView scoreboardStolenLabel;
+
+    private TextView scoreboardBlurbLabel;
+    private final int[][][] scoreboardBlurbGroups = new int[][][] {
+            {},
+            {{0}},
+            {{0}, {1, 2, 3, 4, 5}},
+            {{0}, {1, 2}, {3, 4, 5}},
+            {{0}, {1}, {2, 3}, {4, 5}},
+            {{0}, {1}, {2}, {3}, {4, 5}},
+            {{0}, {1}, {2}, {3}, {4}, {5}}
+    };
+    private final List<List<String>> scoreboardBlurbStrings = new ArrayList<List<String>>() {{
+        add(new ArrayList<String>() {{
+            add("YOU GOT THAT DAWG IN YA");
+            add("OMG SLAYYY!!");
+            add("YASS QUEEN!!!");
+            add("UR IN SPAIN WITHOUT THE P");
+            add("Look who's right again (as always)");
+        }});
+        add(new ArrayList<String>() {{
+            add("LET 'EM COOK, LET 'EM COOK");
+            add("You're almost there!");
+            add("ur above average (copium)");
+            add("*heavy breathing*");
+        }});
+        add(new ArrayList<String>() {{
+            add("You're almost there!");
+            add("Come on, keep it up!");
+            add("kinda mid ngl");
+            add("ur above average (copium)");
+        }});
+        add(new ArrayList<String>() {{
+            add("Come on, keep it up!");
+            add("Don't lose hope now!");
+            add("kinda mid ngl");
+            add("fam this ain't a vibe");
+            add("Have a participation award");
+        }});
+        add(new ArrayList<String>() {{
+            add("Time to start a comeback!");
+            add("Don't lose hope now!");
+            add("should NOT have let bro cook...");
+            add("fam this ain't a vibe");
+            add("Mission failed, we'll get 'em next time");
+            add("Have a participation award");
+        }});
+        add (new ArrayList<String>() {{
+            add("Time to start a comeback!");
+            add("It's giving terminal :/");
+            add("should NOT have let bro cook...");
+            add("Mission failed, we'll get 'em next time");
+            add("Have a participation award");
+        }});
+    }};
+
     private ImageView scoreboardLeaveImage;
 
     private List<ImageView> powerupImages = new ArrayList<>();
@@ -140,12 +266,9 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     // Overridden for functionality upon exiting GameActivity.
     // ChatGPT usage: No
     @Override
-    public void onPause() {
-        super.onPause();
-        if (isFinishing()) {
-            // Emit a leaveRoom event, to notify the server that the player has left.
-            gameState.leaveRoom();
-        }
+    public void onBackPressed() {
+        super.onBackPressed();
+        gameState.leaveRoom();
     }
 
     // Get and set the parameters passed from MenuActivity.
@@ -172,8 +295,6 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
             enableLayout(lobbyUniversalLayout, true);
             if (gameConstants.isOwner) {
                 enableLayout(lobbyOwnerLayout, true);
-                // Disable Start button by default, as more players need to join.
-                lobbyOwnerStartImage.setClickable(false);
             } else {
                 enableLayout(lobbyJoinerLayout, true);
             }
@@ -267,15 +388,8 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
             lobbyEditPublicLabel.setText(publicLabel);
             lobbyEditDifficultyLabel.setText(difficultyLabel);
 
-            for (int i = 0; i < 5; i++) {
-                if (i < gameState.roomChosenCategories.size()) {
-                    lobbyUniversalCategoryLabels[i].setText(gameState.roomChosenCategories.get(i));
-                    lobbyEditCategoryLabels[i].setText(gameState.roomChosenCategories.get(i));
-                } else {
-                    lobbyUniversalCategoryLabels[i].setText("");
-                    lobbyEditCategoryLabels[i].setText("");
-                }
-            }
+            lobbyUniversalCategoryLabels[0].setText(gameState.roomCategory);
+            lobbyEditCategoryLabels[0].setText(gameState.roomCategory);
         });
     }
 
@@ -394,19 +508,19 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     // Show the possible answers.
     // ChatGPT usage: No
     public void questionFinished() {
+        int[] answerImages = new int[] {
+                R.drawable.answer_red,
+                R.drawable.answer_green,
+                R.drawable.answer_blue,
+                R.drawable.answer_yellow
+        };
         runOnUiThread(() -> {
-            questionAnswer1Image.setClickable(true);
-            questionAnswer2Image.setClickable(true);
-            questionAnswer3Image.setClickable(true);
-            questionAnswer4Image.setClickable(true);
-            questionAnswer1Label.setVisibility(View.VISIBLE);
-            questionAnswer2Label.setVisibility(View.VISIBLE);
-            questionAnswer3Label.setVisibility(View.VISIBLE);
-            questionAnswer4Label.setVisibility(View.VISIBLE);
-            questionAnswer1Image.setImageResource(R.drawable.answer_red);
-            questionAnswer2Image.setImageResource(R.drawable.answer_green);
-            questionAnswer3Image.setImageResource(R.drawable.answer_blue);
-            questionAnswer4Image.setImageResource(R.drawable.answer_yellow);
+            for (int i = 0; i < 4; i++) {
+                if (i == gameState.hiddenIndex1 || i == gameState.hiddenIndex2) continue;
+                questionAnswerImages.get(i).setClickable(true);
+                questionAnswerImages.get(i).setImageResource(answerImages[i]);
+                questionAnswerLabels.get(i).setVisibility(View.VISIBLE);
+            }
         });
     }
 
@@ -422,12 +536,54 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     }
 
     // ChatGPT usage: No
+    public void otherPlayerEmoted(String otherUsername, int emoteCode) {
+        Log.d(TAG, "EMOTE RECEIVED: " + otherUsername + ", " + emoteCode);
+        runOnUiThread(() -> {
+            int playerIndex = 0;
+            for (int i = 0; i < gameState.roomPlayers.length(); i++) {
+                try {
+                    if (gameState.roomPlayers.getJSONObject(i).getString("username").equals(otherUsername)) {
+                        playerIndex = i;
+                    }
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            Log.d(TAG, "EMOTE USER ID: " + playerIndex);
+            int emoteDrawable = emoteDrawables[emoteCode];
+
+            ImageView emoteImageDisplay = emoteImageDisplays[playerIndex];
+            emoteImageDisplay.setImageResource(emoteDrawable);
+            emoteImageDisplay.setVisibility(View.VISIBLE);
+
+            CountDownTimer newCountDownTimer = new CountDownTimer(2000, 100) {
+                @Override
+                public void onTick(long l) {
+                    // Intentionally left blank
+                }
+                @Override
+                public void onFinish() {
+                    emoteImageDisplay.setVisibility(View.INVISIBLE);
+                }
+            };
+
+            if (emoteCountDownTimers[playerIndex] != null) {
+                emoteCountDownTimers[playerIndex].cancel();
+            }
+            emoteCountDownTimers[playerIndex] = newCountDownTimer;
+            newCountDownTimer.start();
+        });
+    }
+
+    // ChatGPT usage: No
     public void youAnswered() {
         runOnUiThread(() -> {
             if (gameState.powerupCode != -1) {
                 Log.d(TAG, "Powerup code: " + gameState.powerupCode);
                 powerupIconImages.get(gameState.powerupCode).setVisibility(View.INVISIBLE);
             }
+
+            stallBlurbLabel.setText(getStallBlurb());
         });
 
         disableLayout(questionLayout);
@@ -436,17 +592,22 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     }
 
     // ChatGPT usage: No
-    public void scoreboardReceived(boolean finished, int rank, @NonNull List<JSONObject> scoreInfoList) {
+    public void scoreboardReceived(boolean finished, boolean stolen, int rank, @NonNull List<JSONObject> scoreInfoList) {
         disableLayout(powerupLayout);
         disableLayout(stallLayout);
         enableLayout(scoreboardLayout, true);
 
         runOnUiThread(() -> {
+            // Leave Button
             if (finished) {
                 scoreboardLeaveImage.setVisibility(View.VISIBLE);
                 scoreboardLeaveImage.setClickable(true);
             }
 
+            // Stolen score indicator
+            scoreboardStolenLabel.setVisibility(stolen ? View.VISIBLE : View.INVISIBLE);
+
+            // Correct or incorrect header
             headerLabel.setText(gameState.lastQuestionCorrect ? "Correct!" : "Incorrect");
             scoreboardRankLabel.setText(
                     (rank == 0) ? "1st" : (rank == 1) ? "2nd" : (rank == 2) ? "3rd" : String.format(Locale.US, "%dth", rank + 1)
@@ -454,11 +615,15 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
 
             Log.d(TAG, "Rank: " + rank);
 
+            // Set player labels
             try {
+                int numPlayers = scoreInfoList.size();
                 JSONObject currentPlayer = scoreInfoList.get(rank);
                 scoreboardCurrentGainLabel.setText(getString(R.string.scoreboardPoints, currentPlayer.getInt("pointsEarned")));
                 scoreboardCurrentScoreLabel.setText(String.valueOf(currentPlayer.getInt("updatedTotalPoints")));
                 scoreboardCurrentUsernameLabel.setText(currentPlayer.getString("username"));
+                scoreboardCurrentFace.setImageResource(getFace(rank, numPlayers));
+                scoreboardBlurbLabel.setText(getScoreboardBlurb(rank, numPlayers));
 
                 if (rank == gameState.roomPlayers.length() - 1) {
                     scoreboardLesserColumn.setVisibility(View.INVISIBLE);
@@ -468,6 +633,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                     scoreboardLesserScoreLabel.setText(String.valueOf(lesserPlayer.getInt("updatedTotalPoints")));
                     scoreboardLesserUsernameLabel.setText(lesserPlayer.getString("username"));
                     scoreboardLesserColumn.setVisibility(View.VISIBLE);
+                    scoreboardLesserFace.setImageResource(getFace(rank + 1, numPlayers));
                 }
                 if (rank == 0) {
                     scoreboardGreaterColumn.setVisibility(View.INVISIBLE);
@@ -477,6 +643,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                     scoreboardGreaterScoreLabel.setText(String.valueOf(greaterPlayer.getInt("updatedTotalPoints")));
                     scoreboardGreaterUsernameLabel.setText(greaterPlayer.getString("username"));
                     scoreboardGreaterColumn.setVisibility(View.VISIBLE);
+                    scoreboardGreaterFace.setImageResource(getFace(rank - 1, numPlayers));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -486,7 +653,13 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
 
     // ChatGPD usage: No
     public void errorReceived(String message) {
-        Toast.makeText(GameActivity.this, message, Toast.LENGTH_SHORT).show();
+        runOnUiThread(() -> {
+            if (message.contains("Questions")) {
+                Toast.makeText(GameActivity.this, "Trivia API Error", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(GameActivity.this, message, Toast.LENGTH_SHORT).show();
+            }
+        });
         gameState.leaveRoom();
         Intent intent = new Intent(GameActivity.this, MenuActivity.class);
         intent.putExtra("userName", gameConstants.username);
@@ -496,10 +669,87 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
 
     // OTHER METHODS
 
+    // ChatGPT usage: no
+    private void showEmoteDialog() {
+        Dialog emoteDialog = new Dialog(this);
+
+        // Inflate layout
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_emote, null);
+        emoteDialog.setContentView(dialogView);
+
+        ImageView[] emoteImages = new ImageView[] {
+                dialogView.findViewById(R.id.emote_dialog_image1),
+                dialogView.findViewById(R.id.emote_dialog_image2),
+                dialogView.findViewById(R.id.emote_dialog_image3),
+                dialogView.findViewById(R.id.emote_dialog_image4),
+                dialogView.findViewById(R.id.emote_dialog_image5),
+                dialogView.findViewById(R.id.emote_dialog_image6),
+                dialogView.findViewById(R.id.emote_dialog_image7),
+                dialogView.findViewById(R.id.emote_dialog_image8),
+                dialogView.findViewById(R.id.emote_dialog_image9),
+        };
+
+        for (int i = 0; i < 9; i++) {
+            ImageView imageView = emoteImages[i];
+            int finalI = i;
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    gameState.submitEmote(finalI);
+                    emoteDialog.dismiss();
+                }
+            });
+        }
+
+        emoteDialog.show();
+        emoteDialog.setCanceledOnTouchOutside(true);
+    }
+
+    // Pick an available emoji based on rank.
+    // ChatGPT usage: no
+    private int getFace(int rank, int numPlayers) {
+        rank += 1;
+        int group = scoreboardFaceGroups[numPlayers][rank - 1];
+        List<Integer> list = scoreboardFaceResourcesBad;
+        if (group == 0) {
+            list = scoreboardFaceResourcesGood;
+        } else if (group == 1) {
+            list = scoreboardFaceResourcesMid;
+        }
+        return list.get(random.nextInt(list.size()));
+    }
+
+    // Pick an available scoreboard blurb based on rank.
+    // ChatGPT usage: no
+    private String getScoreboardBlurb(int rank, int numPlayers) {
+        rank += 1;
+        int[] groups = scoreboardBlurbGroups[numPlayers][rank - 1];
+        int group = groups[random.nextInt(groups.length)];
+        List<String> strings = scoreboardBlurbStrings.get(group);
+        return strings.get(random.nextInt(strings.size()));
+    }
+
+    // Pick an available stall blurb.
+    // ChatGPT usage: no
+    private String getStallBlurb() {
+        return stallBlurbStrings.get(random.nextInt(stallBlurbStrings.size()));
+    }
+
     // Get and set all View objects.
     // ChatGPT usage: No
     private void getSetAllViews() {
         headerLabel = findViewById(R.id.game_header_label);
+
+        emoteImage = findViewById(R.id.game_emote_image);
+        emoteImageDisplays = new ImageView[] {
+                findViewById(R.id.game_receive_emote_image1),
+                findViewById(R.id.game_receive_emote_image2),
+                findViewById(R.id.game_receive_emote_image3),
+                findViewById(R.id.game_receive_emote_image4),
+                findViewById(R.id.game_receive_emote_image5),
+                findViewById(R.id.game_receive_emote_image6)
+        };
 
         lobbyUniversalLayout = findViewById(R.id.game_lobby_universal_layout);
         lobbyJoinerLayout = findViewById(R.id.game_lobby_joiner_layout);
@@ -606,7 +856,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
         questionTimerLabel = findViewById(R.id.game_question_timer_label);
         questionPlayersFinishedLabel = findViewById(R.id.game_question_players_finished_label);
 
-//        TextView stallBlurbLabel = findViewById(R.id.game_stall_blurb_label);
+        stallBlurbLabel = findViewById(R.id.game_stall_blurb_label);
 
         scoreboardLesserColumn = findViewById(R.id.game_scoreboard_lesser_column);
         scoreboardGreaterColumn = findViewById(R.id.game_scoreboard_greater_column);
@@ -614,18 +864,19 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
         scoreboardLesserGainLabel = findViewById(R.id.game_scoreboard_lesser_gain_label);
         scoreboardLesserScoreLabel = findViewById(R.id.game_scoreboard_lesser_score_label);
         scoreboardLesserUsernameLabel = findViewById(R.id.game_scoreboard_lesser_username_label);
-//        ImageView scoreboardLesserImage = findViewById(R.id.game_scoreboard_lesser_image);
+        scoreboardLesserFace = findViewById(R.id.game_scoreboard_lesser_image);
         scoreboardCurrentGainLabel = findViewById(R.id.game_scoreboard_current_gain_label);
         scoreboardCurrentScoreLabel = findViewById(R.id.game_scoreboard_current_score_label);
         scoreboardCurrentUsernameLabel = findViewById(R.id.game_scoreboard_current_username_label);
-//        ImageView scoreboardCurrentImage = findViewById(R.id.game_scoreboard_current_image);
+        scoreboardCurrentFace = findViewById(R.id.game_scoreboard_current_image);
         scoreboardGreaterGainLabel = findViewById(R.id.game_scoreboard_greater_gain_label);
         scoreboardGreaterScoreLabel = findViewById(R.id.game_scoreboard_greater_score_label);
         scoreboardGreaterUsernameLabel = findViewById(R.id.game_scoreboard_greater_username_label);
-//        ImageView scoreboardGreaterImage = findViewById(R.id.game_scoreboard_greater_image);
+        scoreboardGreaterFace = findViewById(R.id.game_scoreboard_greater_image);
         scoreboardRankLabel = findViewById(R.id.game_scoreboard_rank_label);
-//        TextView scoreboardBlurbLabel = findViewById(R.id.game_scoreboard_blurb_label);
+        scoreboardBlurbLabel = findViewById(R.id.game_scoreboard_blurb_label);
         scoreboardLeaveImage = findViewById(R.id.game_scoreboard_leave_image);
+        scoreboardStolenLabel = findViewById(R.id.game_scoreboard_stolen_label);
 
         powerupImages = new ArrayList<ImageView>() {{
             add(findViewById(R.id.game_powerup_image1));
@@ -672,7 +923,10 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
         runOnUiThread(() -> {
 
             // LOBBY
-            if (v == lobbyJoinerReadyImage) {
+            if (v == emoteImage) {
+                Log.d(TAG, "Emote button pressed");
+                showEmoteDialog();
+            } else if (v == lobbyJoinerReadyImage) {
                 // Emit readyToStartGame event, and disable the button
                 Log.d(TAG, "READY!");
                 gameState.readyUp();
@@ -689,30 +943,34 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                 // Change question count and emit changeSetting event
                 new AlertDialog.Builder(this)
                         .setTitle("Select Question Count")
-                        .setSingleChoiceItems(QUESTION_COUNT_OPTIONS, 0, null)
+                        .setSingleChoiceItems(QUESTION_COUNT_OPTIONS, questionCountChosen, null)
                         .setPositiveButton("OK", (dialogInterface, i) -> {
                             dialogInterface.dismiss();
-                            gameState.chooseQuestionCount(Integer.parseInt(QUESTION_COUNT_OPTIONS[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()]));
+                            questionCountChosen = ((AlertDialog) dialogInterface).getListView().getCheckedItemPosition();
+                            Log.d(TAG, "QUESTION COUNT CHOSEN: " + questionCountChosen);
+                            gameState.chooseQuestionCount(Integer.parseInt(QUESTION_COUNT_OPTIONS[questionCountChosen]));
                         })
                         .show();
             } else if (v == lobbyEditPlayersImage) {
                 // Change max players and emit changeSetting event
                 new AlertDialog.Builder(this)
                         .setTitle(R.string.editMaxPlayersTitle)
-                        .setSingleChoiceItems(MAX_PLAYER_OPTIONS, 0, null)
+                        .setSingleChoiceItems(MAX_PLAYER_OPTIONS, maxPlayerChosen, null)
                         .setPositiveButton("OK", (dialogInterface, i) -> {
                             dialogInterface.dismiss();
-                            gameState.chooseMaxPlayers(Integer.parseInt(MAX_PLAYER_OPTIONS[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()]));
+                            maxPlayerChosen = ((AlertDialog) dialogInterface).getListView().getCheckedItemPosition();
+                            gameState.chooseMaxPlayers(Integer.parseInt(MAX_PLAYER_OPTIONS[maxPlayerChosen]));
                         })
                         .show();
             } else if (v == lobbyEditTimeImage) {
                 // Change time limit and emit changeSetting event
                 new AlertDialog.Builder(this)
                         .setTitle("Select Time Limit Per Question")
-                        .setSingleChoiceItems(TIME_LIMIT_OPTIONS, 0, null)
+                        .setSingleChoiceItems(TIME_LIMIT_OPTIONS, timeLimitChosen, null)
                         .setPositiveButton("OK", (dialogInterface, i) -> {
                             dialogInterface.dismiss();
-                            gameState.chooseTimeLimit(Integer.parseInt(TIME_LIMIT_OPTIONS[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()]));
+                            timeLimitChosen = ((AlertDialog) dialogInterface).getListView().getCheckedItemPosition();
+                            gameState.chooseTimeLimit(Integer.parseInt(TIME_LIMIT_OPTIONS[timeLimitChosen]));
                         })
                         .show();
 
@@ -720,45 +978,37 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                 // Change room isPublic and emit changeSetting event
                 new AlertDialog.Builder(this)
                         .setTitle("Select Room Publicity")
-                        .setSingleChoiceItems(PUBLIC_OPTIONS, 0, null)
+                        .setSingleChoiceItems(PUBLIC_OPTIONS, publicChosen, null)
                         .setPositiveButton("OK", (dialogInterface, i) -> {
                             dialogInterface.dismiss();
-                            gameState.chooseRoomPublicity(Objects.equals(PUBLIC_OPTIONS[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()], "Public"));
+                            publicChosen = ((AlertDialog) dialogInterface).getListView().getCheckedItemPosition();
+                            gameState.chooseRoomPublicity(Objects.equals(PUBLIC_OPTIONS[publicChosen], "Public"));
                         })
                         .show();
             } else if (v == lobbyEditDifficultyImage) {
                 // Change question difficulty and emit changeSetting event
                 new AlertDialog.Builder(this)
                         .setTitle("Select Question Difficulty")
-                        .setSingleChoiceItems(DIFFICULTY_OPTIONS, 0, null)
+                        .setSingleChoiceItems(DIFFICULTY_OPTIONS, difficultyChosen, null)
                         .setPositiveButton("OK", (dialogInterface, i) -> {
                             dialogInterface.dismiss();
-                            gameState.chooseQuestionDifficulty(DIFFICULTY_OPTIONS[((AlertDialog) dialogInterface).getListView().getCheckedItemPosition()].toLowerCase());
+                            difficultyChosen = ((AlertDialog) dialogInterface).getListView().getCheckedItemPosition();
+                            gameState.chooseQuestionDifficulty(DIFFICULTY_OPTIONS[difficultyChosen].toLowerCase());
                         })
                         .show();
             } else if (v == lobbyEditCategoriesImage) {
                 // Change question count and emit changeSetting event
                 new AlertDialog.Builder(this)
-                        .setTitle("Select Question Categories (Max 5)")
-                        .setMultiChoiceItems(gameConstants.possibleCategories.toArray(new String[0]), null, null)
+                        .setTitle("Select Question Category")
+                        .setSingleChoiceItems(gameConstants.possibleCategories.toArray(new String[0]), categoryChosen, null)
                         .setPositiveButton("OK", (dialogInterface, i) -> {
                             dialogInterface.dismiss();
-                            int categoryCount = 0;
-
-                            for (String category : gameState.roomChosenCategories) {
+                            categoryChosen = ((AlertDialog) dialogInterface).getListView().getCheckedItemPosition();
+                            for (int c = 0; c < gameConstants.possibleCategories.size(); c++) {
+                                String category = gameConstants.possibleCategories.get(c);
                                 gameState.chooseQuestionCategory(category, false);
-                            }
-                            SparseBooleanArray indicesChosen = ((AlertDialog) dialogInterface).getListView().getCheckedItemPositions();
-                            if (indicesChosen.size() == 0) {
-                                gameState.chooseQuestionCategory(gameConstants.possibleCategories.get(0), true);
-                            } else {
-                                for (int key = 0; key < indicesChosen.size(); key++) {
-                                    int index = indicesChosen.keyAt(key);
-                                    Log.d(TAG, "Chose category " + index);
-                                    String category = gameConstants.possibleCategories.get(index);
+                                if (c == categoryChosen) {
                                     gameState.chooseQuestionCategory(category, true);
-                                    categoryCount++;
-                                    if (categoryCount == 5) break;
                                 }
                             }
                         })
@@ -771,6 +1021,8 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                 enableLayout(lobbyOwnerLayout, true);
             } else if (v == lobbyOwnerStartImage) {
                 // Emit startGame event, and disable the button
+                Toast.makeText(GameActivity.this, "Game will start soon - sit tight!", Toast.LENGTH_LONG).show();
+                lobbyOwnerStartImage.setClickable(false);
                 gameState.startGame();
             }
 
@@ -810,20 +1062,18 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
 
                 // Powerup-specific functionality
                 if (gameState.powerupCode == 1) { // Fifty-fifty
-                    int cancel1;
-                    int cancel2;
                     do {
-                        cancel1 = gameState.rand.nextInt(4);
-                    } while (cancel1 == gameState.correctAnswer);
+                        gameState.hiddenIndex1 = gameState.rand.nextInt(4);
+                    } while (gameState.hiddenIndex1 == gameState.correctAnswer);
                     do {
-                        cancel2 = gameState.rand.nextInt(4);
-                    } while (cancel2 == cancel1 || cancel2 == gameState.correctAnswer);
-                    questionAnswerImages.get(cancel1).setClickable(false);
-                    questionAnswerImages.get(cancel1).setImageResource(R.drawable.answer_blank);
-                    questionAnswerLabels.get(cancel1).setVisibility(View.INVISIBLE);
-                    questionAnswerImages.get(cancel2).setClickable(false);
-                    questionAnswerImages.get(cancel2).setImageResource(R.drawable.answer_blank);
-                    questionAnswerLabels.get(cancel2).setVisibility(View.INVISIBLE);
+                        gameState.hiddenIndex2 = gameState.rand.nextInt(4);
+                    } while (gameState.hiddenIndex2 == gameState.hiddenIndex1 || gameState.hiddenIndex2 == gameState.correctAnswer);
+                    questionAnswerImages.get(gameState.hiddenIndex1).setClickable(false);
+                    questionAnswerImages.get(gameState.hiddenIndex1).setImageResource(R.drawable.answer_blank);
+                    questionAnswerLabels.get(gameState.hiddenIndex1).setVisibility(View.INVISIBLE);
+                    questionAnswerImages.get(gameState.hiddenIndex2).setClickable(false);
+                    questionAnswerImages.get(gameState.hiddenIndex2).setImageResource(R.drawable.answer_blank);
+                    questionAnswerLabels.get(gameState.hiddenIndex2).setVisibility(View.INVISIBLE);
 
                 } else if (gameState.powerupCode == 2) { // Steal points
                     String[] otherPlayerUsernamesArray = new String[gameState.otherPlayerUsernames.size()];
@@ -843,9 +1093,10 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                                 .show();
                     }
                 } else if (gameState.powerupCode == 3) {
-                    if (gameState.questionPhase.equals("question")) {
+                    if (gameState.questionCountdownTimer != null) {
                         gameState.questionCountdownTimer.cancel();
-                    } else if (gameState.questionPhase.equals("answer")) {
+                    }
+                    if (gameState.answerCountdownTimer != null) {
                         gameState.answerCountdownTimer.cancel();
                     }
                     gameState.submitAnswer(-1);

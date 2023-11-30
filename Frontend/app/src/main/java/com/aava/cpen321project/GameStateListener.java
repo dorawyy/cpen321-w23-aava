@@ -25,8 +25,9 @@ public interface GameStateListener {
     void questionFinished();
     void answerTicked(long millisUntilFinished);
     void otherPlayerAnswered();
+    void otherPlayerEmoted(String otherUsername, int emoteCode);
     void youAnswered();
-    void scoreboardReceived(boolean finished, int rank, List<JSONObject> scoreInfoList);
+    void scoreboardReceived(boolean finished, boolean stolen, int rank, List<JSONObject> scoreInfoList);
 
     void errorReceived(String message);
 }

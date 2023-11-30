@@ -111,6 +111,8 @@ public class SocketManager {
 
             mSocket.on("answerReceived", args -> socketManagerListener.otherPlayerAnswered((JSONObject) args[0]));
 
+            mSocket.on("emoteReceived", args -> socketManagerListener.otherPlayerEmoted((JSONObject) args[0]));
+
             mSocket.on("showScoreboard", args -> socketManagerListener.scoreboardReceived((JSONObject) args[0]));
 
             mSocket.on("error", args -> socketManagerListener.errorReceived((JSONObject) args[0]));
@@ -122,17 +124,12 @@ public class SocketManager {
 
     // ChatGPT usage: No
     public void disconnect() {
+        sendSocketJSON("leaveRoom", new HashMap<String, Object>() {{
+            put("roomId", gameConstants.roomId);
+            put("username", gameConstants.username);
+        }});
         mSocket.disconnect();
     }
-
-    // ChatGPT usage: No
-    // To be used in the final product
-//    public void sendLeaveRoom() {
-//        sendSocketJSON("leaveRoom", new HashMap<String, Object>() {{
-//            put("roomId", gameConstants.roomId);
-//            put("username", gameConstants.username);
-//        }});
-//    }
 
     // ChatGPT usage: No
     public void sendReadyToStartGame() {
@@ -212,6 +209,16 @@ public class SocketManager {
             put("isCorrect", isCorrect);
             put("powerupCode", powerupCode);
             put("powerupVictimUsername", powerupVictimUsername);
+        }});
+    }
+
+    // ChatGPT usage: No
+    public void submitEmote(int emoteCode) {
+        Log.d(TAG, "Sent out emote " + emoteCode);
+        sendSocketJSON("submitEmote", new HashMap<String, Object>() {{
+            put("roomId", gameConstants.roomId);
+            put("username", gameConstants.username);
+            put("emoteCode", emoteCode);
         }});
     }
 

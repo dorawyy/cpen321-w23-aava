@@ -317,7 +317,7 @@ describe("POST /create-account", () => {
    */
   it("should return 201 with valid parameters", async () => {
     const token = "test-token";
-    username = "test-username";
+    const username = "test-username";
 
     const response = await request
       .post("/create-account")

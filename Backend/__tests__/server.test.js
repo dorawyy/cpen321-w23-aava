@@ -25,7 +25,6 @@ describe("Server", () => {
   const playerB = new Player(userB);
 
   const roomASettings = new Settings();
-  const roomBSettings = new Settings();
 
   const roomA = new GameRoom("roomId-A", playerA, "roomCode-A", roomASettings);
 

@@ -12,6 +12,7 @@ class MockUserDBManager {
         if (username === "test-username") {
           return { token, username, rank: 0, sessionToken: null };
         }
+        break;
       default:
         console.log("Invalid token passed in to test");
         return undefined;

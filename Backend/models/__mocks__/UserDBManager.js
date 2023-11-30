@@ -97,6 +97,11 @@ class MockUserDBManager {
   updateUserRank(username, value) {
     return 0;
   }
+
+  async fetchUserRank(username) {
+    const userB = new User("token-B", "username-B", 5, "sessionToken-B");
+    return userB.rank;
+  }
 }
 
 module.exports = MockUserDBManager;

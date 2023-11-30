@@ -107,6 +107,27 @@ describe("Interface middleware functions", () => {
   });
 
   /**
+   * Input: No sessionToken in request body for /rank
+   *
+   * Expected status code: 404
+   * Expected behaviour: Do not proceed with the endpoint
+   * Expected output:
+   * {  "message": "Unable to find the user for this account."  }
+   */
+  it("/rank should require a sessionToken", async () => {
+    const data = {};
+    expect(data).not.toHaveProperty("sessionToken");
+
+    const response = await request.post("/rank").send(data);
+
+    expect(response.status).toEqual(404);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({
+      message: "Unable to find the user for this account.",
+    });
+  });
+
+  /**
    * Input: No sessionToken in request body for /join-random-room
    *
    * Expected status code: 404
@@ -483,6 +504,40 @@ describe("POST /change-username", () => {
     const responseBody = JSON.parse(response.text);
     expect(responseBody).toEqual({
       username,
+    });
+  });
+});
+
+/**
+ * Interface POST /rank
+ */
+describe("POST /rank", () => {
+  /**
+   * Input: A valid `sessionToken`.
+   * {
+   *   "sessionToken": "test-sessionToken",
+   *   "username": "myCoolNewName"
+   * }
+   *
+   * Expected status code: 200
+   * Expected behaviour: Returns a session token and updates the database
+   * Expected output:
+   * {
+   *   "username": "myCoolNewName",
+   * }
+   */
+  it("should return 200 and user's rank", async () => {
+    const sessionToken = "sessionToken-B";
+    const username = "username-B";
+
+    const response = await request
+      .post("/rank")
+      .send({ sessionToken, username });
+
+    expect(response.status).toEqual(200);
+    const responseBody = JSON.parse(response.text);
+    expect(responseBody).toEqual({
+      rank: 5,
     });
   });
 });

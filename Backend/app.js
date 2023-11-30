@@ -167,7 +167,7 @@ app.post("/change-username", (req, res) => {
  * ChatGPT usage: No
  */
 app.post("/rank", (req, res) => {
-  const { username } = req.body.username;
+  const username = req.body.username;
   console.log("Viewing rank of user: " + username);
 
   userDBManager.fetchUserRank(username).then((user) => {

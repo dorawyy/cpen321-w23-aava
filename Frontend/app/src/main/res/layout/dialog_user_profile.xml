@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/tvUserName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Username"
+        android:fontFamily="@font/quantico_regular"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp" />
+
+
+    <TextView
+        android:id="@+id/tvGameRank"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Game Rank"
+        android:fontFamily="@font/quantico_regular"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:layout_marginBottom="16dp"/>
+
+    <LinearLayout
+        android:id="@+id/btnView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+            <RelativeLayout
+                android:id="@+id/logoutButtonView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/tvGameRank"
+                android:layout_marginTop="0dp">
+
+                <ImageView
+                    android:id="@+id/btnLogout"
+                    android:layout_width="128dp"
+                    android:layout_height="86dp"
+                    android:clickable="true"
+                    android:contentDescription="Logout"
+                    android:focusable="true"
+                    android:onClick="onClick"
+                    android:src="@drawable/menu_logout_icon" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginLeft="-16dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_below="@id/btnLogout"
+                    android:fontFamily="@font/quantico_regular"
+                    android:text="Logout"
+                    android:textColor="#FFFFFF"
+                    android:textSize="20dp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/updNameButtonView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="0dp">
+
+                <ImageView
+                    android:id="@+id/btnUpdateUsername"
+                    android:layout_width="98dp"
+                    android:layout_height="62dp"
+                    android:layout_marginTop="12dp"
+                    android:clickable="true"
+                    android:contentDescription="Name"
+                    android:focusable="true"
+                    android:onClick="onClick"
+                    android:src="@drawable/menu_name_icon" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/btnUpdateUsername"
+                    android:layout_marginTop="20dp"
+                    android:fontFamily="@font/quantico_regular"
+                    android:text="New Name"
+                    android:textColor="#FFFFFF"
+                    android:textSize="20dp" />
+
+            </RelativeLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

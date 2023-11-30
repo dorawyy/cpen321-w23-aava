@@ -34,7 +34,7 @@ public class GameState implements SocketManagerListener{
 
     // State concerning the settings of the game room.
     public boolean roomIsPublic;
-    public final List<String> roomChosenCategories = new ArrayList<>();
+    public String roomCategory;
     public String roomQuestionDifficulty;
     public int roomMaxPlayers;
     public int roomQuestionTime;
@@ -63,6 +63,8 @@ public class GameState implements SocketManagerListener{
     public final List<String> otherPlayerUsernames =  new ArrayList<>();
     public String powerupVictimUsername;
     public final Random rand = new Random();
+    public int hiddenIndex1 = -1;
+    public int hiddenIndex2 = -1;
     public boolean extraLifeEnabled = false;
 
     // ChatGPT usage: No
@@ -81,7 +83,6 @@ public class GameState implements SocketManagerListener{
         try {
             roomPlayers = joinData.getJSONArray("roomPlayers");
 
-
             Log.d(TAG, joinData.toString());
             for (int i = 0; i < roomPlayers.length(); i++) {
                 if (!roomPlayers.getJSONObject(i).getString("username").equals(gameConstants.username)) {
@@ -93,8 +94,8 @@ public class GameState implements SocketManagerListener{
 
             JSONObject roomSettings = joinData.getJSONObject("roomSettings");
             roomIsPublic = roomSettings.getBoolean("roomIsPublic");
-            roomQuestionDifficulty = roomSettings.getString("questionDifficulty");
-            roomQuestionDifficulty = roomQuestionDifficulty.substring(0, 1).toUpperCase() + roomQuestionDifficulty.substring(1);
+            String roomQuestionDifficultyLowerCase = roomSettings.getString("questionDifficulty");
+            roomQuestionDifficulty = roomQuestionDifficultyLowerCase.substring(0, 1).toUpperCase() + roomQuestionDifficultyLowerCase.substring(1);
             roomMaxPlayers = roomSettings.getInt("maxPlayers");
             roomQuestionTime = roomSettings.getInt("questionTime");
             roomQuestionCount = roomSettings.getInt("totalQuestions");
@@ -105,9 +106,7 @@ public class GameState implements SocketManagerListener{
                 gameConstants.possibleCategories.add(possibleCategoriesJSONArray.getString(i));
             }
             JSONArray chosenCategoriesJSONARray = roomSettings.getJSONArray("questionCategories");
-            for (int i = 0; i < chosenCategoriesJSONARray.length(); i++) {
-                roomChosenCategories.add(chosenCategoriesJSONARray.getString(i));
-            }
+            roomCategory = chosenCategoriesJSONARray.getString(0);
 
             gameStateListener.youJoined();
             gameStateListener.roomPlayersChanged();
@@ -195,14 +194,13 @@ public class GameState implements SocketManagerListener{
                 case "total":
                     roomQuestionCount = settingData.getInt("optionValue");
                     break;
-                default: // Will be a category set
+                default: // Will be a category
                     String category = option.substring(9);
                     if (settingData.getBoolean("optionValue")) {
-                        roomChosenCategories.add(category);
+                        roomCategory = category;
                         Log.d(TAG, "Adding " + category);
                     } else {
-                        roomChosenCategories.remove(category);
-                        Log.d(TAG, "Removing " + category);
+                        Log.d(TAG, "Ignoring " + category);
                     }
             }
 
@@ -235,6 +233,9 @@ public class GameState implements SocketManagerListener{
 
     // ChatGPT usage: No
     public void questionReceived(@NonNull JSONObject questionData) {
+        hiddenIndex1 = -1;
+        hiddenIndex2 = -1;
+        extraLifeEnabled = false;
         try {
             // Set all question state values.
             questionDescription = questionData.getString("question");
@@ -327,8 +328,19 @@ public class GameState implements SocketManagerListener{
     }
 
     // ChatGPT usage: No
+    public void otherPlayerEmoted(@NonNull JSONObject emoteData) {
+        try {
+            gameStateListener.otherPlayerEmoted(emoteData.getString("username"), emoteData.getInt("emoteCode"));
+            Log.d(TAG, "Player emoted: " + emoteData.getString("username") + ", " + emoteData.getInt("emoteCode"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ChatGPT usage: No
     public void scoreboardReceived(@NonNull JSONObject scoreboardData) {
         int rank = -1;
+        boolean stolen = false;
         List<JSONObject> scoreInfoList = new ArrayList<>();
 
         try {
@@ -354,6 +366,7 @@ public class GameState implements SocketManagerListener{
             for (int i = 0; i < scoreInfoList.size(); i++) {
                 if (scoreInfoList.get(i).getString("username").equals(gameConstants.username)) {
                     rank = i;
+                    stolen = scoreInfoList.get(i).getBoolean("stolenPoints");
                 }
             }
         } catch (JSONException e) {
@@ -363,9 +376,9 @@ public class GameState implements SocketManagerListener{
         // If the game is over...
         if (questionNumber == roomQuestionCount) {
             socketManager.disconnect();
-            gameStateListener.scoreboardReceived(true, rank, scoreInfoList);
+            gameStateListener.scoreboardReceived(true, stolen, rank, scoreInfoList);
         } else {
-            gameStateListener.scoreboardReceived(false, rank, scoreInfoList);
+            gameStateListener.scoreboardReceived(false, stolen, rank, scoreInfoList);
         }
     }
 
@@ -429,13 +442,18 @@ public class GameState implements SocketManagerListener{
 
     // ChatGPT usage: No
     public void submitAnswer(int answerIndex) {
-        boolean isCorrect = (answerIndex == correctAnswer);
+        lastQuestionCorrect = (answerIndex == correctAnswer);
         long timeDelay = currentTimeMillis() - answeringStartTime;
 
-        socketManager.sendSubmitAnswer(timeDelay, isCorrect, powerupCode, powerupVictimUsername);
+        socketManager.sendSubmitAnswer(timeDelay, lastQuestionCorrect, powerupCode, powerupVictimUsername);
 
         gameStateListener.youAnswered();
 
         powerupCode = -1;
+    }
+
+    // ChatGPT usage: No
+    public void submitEmote(int emoteCode) {
+        socketManager.submitEmote(emoteCode);
     }
 }

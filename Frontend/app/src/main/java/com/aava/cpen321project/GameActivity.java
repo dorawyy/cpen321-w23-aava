@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.Html;
 import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.AnimationUtils;
@@ -546,7 +545,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                         playerIndex = i;
                     }
                 } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
             }
             Log.d(TAG, "EMOTE USER ID: " + playerIndex);
@@ -709,8 +708,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     // Pick an available emoji based on rank.
     // ChatGPT usage: no
     private int getFace(int rank, int numPlayers) {
-        rank += 1;
-        int group = scoreboardFaceGroups[numPlayers][rank - 1];
+        int group = scoreboardFaceGroups[numPlayers][rank];
         List<Integer> list = scoreboardFaceResourcesBad;
         if (group == 0) {
             list = scoreboardFaceResourcesGood;

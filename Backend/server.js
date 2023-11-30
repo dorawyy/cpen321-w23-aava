@@ -4,7 +4,7 @@ const https = require("https");
 
 // Custom application modules
 const { app, gameManager, userDBManager } = require("./app.js");
-const db = require("./database/dbSetup.js");
+const db = require("./Database/dbSetup.js");
 const PlayerAction = require("./models/PlayerAction.js");
 
 // Read the SSL certificate files from the current directory

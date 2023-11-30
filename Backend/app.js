@@ -3,7 +3,7 @@ const express = require("express");
 
 // Custom application modules
 const app = express();
-const db = require("./database/dbSetup.js");
+const db = require("./Database/dbSetup.js");
 const { v4: uuidv4 } = require("uuid");
 const Player = require("./models/Player.js");
 const GameManager = require("./models/GameManager.js");
@@ -224,7 +224,7 @@ app.post("/join-random-room", (req, res) => {
     // The lower the priority value, the more suitable the room is for the user.
     const priority = i + Math.abs(user.rank - averageRank);
 
-    roomPriorities.push({ roomCode: room.roomCode, priority});
+    roomPriorities.push({ roomCode: room.roomCode, priority });
   }
 
   roomPriorities.sort((roomA, roomB) => roomA["priority"] - roomB["priority"]);

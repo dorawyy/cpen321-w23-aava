@@ -1,5 +1,5 @@
 const { MongoClient } = require("mongodb");
-const { connect } = require("../database/dbSetup");
+const { connect } = require("../Database/dbSetup");
 
 // Mock the MongoClient and its methods
 jest.mock("mongodb");

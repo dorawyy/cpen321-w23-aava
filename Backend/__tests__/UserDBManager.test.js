@@ -1,7 +1,7 @@
 const { MongoClient } = require("mongodb");
 const User = require("../models/User");
 const UserDBManager = require("../models/UserDBManager");
-const { uri, databaseName } = require("../database/dbSetup");
+const { uri, databaseName } = require("../Database/dbSetup");
 
 describe("UserDBManager", () => {
   let client;

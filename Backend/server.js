@@ -548,4 +548,4 @@ io.on("connection", (socket) => {
   });
 });
 
-module.exports = { server, db, sendQuestion };
+module.exports = { server, db };

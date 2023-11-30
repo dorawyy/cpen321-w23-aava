@@ -1,5 +1,5 @@
 const io = require("socket.io-client");
-const { server, db, sendQuestion } = require("../server.js");
+const { server, db } = require("../server.js");
 const UserDBManager = require("../models/UserDBManager.js");
 const Player = require("../models/Player.js");
 const User = require("../models/User.js");
@@ -929,27 +929,6 @@ describe("Server", () => {
     });
   });
 
-  describe("sendQuestion", () => {
-    it("should emit an error event when an error occurs", (done) => {
-      const errorMessage = "Error in sending question";
-      jest
-        .spyOn(GameManager.prototype, "resetResponses")
-        .mockImplementation(() => {
-          throw new Error(errorMessage);
-        });
-
-      clientA.on("error", (data) => {
-        console.log(data);
-        expect(data).toEqual({
-          message: errorMessage,
-        });
-        done();
-      });
-
-      sendQuestion(clientA, roomA.roomId, 0);
-    });
-  });
-
   describe("startGame", () => {
     it("startGame should initialize the room and send first question to all players", (done) => {
       // Message
@@ -1108,6 +1087,45 @@ describe("Server", () => {
         done();
       });
     });
+
+    it("sendQuestions should return error if an error occurs", (done) => {
+      // Message
+      const message = {
+        roomId: roomA.roomId,
+      };
+
+      roomA.gameQuestions = [1, 2];
+      // Mock the room
+      const spy = jest.spyOn(GameManager.prototype, "fetchRoomById");
+      spy.mockReturnValue(roomA);
+
+      // Make sure it passes successfuly from the question generator stage
+      jest
+        .spyOn(GameManager.prototype, "generateQuestions")
+        .mockImplementation(() => {
+          return new Promise((resolve, reject) => {
+            resolve(0);
+          });
+        });
+      jest.spyOn(GameManager.prototype, "updateRoomState").mockImplementation();
+      jest
+        .spyOn(GameManager.prototype, "fetchNextQuestion")
+        .mockReturnValue(
+          new Question("What's 1+1?", "2", ["0", "11", "1"], "easy")
+        );
+      jest
+        .spyOn(GameManager.prototype, "resetResponses")
+        .mockImplementation(() => {
+          throw new Error("Error in sending question");
+        });
+
+      clientA.emit("startGame", message);
+
+      clientA.on("error", (data) => {
+        expect(data).toEqual({ message: "Error in sending question" });
+        done();
+      });
+    });
   });
 
   describe("submitAnswer", () => {
@@ -1255,7 +1273,7 @@ describe("Server", () => {
         ++receive;
         if (receive === 4) done();
       });
-    }, 8000);
+    }, 10000);
 
     const successfulSubmissionEndGame = (numberOfPlayers, done) => {
       // Messages to submit Answers

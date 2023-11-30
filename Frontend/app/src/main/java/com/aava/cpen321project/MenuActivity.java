@@ -51,7 +51,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
     private String userName;
     private String userToken;
     private int userRank;
-    private EditText etNewUsername;
+    private TextView tvUserName;
 
     private String sessionToken;
 
@@ -420,7 +420,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
         userProfileDialog.setContentView(dialogView);
 
         // Initialize views
-        TextView tvUserName = dialogView.findViewById(R.id.tvUserName);
+        tvUserName = dialogView.findViewById(R.id.tvUserName);
         TextView tvGameRank = dialogView.findViewById(R.id.tvGameRank);
         ImageView btnLogout = dialogView.findViewById(R.id.btnLogout);
         ImageView btnUpdateUsername = dialogView.findViewById(R.id.btnUpdateUsername);
@@ -446,9 +446,9 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
                         if (!TextUtils.isEmpty(newUsername)) {
                             // Handle the new username here
                             changeUsername(sessionToken, newUsername);
-                            tvUserName.setText(String.format(Locale.getDefault(), "Wow! %s,", newUsername)); // Update TextView with new username
-                            userName = newUsername;
                             // Also save the new username in backend
+                            tvUserName.setText(String.format(Locale.getDefault(), "Wow! %s,", userName)); // Update TextView with new username
+
                         } else {
                             // Username was not entered
                             Toast.makeText(MenuActivity.this, "No username entered", Toast.LENGTH_SHORT).show();
@@ -597,6 +597,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
 
             OkHttpClient insecureClient = getInsecureOkHttpClient();
 
+
             insecureClient.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
@@ -613,7 +614,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
                         }
                         Log.e(TAG, message);
                         showToast(message);
-                        return;
+
                     }
 
                     try {
@@ -621,7 +622,9 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
                         if (responseObject.has("username")) {
                             String updatedUsername = responseObject.getString("username");
                             Log.d(TAG, "Username successfully changed to: " + updatedUsername);
+                            userName = newUsername;
                             runOnUiThread(() -> showToast("Username successfully updated."));
+                            runOnUiThread(() -> tvUserName.setText(String.format(Locale.getDefault(), "Wow! %s,", userName)));
                             // Update UI or perform other actions as needed
                         }
                     } catch (JSONException e) {
@@ -634,6 +637,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
             Log.e(TAG, "Failed to create JSON object", e);
             runOnUiThread(() -> showToast("Unexpected error. Please try again later."));
         }
+
     }
 
 

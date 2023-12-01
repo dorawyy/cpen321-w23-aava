@@ -148,15 +148,22 @@ describe("UserDBManager", () => {
 
   it("should update user rank successfully", async () => {
     const username = "testUser";
+    const username2 = "testUser2";
+    const token = "uniqueToken";
+    const token2 = "uniqueToken2";
 
     // Create a user to update
-    await usersCollection.insertOne(new User("uniqueToken", username, 5, null));
+    await usersCollection.insertOne(new User(token, username, 5, null));
+    await usersCollection.insertOne(new User(token2, username2, 0, null));
 
     await userDBManager.updateUserRank(username, -3);
+    await userDBManager.updateUserRank(username2, 3);
 
-    const updatedUser = await usersCollection.findOne({ username });
+    const updatedUser = await usersCollection.findOne({ username: username });
+    const updatedUser2 = await usersCollection.findOne({ username: username2 });
 
     expect(updatedUser.rank).toBe(2);
+    expect(updatedUser2.rank).toBe(3);
   });
 
   it("should set user rank to zero if the sum is negative", async () => {

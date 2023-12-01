@@ -17,7 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
+
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -52,6 +52,8 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
     private String userToken;
     private int userRank;
     private TextView tvUserName;
+
+    private TextView tvGameRank;
 
     private String sessionToken;
 
@@ -178,7 +180,8 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
     //ChatGPT usage: No
     private void onAccountButtonClick () {
             // Handle account button click
-            showUserProfileDialog();
+        getUserRank(userName, sessionToken);
+        showUserProfileDialog();
 
         }
 
@@ -191,7 +194,6 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
     //ChatGPT usage: No
     private void onCreateButtonClick () {
         // Handle create button click
-        Log.d("MELO", sessionToken);
         createRoom(sessionToken);
 
 
@@ -421,7 +423,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
 
         // Initialize views
         tvUserName = dialogView.findViewById(R.id.tvUserName);
-        TextView tvGameRank = dialogView.findViewById(R.id.tvGameRank);
+        tvGameRank = dialogView.findViewById(R.id.tvGameRank);
         ImageView btnLogout = dialogView.findViewById(R.id.btnLogout);
         ImageView btnUpdateUsername = dialogView.findViewById(R.id.btnUpdateUsername);
 
@@ -472,9 +474,9 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
 
         String nameText = String.format(Locale.getDefault(), "Wow! %s,", userName);
 
-        String rankText = String.format(Locale.getDefault(), "you're level %s!",  userRank);
+        //String rankText = String.format(Locale.getDefault(), "you're level %s!",  userRank);
         tvUserName.setText(nameText);
-        tvGameRank.setText((rankText));
+        tvGameRank.setText(String.format(Locale.getDefault(), "you're level %s!",  userRank));
 
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -502,62 +504,10 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
             window.setAttributes(layoutParams);
         }
 
-//        private void onChangeUsernameButtonClick() {
-//            // Create an AlertDialog to prompt the user for a new username
-//            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//            builder.setTitle("Enter New Username");
-//
-//            // Create an EditText view for user input
-//            final EditText input = new EditText(this);
-//            input.setInputType(InputType.TYPE_CLASS_TEXT);
-//            builder.setView(input);
-//
-//            // Add OK button
-//            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialog, int which) {
-//                    String newUsername = input.getText().toString().trim();
-//
-//                    if (!TextUtils.isEmpty(newUsername)) {
-//                        // Handle the new username here
-//                        tvUserName.setText(newUsername); // Update TextView with new username
-//                        // Optionally, save the new username in your database or backend
-//                    } else {
-//                        // Username was not entered
-//                        Toast.makeText(MenuActivity.this, "No username entered", Toast.LENGTH_SHORT).show();
-//                    }
-//                }
-//            });
-//
-//            // Add Cancel button
-//            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialog, int which) {
-//                    dialog.cancel(); // Close the dialog
-//                }
-//            });
-//
-//            // Show the AlertDialog
-//            AlertDialog dialog = builder.create();
-//            dialog.show();
-//        }
 
 
     }
 
-//    public String updateRank(int inputRank) {
-//        String rankSymbol;
-//        if (inputRank == 0) {
-//            rankSymbol = "the Beginner";
-//        } else if (inputRank == 1) {
-//            rankSymbol= "the King of the World";
-//        }else{
-//            rankSymbol= "a"+ String.valueOf(inputRank);
-//        }
-//        // If inputRank is neither 0 nor 1, rankSymbol remains unchanged
-//
-//        return rankSymbol;
-//    }
 
     public void showInfoDialog() {
         // Create the dialog
@@ -575,9 +525,6 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
             layoutParams.width = 900;
             layoutParams.height = 1600;
 
-            // Alternatively, you can use WindowManager.LayoutParams constants
-            // layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
-            // layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
 
             window.setAttributes(layoutParams);
         }
@@ -640,10 +587,61 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    private void getUserRank(String username, String sessionToken) {
 
+        JSONObject data = new JSONObject();
+        try {
+            data.put("sessionToken", sessionToken);
+            data.put("username", username);
 
+            RequestBody body = RequestBody.create(MediaType.parse("application/json"), data.toString());
+            Request request = new Request.Builder()
+                    .url(getResources().getString(R.string.serverURL) + "/rank?sessionToken=" + sessionToken + "&username=" + username)
+                    .get()
+                    .build();
 
+            OkHttpClient insecureClient = getInsecureOkHttpClient();
 
+            insecureClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Log.e(TAG, "Network error: " + e.getMessage());
+                    runOnUiThread(() -> showToast("Network error. Please try again later."));
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (!response.isSuccessful()) {
+                        Log.e(TAG, "Failed to get user rank. Response code: " + response.code());
+                        runOnUiThread(() -> showToast("Failed to retrieve user rank."));
+                        Log.e(TAG, "" + response.body().string());
+                        return;
+                    }
+
+                    try {
+                        JSONObject responseObject = new JSONObject(response.body().string());
+                        if (responseObject.has("rank")) {
+                            Integer updRank = responseObject.getInt("rank");
+                            Log.d(TAG, "User Rank: " + updRank);
+                            runOnUiThread(() -> {
+                                // Update UI or perform other actions with the user rank
+//                                showToast("User Rank: " + updRank);
+                                tvGameRank.setText(String.format(Locale.getDefault(), "you're level %s!",  updRank));
+                            });
+
+                            userRank = updRank;
+                        }
+                    } catch (JSONException e) {
+                        Log.e(TAG, "Failed to parse response", e);
+                        runOnUiThread(() -> showToast("Unexpected error. Please try again later."));
+                    }
+                }
+            });
+        } catch (JSONException e) {
+            Log.e(TAG, "Failed to create JSON object", e);
+            runOnUiThread(() -> showToast("Unexpected error. Please try again later."));
+        }
+    }
 
 
 

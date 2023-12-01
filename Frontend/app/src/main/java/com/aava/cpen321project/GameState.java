@@ -153,6 +153,7 @@ public class GameState implements SocketManagerListener{
         try {
             // Remove the data from the player state.
             String leftPlayerUsername = playerData.getString("playerUsername");
+            otherPlayerUsernames.remove(leftPlayerUsername);
             for (int p = 0; p < roomPlayers.length(); p++) {
                 if (roomPlayers.getJSONObject(p).getString("username").equals(leftPlayerUsername)) {
                     roomPlayers.remove(p);

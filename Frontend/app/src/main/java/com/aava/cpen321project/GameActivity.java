@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.Html;
 import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.AnimationUtils;
@@ -310,8 +309,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                         .setMessage("You have successfully left the room.")
                         .setPositiveButton("OK", (dialogInterface, i) -> {
                             dialogInterface.dismiss();
-                            Intent intent = new Intent(GameActivity.this, MenuActivity.class);
-                            startActivity(intent);
+                            returnToMenu();
                         })
                         .create()
                         .show();
@@ -321,8 +319,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                         .setMessage("You have been kicked from the room.")
                         .setPositiveButton("Damn", (dialogInterface, i) -> {
                             dialogInterface.dismiss();
-                            Intent intent = new Intent(GameActivity.this, MenuActivity.class);
-                            startActivity(intent);
+                            returnToMenu();
                         })
                         .create()
                         .show();
@@ -395,9 +392,10 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
 
     // ChatGPT usage: No
     public void roomCanStartChanged(boolean canStart) {
-        runOnUiThread(() -> {
-            lobbyOwnerStartImage.setClickable(canStart);
-        });
+        // Intentionally left blank
+//        runOnUiThread(() -> {
+//            lobbyOwnerStartImage.setClickable(canStart);
+//        });
     }
 
     // ChatGPT usage: No
@@ -408,8 +406,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                     .setMessage("Unfortunately, the room owner has left. You will be sent to the main menu.")
                     .setPositiveButton("OK", (dialogInterface, i) -> {
                         dialogInterface.dismiss();
-                        Intent intent = new Intent(GameActivity.this, MenuActivity.class);
-                        startActivity(intent);
+                        returnToMenu();
                     })
                     .create()
                     .show();
@@ -546,7 +543,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
                         playerIndex = i;
                     }
                 } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
             }
             Log.d(TAG, "EMOTE USER ID: " + playerIndex);
@@ -709,8 +706,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     // Pick an available emoji based on rank.
     // ChatGPT usage: no
     private int getFace(int rank, int numPlayers) {
-        rank += 1;
-        int group = scoreboardFaceGroups[numPlayers][rank - 1];
+        int group = scoreboardFaceGroups[numPlayers][rank];
         List<Integer> list = scoreboardFaceResourcesBad;
         if (group == 0) {
             list = scoreboardFaceResourcesGood;
@@ -723,8 +719,7 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
     // Pick an available scoreboard blurb based on rank.
     // ChatGPT usage: no
     private String getScoreboardBlurb(int rank, int numPlayers) {
-        rank += 1;
-        int[] groups = scoreboardBlurbGroups[numPlayers][rank - 1];
+        int[] groups = scoreboardBlurbGroups[numPlayers][rank];
         int group = groups[random.nextInt(groups.length)];
         List<String> strings = scoreboardBlurbStrings.get(group);
         return strings.get(random.nextInt(strings.size()));
@@ -1022,8 +1017,25 @@ public class GameActivity extends AppCompatActivity implements GameStateListener
             } else if (v == lobbyOwnerStartImage) {
                 // Emit startGame event, and disable the button
                 Toast.makeText(GameActivity.this, "Game will start soon - sit tight!", Toast.LENGTH_LONG).show();
-                lobbyOwnerStartImage.setClickable(false);
-                gameState.startGame();
+
+                boolean canStart = true;
+                for (int p = 0; p < gameState.roomPlayers.length(); p++) {
+                    try {
+                        if (gameState.roomPlayers.getJSONObject(p).getBoolean("ready")) {
+                            canStart = false;
+                            break;
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                if (canStart) {
+                    lobbyOwnerStartImage.setClickable(false);
+                    gameState.startGame();
+                } else {
+                    Toast.makeText(this, "All players need to be ready!", Toast.LENGTH_LONG);
+                }
             }
 
             // GAMEPLAY

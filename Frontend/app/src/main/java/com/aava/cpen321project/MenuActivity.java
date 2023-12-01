@@ -194,7 +194,6 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
     //ChatGPT usage: No
     private void onCreateButtonClick () {
         // Handle create button click
-        Log.d("MELO", sessionToken);
         createRoom(sessionToken);
 
 
@@ -597,8 +596,8 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
 
             RequestBody body = RequestBody.create(MediaType.parse("application/json"), data.toString());
             Request request = new Request.Builder()
-                    .url(getResources().getString(R.string.serverURL) + "/rank")
-                    .post(body)
+                    .url(getResources().getString(R.string.serverURL) + "/rank?sessionToken=" + sessionToken + "&username=" + username)
+                    .get()
                     .build();
 
             OkHttpClient insecureClient = getInsecureOkHttpClient();

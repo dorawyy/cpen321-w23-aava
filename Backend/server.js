@@ -406,7 +406,7 @@ io.on("connection", (socket) => {
    *          Sends Next Question, or ends game if no more questions
    * ChatGPT usage: No
    */
-  socket.on("submitAnswer", (message) => {
+  socket.on("submitAnswer", async (message) => {
     console.log("Submitting answer...");
 
     const playerUsername = message.username;
@@ -474,7 +474,7 @@ io.on("connection", (socket) => {
             let rankValues = [];
 
             // Sort the array of room players from highest to lowest points
-            roomPlayers
+            roomPlayers = roomPlayers
               .filter((e) => e != undefined)
               .sort((a, b) => b.points - a.points);
 
@@ -513,7 +513,7 @@ io.on("connection", (socket) => {
               let player = roomPlayers[i];
               let value = rankValues[i];
               const playerUsername = player.user.username;
-              userDBManager.updateUserRank(player.user.username, value);
+              await userDBManager.updateUserRank(playerUsername, value);
               room.removePlayer(playerUsername);
 
               let socketId = player.getSocketId();

@@ -147,7 +147,7 @@ class UserDBManager {
    * @param {String} username: The username for the user
    * @param {number} value: The integer value to add to the user's rank.
    */
-  updateUserRank(username, value) {
+  async updateUserRank(username, value) {
     if (typeof value !== "number" || !Number.isInteger(value)) {
       return Promise.reject(new Error("Value must be an integer."));
     }

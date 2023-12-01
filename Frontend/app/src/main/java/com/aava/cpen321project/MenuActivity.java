@@ -594,7 +594,6 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
             data.put("sessionToken", sessionToken);
             data.put("username", username);
 
-            RequestBody body = RequestBody.create(MediaType.parse("application/json"), data.toString());
             Request request = new Request.Builder()
                     .url(getResources().getString(R.string.serverURL) + "/rank?sessionToken=" + sessionToken + "&username=" + username)
                     .get()

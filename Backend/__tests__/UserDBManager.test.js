@@ -159,7 +159,7 @@ describe("UserDBManager", () => {
     await userDBManager.updateUserRank(username, -3);
     await userDBManager.updateUserRank(username2, 3);
 
-    const updatedUser = await usersCollection.findOne({ username: username });
+    const updatedUser = await usersCollection.findOne({ username });
     const updatedUser2 = await usersCollection.findOne({ username: username2 });
 
     expect(updatedUser.rank).toBe(2);

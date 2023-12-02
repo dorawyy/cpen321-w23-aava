@@ -8,8 +8,7 @@
   },
   "scripts": {
     "server": "nodemon server.js",
-    "test": "jest",
-    "test-coverage": "jest --coverage"
+    "test": "jest __tests__ --coverage"
   },
   "devDependencies": {
     "@shelf/jest-mongodb": "^4.2.0",
